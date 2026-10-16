@@ -1,0 +1,112 @@
+{
+  "schemaVersion": 1,
+  "id": "${mod_id}",
+  "version": "${mod_version}",
+  "name": "${mod_name}",
+  "description": "${mod_description}",
+  "authors": [
+    "P3pp3rF1y",
+    "Salandora",
+    "Huziyang520"
+  ],
+  "license": "${mod_license}",
+  "icon": "${mod_logo_file}",
+  "contact": {
+    "homepage": "${mod_display_url}",
+    "issues": "${mod_issue_tracker_url}",
+    "sources": "${mod_sources_url}"
+  },
+  "environment": "*",
+  "entrypoints": {
+    "main": [
+      "net.p3pp3rf1y.sophisticatedcore.SophisticatedCore"
+    ],
+    "client": [
+      "net.p3pp3rf1y.sophisticatedcore.client.ClientEventHandler"
+    ],
+    "fabric-datagen": [
+      "net.p3pp3rf1y.sophisticatedcore.data.DataGenerators"
+    ],
+    "jei_mod_plugin": [
+      "net.p3pp3rf1y.sophisticatedcore.compat.jei.CorePlugin"
+    ],
+    "rei_common": [
+      "net.p3pp3rf1y.sophisticatedcore.compat.rei.REIServerCompat"
+    ],
+    "rei_client": [
+      "net.p3pp3rf1y.sophisticatedcore.compat.rei.REIClientCompat"
+    ]
+  },
+  "mixins": [
+    "${mod_id}.mixins.json",
+    "compat/litematica.mixins.json"
+  ],
+  "accessWidener": "${mod_id}.accesswidener",
+  "depends": {
+    "fabricloader": ">=${fabric_loader_version}",
+    "fabric-api": "*",
+    "minecraft": "${fabric_minecraft_range}",
+    "java": ">=${java_version}",
+    "cloth-config": ">=${cloth_config_version}"
+  },
+  "recommends": {
+    "modmenu": "*"
+  },
+  "custom": {
+    "modmenu": {
+      "links": {
+        "modmenu.feedback": "${mod_issue_tracker_url}"
+      },
+      "badges": [
+        "library"
+      ],
+      "parent": {
+        "id": "sophisticatedmods",
+        "name": "Sophisticated Mods",
+        "description": "Group of P3pp3rf1y's Sophisticated Mods"
+      }
+    },
+    "loom:injected_interfaces": {
+      "net/minecraft/class_465": [
+        "net/p3pp3rf1y/sophisticatedcore/extensions/client/gui/screens/inventory/SophisticatedAbstractContainerScreen"
+      ],
+      "net/minecraft/class_727": [
+        "net/p3pp3rf1y/sophisticatedcore/extensions/client/particle/SophisticatedTerrainParticle"
+      ],
+      "net/minecraft/class_1297": [
+        "net/p3pp3rf1y/sophisticatedcore/extensions/entity/SophisticatedEntity"
+      ],
+      "net/minecraft/class_1657": [
+        "net/p3pp3rf1y/sophisticatedcore/extensions/entity/SophisticatedPlayer"
+      ],
+      "net/minecraft/class_1735": [
+        "net/p3pp3rf1y/sophisticatedcore/extensions/inventory/SophisticatedSlot"
+      ],
+      "net/minecraft/class_1792": [
+        "net/p3pp3rf1y/sophisticatedcore/extensions/item/SophisticatedItem"
+      ],
+      "net/minecraft/class_1799": [
+        "net/p3pp3rf1y/sophisticatedcore/extensions/item/SophisticatedItemStack",
+        "net/p3pp3rf1y/sophisticatedcore/extensions/component/SophisticatedMutableDataComponentHolder"
+      ],
+      "net/minecraft/class_1937": [
+        "net/p3pp3rf1y/sophisticatedcore/extensions/world/SophisticatedLevel"
+      ],
+      "net/minecraft/class_2248": [
+        "net/p3pp3rf1y/sophisticatedcore/extensions/block/SophisticatedBlock"
+      ],
+      "net/minecraft/class_2680": [
+        "net/p3pp3rf1y/sophisticatedcore/extensions/block/SophisticatedBlockState"
+      ],
+      "net/minecraft/class_2586": [
+        "net/p3pp3rf1y/sophisticatedcore/extensions/block/entity/SophisticatedBlockEntity"
+      ],
+      "net/minecraft/class_9322": [
+        "net/p3pp3rf1y/sophisticatedcore/extensions/component/SophisticatedDataComponentHolder"
+      ],
+      "net/minecraft/class_9288": [
+        "net/p3pp3rf1y/sophisticatedcore/extensions/item/component/SophisticatedItemContainerContents"
+      ]
+    }
+  }
+}
