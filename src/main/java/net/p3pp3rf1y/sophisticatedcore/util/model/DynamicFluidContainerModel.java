@@ -33,7 +33,7 @@ import net.minecraft.client.resources.model.ModelState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
@@ -266,7 +266,7 @@ public class DynamicFluidContainerModel implements IUnbakedGeometry<DynamicFluid
 			if (!jsonObject.has("fluid"))
 				throw new RuntimeException("Bucket model requires 'fluid' value.");
 
-			ResourceLocation fluidName = ResourceLocation.parse(jsonObject.get("fluid").getAsString());
+			Identifier fluidName = Identifier.parse(jsonObject.get("fluid").getAsString());
 
 			Fluid fluid = BuiltInRegistries.FLUID.get(fluidName);
 

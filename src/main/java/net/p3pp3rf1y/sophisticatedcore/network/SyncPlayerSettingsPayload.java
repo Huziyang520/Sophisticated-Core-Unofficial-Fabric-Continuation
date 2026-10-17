@@ -12,7 +12,7 @@ import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.settings.SettingsManager;
 import net.p3pp3rf1y.sophisticatedcore.util.StreamCodecHelper;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public record SyncPlayerSettingsPayload(String playerTagName,
 										@Nullable CompoundTag settingsNbt) implements CustomPacketPayload {

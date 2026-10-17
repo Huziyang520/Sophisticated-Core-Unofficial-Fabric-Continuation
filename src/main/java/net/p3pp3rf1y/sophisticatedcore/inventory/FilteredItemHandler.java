@@ -8,7 +8,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogic;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -78,7 +78,7 @@ public class FilteredItemHandler<T extends Storage<ItemVariant>> extends Filteri
 		}
 
 		@Override
-		public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
+		public void setStackInSlot(int slot, @NotNull ItemStack stack) {
 			((ITrackedContentsItemHandler) backingStorage.get()).setStackInSlot(slot, stack);
 		}
 

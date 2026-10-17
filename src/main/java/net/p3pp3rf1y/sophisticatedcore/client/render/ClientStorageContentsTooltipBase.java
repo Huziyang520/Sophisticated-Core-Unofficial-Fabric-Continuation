@@ -21,7 +21,7 @@ import net.p3pp3rf1y.sophisticatedcore.util.CountAbbreviator;
 import net.p3pp3rf1y.sophisticatedcore.fluid.FluidUtil;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Comparator;

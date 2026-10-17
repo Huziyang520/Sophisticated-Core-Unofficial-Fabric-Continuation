@@ -2,7 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -21,7 +21,7 @@ public class InventorySorter {
 	public static final Comparator<Map.Entry<ItemStackKey, Integer>> BY_MOD =
 			Comparator
 					.<Map.Entry<ItemStackKey, Integer>, String>comparing(o -> {
-						ResourceLocation registryName = BuiltInRegistries.ITEM.getKey(o.getKey().getStack().getItem());
+						Identifier registryName = BuiltInRegistries.ITEM.getKey(o.getKey().getStack().getItem());
 						return registryName.getNamespace();
 					})
 					.thenComparing(o -> o.getKey().getStack().getHoverName().getString());

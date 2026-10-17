@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.inventory;
 
 import com.mojang.datafixers.util.Pair;
-import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
+import net.p3pp3rf1y.sophisticatedcore.platform.TransactionCallback;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -12,7 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -29,8 +29,8 @@ import net.p3pp3rf1y.sophisticatedcore.util.MathHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.RegistryHelper;
 import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BooleanSupplier;
@@ -270,7 +270,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	}
 
 	@Override
-	@Nonnull
+	@NotNull
 	public ItemStack extractItem(int slot, int amount, boolean simulate) {
 		return inventoryPartitioner.getPartBySlot(slot).extractItem(slot, amount, simulate);
 	}
@@ -305,7 +305,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		return maxAmount - slotTracker.insertItemIntoHandler(this, this::insertItemInternal, this::triggerOverflowUpgrades, slot, resource.toStack((int) maxAmount), true).getCount();
 	}
 
-	@Nonnull
+	@NotNull
 	public ItemStack insertItemOnlyToSlot(int slot, ItemStack stack, boolean simulate) {
 		initSlotTracker();
 		if (ItemStack.isSameItemSameComponents(getStackInSlot(slot), stack)) {
@@ -413,7 +413,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	}
 
 	@Override
-	public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
+	public void setStackInSlot(int slot, @NotNull ItemStack stack) {
 		inventoryPartitioner.getPartBySlot(slot).setStackInSlot(slot, stack, super::setStackInSlot);
 		slotTracker.removeAndSetSlotIndexes(this, slot, stack);
 	}
@@ -447,7 +447,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		return ItemVariant.of(getStackInSlot(slot));
 	}
 
-	@Nonnull
+	@NotNull
 	@Override
 	public ItemStack getStackInSlot(int slot) {
 		return inventoryPartitioner.getPartBySlot(slot).getStackInSlot(slot, super::getStackInSlot);
@@ -470,7 +470,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	}
 
 	@Nullable
-	public Pair<ResourceLocation, ResourceLocation> getNoItemIcon(int slotIndex) {
+	public Pair<Identifier, Identifier> getNoItemIcon(int slotIndex) {
 		return inventoryPartitioner.getNoItemIcon(slotIndex);
 	}
 

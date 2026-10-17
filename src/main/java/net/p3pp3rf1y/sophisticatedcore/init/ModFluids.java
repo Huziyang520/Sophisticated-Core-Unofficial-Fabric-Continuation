@@ -3,7 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.init;
 import io.github.fabricators_of_create.porting_lib.fluids.BaseFlowingFluid;
 import io.github.fabricators_of_create.porting_lib.fluids.FluidType;
 import io.github.fabricators_of_create.porting_lib.fluids.PortingLibFluids;
-import io.github.fabricators_of_create.porting_lib.util.DeferredRegister;
+import net.p3pp3rf1y.sophisticatedcore.platform.DeferredRegister;
 import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalFluidTags;
 import net.minecraft.core.registries.Registries;
@@ -27,7 +27,7 @@ public class ModFluids {
 		return new BaseFlowingFluid.Properties(XP_FLUID_TYPE, XP_STILL, XP_FLOWING).bucket(XP_BUCKET);
 	}
 
-	//public static final ResourceLocation EXPERIENCE_TAG_NAME = ResourceLocation.fromNamespaceAndPath("c", "experience");
+	//public static final Identifier EXPERIENCE_TAG_NAME = Identifier.fromNamespaceAndPath("c", "experience");
 
 	public static final TagKey<Fluid> EXPERIENCE_TAG = ConventionalFluidTags.EXPERIENCE;
 	public static final DeferredRegister<Fluid> FLUIDS = DeferredRegister.create(Registries.FLUID, SophisticatedCore.MOD_ID);

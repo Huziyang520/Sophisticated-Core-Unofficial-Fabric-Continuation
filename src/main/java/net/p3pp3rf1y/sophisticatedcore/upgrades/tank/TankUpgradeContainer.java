@@ -2,11 +2,11 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
-import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import net.p3pp3rf1y.sophisticatedcore.platform.FluidStack;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.INameableEmptySlot;
@@ -18,8 +18,8 @@ import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerType;
 import java.util.function.Supplier;
 
 public class TankUpgradeContainer extends UpgradeContainerBase<TankUpgradeWrapper, TankUpgradeContainer> {
-	public static final ResourceLocation EMPTY_TANK_INPUT_SLOT_BACKGROUND = SophisticatedCore.getRL("item/empty_tank_input_slot");
-	public static final ResourceLocation EMPTY_TANK_OUTPUT_SLOT_BACKGROUND = SophisticatedCore.getRL("item/empty_tank_output_slot");
+	public static final Identifier EMPTY_TANK_INPUT_SLOT_BACKGROUND = SophisticatedCore.getRL("item/empty_tank_input_slot");
+	public static final Identifier EMPTY_TANK_OUTPUT_SLOT_BACKGROUND = SophisticatedCore.getRL("item/empty_tank_output_slot");
 
 	public TankUpgradeContainer(Player player, int upgradeContainerId, TankUpgradeWrapper upgradeWrapper, UpgradeContainerType<TankUpgradeWrapper, TankUpgradeContainer> type) {
 		super(player, upgradeContainerId, upgradeWrapper, type);

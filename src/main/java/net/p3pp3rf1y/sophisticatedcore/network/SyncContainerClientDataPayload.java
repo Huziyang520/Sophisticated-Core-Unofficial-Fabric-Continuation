@@ -10,7 +10,7 @@ import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.ISyncedContainer;
 import net.p3pp3rf1y.sophisticatedcore.util.StreamCodecHelper;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public record SyncContainerClientDataPayload(@Nullable CompoundTag data) implements CustomPacketPayload {
 	public static final Type<SyncContainerClientDataPayload> TYPE = new Type<>(SophisticatedCore.getRL("sync_container_client_data"));

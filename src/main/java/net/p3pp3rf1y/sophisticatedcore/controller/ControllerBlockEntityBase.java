@@ -29,8 +29,8 @@ import net.p3pp3rf1y.sophisticatedcore.util.EmptyItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.WorldHelper;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Function;
 
@@ -543,7 +543,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 		return slot - baseIndexes.get(index - 1);
 	}
 
-	@Nonnull
+	@NotNull
 	@Override
 	public ItemStack getStackInSlot(int slot) {
 		if (isSlotIndexInvalid(slot)) {
@@ -706,7 +706,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 		}).orElse(0L);
 	}
 
-	@Nonnull
+	@NotNull
 	@Override
 	public ItemStack extractItem(int slot, int amount, boolean simulate) {
 		if (isSlotIndexInvalid(slot)) {
@@ -875,7 +875,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 		storageFilterItems.put(storagePos, new LinkedHashSet<>(filterItems));
 	}
 
-	@Nonnull
+	@NotNull
 	@Override
 	public SingleSlotStorage<ItemVariant> getSlot(int slot) {
 		if (isSlotIndexInvalid(slot)) {

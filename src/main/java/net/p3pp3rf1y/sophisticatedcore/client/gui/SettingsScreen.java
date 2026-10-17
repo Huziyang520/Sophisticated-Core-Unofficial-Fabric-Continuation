@@ -9,7 +9,7 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
 import net.minecraft.world.inventory.Slot;
@@ -21,7 +21,7 @@ import net.p3pp3rf1y.sophisticatedcore.common.gui.SettingsContainerMenu;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageBackgroundProperties;
 import net.p3pp3rf1y.sophisticatedcore.settings.StorageSettingsTabControlBase;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.function.Predicate;
 
 public abstract class SettingsScreen extends AbstractContainerScreen<SettingsContainerMenu<?>> implements InventoryScrollPanel.IInventoryScreen {
@@ -204,7 +204,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 			if (!getMenu().getSlotFilterItem(slot.index).isEmpty()) {
 				guiGraphics.renderItem(getMenu().getSlotFilterItem(slot.index), slot.x, slot.y);
 			} else {
-				Pair<ResourceLocation, ResourceLocation> pair = slot.getNoItemIcon();
+				Pair<Identifier, Identifier> pair = slot.getNoItemIcon();
 				if (pair != null) {
 					TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(pair.getFirst()).apply(pair.getSecond());
 					guiGraphics.blit(slot.x, slot.y, 0, 16, 16, textureatlassprite);

@@ -23,7 +23,7 @@ import net.p3pp3rf1y.sophisticatedcore.inventory.ItemStackKey;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 
-import javax.annotation.Nonnull;
+import org.jetbrains.annotations.NotNull;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -165,7 +165,7 @@ public record TransferItemsPayload(boolean transferToInventory,
 			return super.matchesFilter(stack) || storageWrapper.getSettingsHandler().getTypeCategory(MemorySettingsCategory.class).matchesFilter(stack);
 		}
 
-		@Nonnull
+		@NotNull
 		@Override
 		public ItemStack insertItem(ItemStack stack, boolean simulate) {
 			if (!matchContents || matchesFilter(stack)) {
@@ -206,7 +206,7 @@ public record TransferItemsPayload(boolean transferToInventory,
 			return itemHandler.getSlot(slot);
 		}
 
-		@Nonnull
+		@NotNull
 		@Override
 		public ItemStack getStackInSlot(int slot) {
 			return itemHandler.getStackInSlot(slot);
@@ -217,7 +217,7 @@ public record TransferItemsPayload(boolean transferToInventory,
 			// noop
 		}
 
-		@Nonnull
+		@NotNull
 		@Override
 		public ItemStack insertItem(int slot, ItemStack stack, boolean simulate) {
 			if (!matchContents || matchesFilter(stack)) {
@@ -231,7 +231,7 @@ public record TransferItemsPayload(boolean transferToInventory,
 			return uniqueStacks.contains(ItemStackKey.of(stack));
 		}
 
-		@Nonnull
+		@NotNull
 		@Override
 		public ItemStack extractItem(int slot, int amount, boolean simulate) {
 			return itemHandler.extractItem(slot, amount, simulate);

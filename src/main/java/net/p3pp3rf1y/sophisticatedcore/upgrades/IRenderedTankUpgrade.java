@@ -1,10 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
 import net.minecraft.nbt.CompoundTag;
-import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
+import net.p3pp3rf1y.sophisticatedcore.platform.FluidStack;
 import net.p3pp3rf1y.sophisticatedcore.util.RegistryHelper;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 import java.util.function.Consumer;
 

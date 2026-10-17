@@ -3,7 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
@@ -280,11 +280,11 @@ public class RecipeHelper {
 		return getLevel().map(w -> w.getRecipeManager().getRecipesFor(recipeType, inventory, w)).orElse(Collections.emptyList());
 	}
 
-	public static <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> safeGetRecipeFor(RecipeType<T> recipeType, I inventory, @Nullable ResourceLocation recipeId) {
+	public static <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> safeGetRecipeFor(RecipeType<T> recipeType, I inventory, @Nullable Identifier recipeId) {
 		return getLevel().flatMap(w -> safeGetRecipeFor(recipeType, inventory, w, recipeId));
 	}
 
-	public static <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> safeGetRecipeFor(RecipeType<T> recipeType, I inventory, Level level, @Nullable ResourceLocation recipeId) {
+	public static <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> safeGetRecipeFor(RecipeType<T> recipeType, I inventory, Level level, @Nullable Identifier recipeId) {
 		try {
 			return level.getRecipeManager().getRecipeFor(recipeType, inventory, level, recipeId);
 		} catch (Exception e) {

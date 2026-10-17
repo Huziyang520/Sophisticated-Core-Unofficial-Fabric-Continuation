@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
-import io.github.fabricators_of_create.porting_lib.util.DeferredHolder;
+import net.p3pp3rf1y.sophisticatedcore.platform.DeferredHolder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -11,7 +11,7 @@ import net.p3pp3rf1y.sophisticatedcore.util.FilterItemStackHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.ItemStackHelper;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Function;

@@ -3,7 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.extensions.entity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.item.ItemEntity;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Collection;
 
 public interface SophisticatedEntity {

@@ -3,7 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.core.RegistryAccess;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 
@@ -16,7 +16,7 @@ import java.util.function.Function;
 public class ClientRecipeHelper {
 	private ClientRecipeHelper() {}
 
-	public static <T extends Recipe<?>> Optional<RecipeHolder<T>> getCraftingRecipeByKey(RecipeType<T> type, ResourceLocation recipeKey) {
+	public static <T extends Recipe<?>> Optional<RecipeHolder<T>> getCraftingRecipeByKey(RecipeType<T> type, Identifier recipeKey) {
 		Minecraft minecraft = Minecraft.getInstance();
 		ClientLevel world = minecraft.level;
 		if (world == null) {

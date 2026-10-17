@@ -9,7 +9,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -121,7 +121,7 @@ public class SCShapelessRecipeBuilder implements RecipeBuilder {
 	}
 
 	@Override
-	public void save(RecipeOutput recipeOutput, ResourceLocation id) {
+	public void save(RecipeOutput recipeOutput, Identifier id) {
 		this.ensureValid(id);
 		Advancement.Builder builder = recipeOutput.advancement()
 				.addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
@@ -140,7 +140,7 @@ public class SCShapelessRecipeBuilder implements RecipeBuilder {
 	/**
 	 * Makes sure that this recipe is valid and obtainable.
 	 */
-	private void ensureValid(ResourceLocation id) {
+	private void ensureValid(Identifier id) {
 		if (this.criteria.isEmpty()) {
 			throw new IllegalStateException("No way of obtaining recipe " + id);
 		}

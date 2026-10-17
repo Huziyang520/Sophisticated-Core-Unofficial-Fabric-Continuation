@@ -1,9 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 
-public record StorageBackgroundProperties(int slotsOnLine, int playerInventoryXOffset, ResourceLocation textureName) {
+public record StorageBackgroundProperties(int slotsOnLine, int playerInventoryXOffset, Identifier textureName) {
 	public static final StorageBackgroundProperties REGULAR_9_SLOT = new StorageBackgroundProperties(9, 0,
 			SophisticatedCore.getRL("textures/gui/storage_background_9.png"));
 	public static final StorageBackgroundProperties WIDER_9_SLOT = new StorageBackgroundProperties(9, 3,
@@ -21,7 +21,7 @@ public record StorageBackgroundProperties(int slotsOnLine, int playerInventoryXO
 		return playerInventoryXOffset;
 	}
 
-	public ResourceLocation getTextureName() {
+	public Identifier getTextureName() {
 		return textureName;
 	}
 }

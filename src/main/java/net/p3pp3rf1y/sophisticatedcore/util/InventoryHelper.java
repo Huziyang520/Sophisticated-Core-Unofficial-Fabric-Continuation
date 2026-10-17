@@ -2,7 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
-import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
+import net.p3pp3rf1y.sophisticatedcore.platform.TransactionCallback;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
@@ -31,8 +31,8 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.IPickupResponseUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeHandler;
 import org.apache.commons.lang3.mutable.MutableInt;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.*;
@@ -222,7 +222,7 @@ public class InventoryHelper {
 		return remainingStack;
 	}
 
-	private static void playPickupSound(Level level, @Nonnull Player player) {
+	private static void playPickupSound(Level level, @NotNull Player player) {
 		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, RandHelper.getRandomMinusOneToOne(level.random) * 1.4F + 2.0F);
 	}
 

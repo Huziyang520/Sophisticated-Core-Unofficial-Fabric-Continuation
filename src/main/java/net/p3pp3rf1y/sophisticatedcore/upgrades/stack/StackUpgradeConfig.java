@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.stack;
 
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.common.ModConfigSpec;
@@ -9,7 +9,7 @@ import net.p3pp3rf1y.sophisticatedcore.Config;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.util.RegistryHelper;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -62,7 +62,7 @@ public class StackUpgradeConfig {
 		if (nonStackableItems == null) {
 			nonStackableItems = new HashSet<>();
 			nonStackableItemsList.get().forEach(name -> {
-				ResourceLocation registryName = ResourceLocation.parse(name);
+				Identifier registryName = Identifier.parse(name);
 				if (BuiltInRegistries.ITEM.containsKey(registryName)) {
 					nonStackableItems.add(BuiltInRegistries.ITEM.get(registryName));
 				} else {

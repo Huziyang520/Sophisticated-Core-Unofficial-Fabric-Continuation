@@ -2,7 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.stonecutter;
 
 import com.google.common.collect.Lists;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Container;
@@ -42,8 +42,8 @@ public class StonecutterRecipeContainer {
 	private Item inputItem = Items.AIR;
 	private final CraftingItemHandler inputInventory;
 	private Runnable inventoryUpdateListener = () -> {};
-	private final Supplier<Optional<ResourceLocation>> getLastSelectedRecipeId;
-	private final Consumer<ResourceLocation> setLastSelectedRecipeId;
+	private final Supplier<Optional<Identifier>> getLastSelectedRecipeId;
+	private final Consumer<Identifier> setLastSelectedRecipeId;
 	private long lastOnTake = -1;
 
 	public StonecutterRecipeContainer(StonecutterUpgradeContainer upgradeContainer, Consumer<Slot> addSlot, IServerUpdater serverUpdater, ContainerLevelAccess worldPosCallable, Level level) {

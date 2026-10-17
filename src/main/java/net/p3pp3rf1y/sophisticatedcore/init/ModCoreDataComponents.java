@@ -1,14 +1,14 @@
 package net.p3pp3rf1y.sophisticatedcore.init;
 
 import com.mojang.serialization.Codec;
-import io.github.fabricators_of_create.porting_lib.transfer.fluid.SimpleFluidContent;
-import io.github.fabricators_of_create.porting_lib.util.DeferredHolder;
-import io.github.fabricators_of_create.porting_lib.util.DeferredRegister;
+import net.p3pp3rf1y.sophisticatedcore.platform.SimpleFluidContent;
+import net.p3pp3rf1y.sophisticatedcore.platform.DeferredHolder;
+import net.p3pp3rf1y.sophisticatedcore.platform.DeferredRegister;
 import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
@@ -116,8 +116,8 @@ public class ModCoreDataComponents {
     public static final Supplier<DataComponentType<Boolean>> INTERACT_WITH_WORLD = DATA_COMPONENT_TYPES.register("interact_with_world",
             () -> new DataComponentType.Builder<Boolean>().persistent(Codec.BOOL).networkSynchronized(ByteBufCodecs.BOOL).build());
 
-    public static final Supplier<DataComponentType<ResourceLocation>> RECIPE_ID = DATA_COMPONENT_TYPES.register("recipe_id",
-            () -> new DataComponentType.Builder<ResourceLocation>().persistent(ResourceLocation.CODEC).networkSynchronized(ResourceLocation.STREAM_CODEC).build());
+    public static final Supplier<DataComponentType<Identifier>> RECIPE_ID = DATA_COMPONENT_TYPES.register("recipe_id",
+            () -> new DataComponentType.Builder<Identifier>().persistent(Identifier.CODEC).networkSynchronized(Identifier.STREAM_CODEC).build());
 
     public static final Supplier<DataComponentType<SimpleFluidContent>> FLUID_CONTENTS = DATA_COMPONENT_TYPES.register("fluid_contents",
             () -> new DataComponentType.Builder<SimpleFluidContent>().persistent(SimpleFluidContent.CODEC).networkSynchronized(SimpleFluidContent.STREAM_CODEC).build());

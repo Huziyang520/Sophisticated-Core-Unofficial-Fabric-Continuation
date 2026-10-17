@@ -13,7 +13,7 @@ import net.p3pp3rf1y.sophisticatedcore.common.gui.SettingsContainerMenu;
 import net.p3pp3rf1y.sophisticatedcore.settings.DatapackSettingsTemplateManager;
 import net.p3pp3rf1y.sophisticatedcore.util.StreamCodecHelper;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public record SyncDatapackSettingsTemplatePayload(String datapack, String templateName, @Nullable CompoundTag settingsNbt) implements CustomPacketPayload {
 	public static final Type<SyncDatapackSettingsTemplatePayload> TYPE = new Type<>(SophisticatedCore.getRL("sync_datapack_settings_template"));

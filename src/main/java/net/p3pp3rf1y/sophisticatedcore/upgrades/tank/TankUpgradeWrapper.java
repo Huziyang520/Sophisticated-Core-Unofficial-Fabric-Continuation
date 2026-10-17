@@ -1,9 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
-import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
-import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
-import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
-import io.github.fabricators_of_create.porting_lib.transfer.fluid.SimpleFluidContent;
+import net.p3pp3rf1y.sophisticatedcore.platform.FluidStack;
+import net.p3pp3rf1y.sophisticatedcore.platform.TransferUtil;
+import net.p3pp3rf1y.sophisticatedcore.platform.TransactionCallback;
+import net.p3pp3rf1y.sophisticatedcore.platform.SimpleFluidContent;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
@@ -30,8 +30,8 @@ import net.p3pp3rf1y.sophisticatedcore.util.CapabilityHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.ComponentItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.fluid.FluidUtil;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
@@ -314,7 +314,7 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 		}
 
 		@Override
-		public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+		public boolean isItemValid(int slot, @NotNull ItemStack stack) {
 			if (slot == INPUT_SLOT) {
 				return stack.isEmpty() ||  isValidInputItem(stack);
 			} else if (slot == OUTPUT_SLOT) {

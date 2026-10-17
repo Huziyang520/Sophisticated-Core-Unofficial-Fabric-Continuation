@@ -15,7 +15,7 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.item.enchantment.Enchantment;
 import org.jetbrains.annotations.ApiStatus.OverrideOnly;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public interface SophisticatedItem {
 	default float getXpRepairRatio(ItemStack stack) {

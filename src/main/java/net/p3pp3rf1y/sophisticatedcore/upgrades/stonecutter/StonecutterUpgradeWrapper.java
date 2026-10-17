@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.stonecutter;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
@@ -9,7 +9,7 @@ import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
 import net.p3pp3rf1y.sophisticatedcore.util.SimpleItemContent;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 import java.util.function.Consumer;
 
@@ -36,7 +36,7 @@ public class StonecutterUpgradeWrapper extends UpgradeWrapperBase<StonecutterUpg
 		return inputInventory;
 	}
 
-	public void setRecipeId(@Nullable ResourceLocation recipeId) {
+	public void setRecipeId(@Nullable Identifier recipeId) {
 		if (recipeId == null) {
 			upgrade.sophisticatedCore_remove(ModCoreDataComponents.RECIPE_ID);
 			return;
@@ -45,7 +45,7 @@ public class StonecutterUpgradeWrapper extends UpgradeWrapperBase<StonecutterUpg
 		save();
 	}
 
-	public Optional<ResourceLocation> getRecipeId() {
+	public Optional<Identifier> getRecipeId() {
 		return Optional.ofNullable(upgrade.sophisticatedCore_get(ModCoreDataComponents.RECIPE_ID));
 	}
 

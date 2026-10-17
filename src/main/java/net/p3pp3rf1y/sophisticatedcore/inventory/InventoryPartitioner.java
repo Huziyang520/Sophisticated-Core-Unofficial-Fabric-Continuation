@@ -5,12 +5,12 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.util.SlotRange;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Supplier;
 
@@ -50,7 +50,7 @@ public class InventoryPartitioner {
 	}
 
 	@Nullable
-	public Pair<ResourceLocation, ResourceLocation> getNoItemIcon(int slot) {
+	public Pair<Identifier, Identifier> getNoItemIcon(int slot) {
 		return getPartBySlot(slot).getNoItemIcon(slot);
 	}
 

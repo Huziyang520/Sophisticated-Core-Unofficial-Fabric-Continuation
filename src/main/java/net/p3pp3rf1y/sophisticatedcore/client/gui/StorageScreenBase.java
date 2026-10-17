@@ -19,7 +19,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.ClickType;
@@ -40,7 +40,7 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.crafting.ICraftingUIPart;
 import net.p3pp3rf1y.sophisticatedcore.util.CountAbbreviator;
 import org.joml.Matrix4f;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.text.NumberFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -647,7 +647,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 				return;
 			}
 		}
-		Pair<ResourceLocation, ResourceLocation> pair = slot.getNoItemIcon();
+		Pair<Identifier, Identifier> pair = slot.getNoItemIcon();
 		if (pair != null) {
 			//noinspection ConstantConditions - by this point minecraft isn't null
 			TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(pair.getFirst()).apply(pair.getSecond());
@@ -763,7 +763,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		return ret;
 	}
 
-	public void drawInventoryBg(GuiGraphics guiGraphics, int x, int y, ResourceLocation textureName) {
+	public void drawInventoryBg(GuiGraphics guiGraphics, int x, int y, Identifier textureName) {
 		StorageGuiHelper.renderStorageBackground(new Position(x, y), guiGraphics, textureName, imageWidth, imageHeight - HEIGHT_WITHOUT_STORAGE_SLOTS);
 	}
 

@@ -2,7 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.crafting;
 
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
@@ -16,7 +16,7 @@ import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.RecipeHolder;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemHandlerHelper;
+import net.p3pp3rf1y.sophisticatedcore.platform.ItemHandlerHelper;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.ICraftingContainer;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SlotSuppliedHandler;
@@ -25,7 +25,7 @@ import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerType;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -255,7 +255,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 	}
 
 	@Override
-	public void setRecipeUsed(ResourceLocation recipeId) {
+	public void setRecipeUsed(Identifier recipeId) {
 		if (lastRecipe != null && lastRecipe.id().equals(recipeId)) {
 			return;
 		}

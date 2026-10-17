@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
-import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
+import net.p3pp3rf1y.sophisticatedcore.platform.TransactionCallback;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
 import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandlerSlot;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -18,8 +18,8 @@ import net.p3pp3rf1y.sophisticatedcore.renderdata.TankPosition;
 import net.p3pp3rf1y.sophisticatedcore.util.InventoryHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.RegistryHelper;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
@@ -65,7 +65,7 @@ public class UpgradeHandler extends ItemStackHandler {
 		return isItemValid(slot, resource.toStack(count));
 	}
 
-	public boolean isItemValid(int slot, @Nonnull ItemStack stack) {
+	public boolean isItemValid(int slot, @NotNull ItemStack stack) {
 		return stack.isEmpty() || stack.getItem() instanceof IUpgradeItem;
 	}
 
@@ -184,7 +184,7 @@ public class UpgradeHandler extends ItemStackHandler {
 	}
 
 	@Override
-	public void setStackInSlot(int slot, @Nonnull ItemStack stack) {
+	public void setStackInSlot(int slot, @NotNull ItemStack stack) {
 		ItemStack originalStack = getStackInSlot(slot);
 		Map<Integer, IUpgradeWrapper> wrappers = getSlotWrappers();
 		boolean itemsDiffer = !ItemStack.isSameItemSameComponents(originalStack, stack);

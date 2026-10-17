@@ -2,7 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
@@ -221,11 +221,11 @@ public class FilterLogicContainerBase<T extends FilterLogic, S extends Slot> {
 					return true;
 				}
 				case DATA_ADD_TAG_NAME -> {
-					addTagName(TagKey.create(Registries.ITEM, ResourceLocation.parse(data.getString(DATA_ADD_TAG_NAME))));
+					addTagName(TagKey.create(Registries.ITEM, Identifier.parse(data.getString(DATA_ADD_TAG_NAME))));
 					return true;
 				}
 				case DATA_REMOVE_TAG_NAME -> {
-					removeSelectedTag(TagKey.create(Registries.ITEM, ResourceLocation.parse(data.getString(DATA_REMOVE_TAG_NAME))));
+					removeSelectedTag(TagKey.create(Registries.ITEM, Identifier.parse(data.getString(DATA_REMOVE_TAG_NAME))));
 					return true;
 				}
 				case DATA_MATCH_ANY_TAG -> {

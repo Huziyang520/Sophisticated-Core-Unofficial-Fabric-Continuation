@@ -14,7 +14,7 @@ import net.p3pp3rf1y.sophisticatedcore.util.CodecHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.StreamCodecHelper;
 import org.jetbrains.annotations.Unmodifiable;
 
-import javax.annotation.concurrent.Immutable;
+import org.jetbrains.annotations.Immutable;
 import java.util.*;
 
 @Immutable

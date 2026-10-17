@@ -8,7 +8,7 @@ import net.minecraft.world.level.ServerLevelAccessor;
 import net.fabricmc.fabric.api.event.Event;
 import net.fabricmc.fabric.api.event.EventFactory;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public interface MobSpawnEvents {
     Event<After> AFTER_FINALIZE_SPAWN = EventFactory.createArrayBacked(After.class, callbacks -> (finalizeEvent) -> {

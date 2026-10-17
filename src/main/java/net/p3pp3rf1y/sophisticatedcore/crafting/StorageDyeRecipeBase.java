@@ -3,7 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.crafting;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.DyeColor;
@@ -15,7 +15,7 @@ import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -122,7 +122,7 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 		}
 
 		for (DyeColor color : DyeColor.values()) {
-			if (stack.is(TagKey.create(Registries.ITEM, ResourceLocation.fromNamespaceAndPath("c", color.getName() + "_dyes"))))
+			if (stack.is(TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", color.getName() + "_dyes"))))
 				return color;
 		}
 

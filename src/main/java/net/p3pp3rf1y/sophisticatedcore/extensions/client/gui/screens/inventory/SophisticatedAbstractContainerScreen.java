@@ -2,7 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.extensions.client.gui.screens.inventory;
 
 import net.minecraft.world.inventory.Slot;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public interface SophisticatedAbstractContainerScreen {
     int slotColor = -2130706433;

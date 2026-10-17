@@ -8,7 +8,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
@@ -38,7 +38,7 @@ import net.p3pp3rf1y.sophisticatedcore.settings.nosort.NoSortSettingsCategory;
 import net.p3pp3rf1y.sophisticatedcore.settings.nosort.NoSortSettingsContainer;
 import net.p3pp3rf1y.sophisticatedcore.util.DummySlot;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.BiConsumer;
 import java.util.function.Supplier;
@@ -66,7 +66,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 	private boolean inventorySlotStackChanged = false;
 	private final Set<Integer> inaccessibleSlots = new HashSet<>();
 	private final Map<Integer, ItemStack> slotFilterItems = new HashMap<>();
-	private final Map<Integer, Pair<ResourceLocation, ResourceLocation>> emptySlotIcons = new HashMap<>();
+	private final Map<Integer, Pair<Identifier, Identifier>> emptySlotIcons = new HashMap<>();
 
 	protected SettingsContainerMenu(MenuType<?> menuType, int windowId, Player player, S storageWrapper) {
 		super(menuType, windowId);
@@ -302,7 +302,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 
 		@Nullable
 		@Override
-		public Pair<ResourceLocation, ResourceLocation> getNoItemIcon() {
+		public Pair<Identifier, Identifier> getNoItemIcon() {
 			return inaccessibleSlots.contains(sophisticatedCore_getSlotIndex()) ? StorageContainerMenuBase.INACCESSIBLE_SLOT_BACKGROUND : emptySlotIcons.getOrDefault(sophisticatedCore_getSlotIndex(), null);
 		}
 	}
@@ -370,7 +370,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 	}
 
 	@Override
-	public void updateEmptySlotIcons(Map<ResourceLocation, Set<Integer>> emptySlotIcons) {
+	public void updateEmptySlotIcons(Map<Identifier, Set<Integer>> emptySlotIcons) {
 		this.emptySlotIcons.clear();
 		emptySlotIcons.forEach((textureName, slots) -> slots.forEach(slot -> this.emptySlotIcons.put(slot, new Pair<>(InventoryMenu.BLOCK_ATLAS, textureName))));
 	}
@@ -389,9 +389,9 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 		if (!(player instanceof ServerPlayer serverPlayer)) {
 			return;
 		}
-		Map<ResourceLocation, Set<Integer>> noItemSlotTextures = new HashMap<>();
+		Map<Identifier, Set<Integer>> noItemSlotTextures = new HashMap<>();
 		for (int slot = 0; slot < storageWrapper.getInventoryHandler().getSlotCount(); slot++) {
-			Pair<ResourceLocation, ResourceLocation> noItemIcon = storageWrapper.getInventoryHandler().getNoItemIcon(slot);
+			Pair<Identifier, Identifier> noItemIcon = storageWrapper.getInventoryHandler().getNoItemIcon(slot);
 			if (noItemIcon != null) {
 				noItemSlotTextures.computeIfAbsent(noItemIcon.getSecond(), rl -> new HashSet<>()).add(slot);
 			}

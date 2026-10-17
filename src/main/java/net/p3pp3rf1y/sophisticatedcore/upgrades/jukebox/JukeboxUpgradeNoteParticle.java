@@ -4,7 +4,7 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.*;
 import net.minecraft.util.Mth;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class JukeboxUpgradeNoteParticle extends TextureSheetParticle {
 	protected JukeboxUpgradeNoteParticle(ClientLevel level, double x, double y, double z) {

@@ -3,10 +3,10 @@ package net.p3pp3rf1y.sophisticatedcore.crafting;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.crafting.Recipe;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public class HoldingRecipeOutput implements RecipeOutput {
 	private final Advancement.Builder advancement;
@@ -25,7 +25,7 @@ public class HoldingRecipeOutput implements RecipeOutput {
 	}
 
 	@Override
-	public void accept(ResourceLocation id, Recipe<?> recipe, @org.jetbrains.annotations.Nullable AdvancementHolder advancement) {
+	public void accept(Identifier id, Recipe<?> recipe, @org.jetbrains.annotations.Nullable AdvancementHolder advancement) {
 		this.recipe = recipe;
 		this.advancementHolder = advancement;
 		//this.conditions = conditions;

@@ -30,10 +30,8 @@ repositories {
     maven { name = 'Fabric'; url = 'https://maven.fabricmc.net' }          // Fabric API / Loader
     maven { name = 'Shedaniel'; url = 'https://maven.shedaniel.me' }       // Cloth Config / REI
     maven { name = 'TerraformersMC'; url = 'https://maven.terraformersmc.com/releases' } // Mod Menu
-    maven { name = 'Modmaven'; url = 'https://modmaven.dev' }              // JEI
-    maven { name = 'Jared'; url = 'https://maven.blamejared.com' }         // JEI fallback
-    maven { name = 'Ladysnake'; url = 'https://maven.ladysnake.org/releases' }
-    maven { name = 'Cursemaven'; url = 'https://www.cursemaven.com' }      // Jade / Litematica / …
+    // 注：Modmaven / Jared / Ladysnake / Cursemaven 在编写时不可达（详见 src/parked/README.md），
+    // 暂不声明以免每次构建卡在连接超时上；网络恢复后可加回以接 JEI/Jade/Litematica 的 maven 坐标。
 }
 
 dependencies {
@@ -46,18 +44,10 @@ dependencies {
     // 可选：配置入口（Mod Menu）
     compileOnly("com.terraformersmc:modmenu:${modmenu_version}") { transitive = false }
 
-    // 可选兼容（编译期，不打包、不设必装依赖）。26.3 无 Fabric 版的见 gradle.properties 注释。
-        // JEI / REI 都是 API 级引用；26.3 均有 Fabric 版
-    compileOnly("mezz.jei:jei-${minecraft_version}-fabric-api:${jei_version}") { transitive = false }
-    compileOnly("me.shedaniel:RoughlyEnoughItems-api-fabric:${rei_version}") { transitive = false }
-    compileOnly("me.shedaniel:RoughlyEnoughItems-default-plugin-fabric:${rei_version}") { transitive = false }
-    compileOnly("curse.maven:jade-324717:${jade_version}") { transitive = false }
-    compileOnly("curse.maven:litematica-308892:${litematica_version}") { transitive = false }
-    compileOnly("curse.maven:malilib-303119:${malilib_version}") { transitive = false }
-    compileOnly("curse.maven:craftingtweaks-502516:${crafting_tweaks_version}") { transitive = false }
-    compileOnly("curse.maven:balm-500525:${balm_version}") { transitive = false }
-    compileOnly("maven.modrinth:audioplayer:${audioplayer_version}") { transitive = false }
-    // 26.3 无 Fabric 版，暂不引用：EMI / Chipped / Trinkets
+    // 兼容 API（JEI / REI）：对应 maven 在本机不可达，改用 libs/ 下的本地 jar（libs/ 不入库）
+    compileOnly files("libs/jei-26.3-fabric-api.jar")
+    compileOnly files("libs/RoughlyEnoughItems-fabric-26.3.824.jar")
+    compileOnly files("libs/basic-math-0.6.1.jar")
 }
 
 processResources {

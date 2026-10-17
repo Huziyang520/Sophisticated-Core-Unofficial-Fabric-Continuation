@@ -2,7 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.battery;
 
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
@@ -18,8 +18,8 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.tank.TankUpgradeWrapper;
 import java.util.function.Supplier;
 
 public class BatteryUpgradeContainer extends UpgradeContainerBase<BatteryUpgradeWrapper, BatteryUpgradeContainer> {
-	public static final ResourceLocation EMPTY_BATTERY_INPUT_SLOT_BACKGROUND = SophisticatedCore.getRL("item/empty_battery_input_slot");
-	public static final ResourceLocation EMPTY_BATTERY_OUTPUT_SLOT_BACKGROUND = SophisticatedCore.getRL("item/empty_battery_output_slot");
+	public static final Identifier EMPTY_BATTERY_INPUT_SLOT_BACKGROUND = SophisticatedCore.getRL("item/empty_battery_input_slot");
+	public static final Identifier EMPTY_BATTERY_OUTPUT_SLOT_BACKGROUND = SophisticatedCore.getRL("item/empty_battery_output_slot");
 
 	public BatteryUpgradeContainer(Player player, int upgradeContainerId, BatteryUpgradeWrapper upgradeWrapper, UpgradeContainerType<BatteryUpgradeWrapper, BatteryUpgradeContainer> type) {
 		super(player, upgradeContainerId, upgradeWrapper, type);

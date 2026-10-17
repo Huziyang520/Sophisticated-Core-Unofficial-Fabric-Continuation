@@ -13,7 +13,7 @@ import mezz.jei.common.transfer.TransferOperation;
 import mezz.jei.common.util.StringUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.MenuType;
 import net.minecraft.world.inventory.Slot;
@@ -26,7 +26,7 @@ import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -104,7 +104,7 @@ public abstract class CraftingContainerRecipeTransferHandlerBase<C extends Stora
 				openOrFirstCraftingContainer.setIsOpen(true);
 				container.setOpenTabId(openOrFirstCraftingContainer.getUpgradeContainerId());
 			}
-			ResourceLocation recipeTypeId = BuiltInRegistries.RECIPE_TYPE.getKey(recipe.value().getType());
+			Identifier recipeTypeId = BuiltInRegistries.RECIPE_TYPE.getKey(recipe.value().getType());
 			if (recipeTypeId != null) {
 				TransferRecipePayload packet = new TransferRecipePayload(
 						recipe.id(),

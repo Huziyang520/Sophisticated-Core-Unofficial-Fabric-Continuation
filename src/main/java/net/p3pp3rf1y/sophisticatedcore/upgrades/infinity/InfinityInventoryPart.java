@@ -9,7 +9,7 @@ import net.p3pp3rf1y.sophisticatedcore.util.SlotRange;
 import net.p3pp3rf1y.sophisticatedcore.util.TriPredicate;
 import org.apache.commons.lang3.function.TriFunction;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.function.BiConsumer;

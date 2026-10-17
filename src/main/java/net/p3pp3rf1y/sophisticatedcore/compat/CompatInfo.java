@@ -3,7 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.compat;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.version.VersionPredicate;
 
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.Nullable;
 
 public record CompatInfo(String modId, @Nullable VersionPredicate supportedVersionRange) {
 	public boolean isLoaded() {
