@@ -1,14 +1,14 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.p3pp3rf1y.sophisticatedcore.platform.config.ConfigSpec;
 
 public class TankUpgradeConfig {
-	public final ModConfigSpec.IntValue capacityPerSlotRow;
-	public final ModConfigSpec.DoubleValue stackMultiplierRatio;
-	public final ModConfigSpec.IntValue autoFillDrainContainerCooldown;
-	public final ModConfigSpec.IntValue maxInputOutput;
+	public final ConfigSpec.IntValue capacityPerSlotRow;
+	public final ConfigSpec.DoubleValue stackMultiplierRatio;
+	public final ConfigSpec.IntValue autoFillDrainContainerCooldown;
+	public final ConfigSpec.IntValue maxInputOutput;
 
-	public TankUpgradeConfig(ModConfigSpec.Builder builder) {
+	public TankUpgradeConfig(ConfigSpec.Builder builder) {
 		builder.comment("Tank Upgrade Settings").push("tankUpgrade");
 		capacityPerSlotRow = builder.comment("Capacity in mB the tank upgrade will have per row of storage slots").defineInRange("capacityPerSlotRow", 4000, 500, 20000);
 		stackMultiplierRatio = builder.comment("Ratio that gets applied (multiplies) to inventory stack multiplier before this is applied to tank capacity. Value lower than 1 makes stack multiplier affect the capacity less, higher makes it affect the capacity more. 0 turns off stack multiplier affecting tank capacity").defineInRange("stackMultiplierRatio", 1D, 0D, 5D);

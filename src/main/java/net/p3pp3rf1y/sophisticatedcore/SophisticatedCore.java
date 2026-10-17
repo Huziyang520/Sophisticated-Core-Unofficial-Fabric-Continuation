@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore;
 
-import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeConfigRegistry;
+import net.p3pp3rf1y.sophisticatedcore.platform.config.ConfigRegistry;
+import net.p3pp3rf1y.sophisticatedcore.platform.config.ConfigSide;
 import io.github.fabricators_of_create.porting_lib.models.geometry.RegisterGeometryLoadersCallback;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
@@ -10,7 +11,6 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.world.level.Level;
-import net.neoforged.fml.config.ModConfig;
 import net.p3pp3rf1y.sophisticatedcore.common.CommonEventHandler;
 import net.p3pp3rf1y.sophisticatedcore.compat.CompatRegistry;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCompat;
@@ -48,8 +48,8 @@ public class SophisticatedCore implements ModInitializer {
 
 	@Override
 	public void onInitialize() {
-		NeoForgeConfigRegistry.INSTANCE.register(SophisticatedCore.MOD_ID, ModConfig.Type.CLIENT, Config.CLIENT_SPEC);
-		NeoForgeConfigRegistry.INSTANCE.register(SophisticatedCore.MOD_ID, ModConfig.Type.COMMON, Config.COMMON_SPEC);
+		ConfigRegistry.register(SophisticatedCore.MOD_ID, ConfigSide.CLIENT, Config.CLIENT_SPEC);
+		ConfigRegistry.register(SophisticatedCore.MOD_ID, ConfigSide.COMMON, Config.COMMON_SPEC);
 		commonEventHandler.registerHandlers();
 		ModCompat.register();
 		CompatRegistry.getRegistry(MOD_ID).initCompats();

@@ -88,7 +88,7 @@ public class FluidUtil {
 		}
 
 		if (level.dimensionType().ultraWarm() && fluid.defaultFluidState().is(FluidTags.WATER)) {
-			level.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5f, 2.6f + (level.random.nextFloat() - level.random.nextFloat()) * 0.8f);
+			level.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5f, 2.6f + (level.getRandom().nextFloat() - level.getRandom().nextFloat()) * 0.8f);
 			for (int i = 0; i < 8; ++i) {
 				level.addParticle(ParticleTypes.LARGE_SMOKE, (double) pos.getX() + Math.random(), (double) pos.getY() + Math.random(), (double) pos.getZ() + Math.random(), 0.0, 0.0, 0.0);
 			}
@@ -101,7 +101,7 @@ public class FluidUtil {
 			return true;
 		}
 
-		if (!level.isClientSide && state.canBeReplaced(fluid) && !state.liquid()) {
+		if (!level.isClientSide() && state.canBeReplaced(fluid) && !state.liquid()) {
 			level.destroyBlock(pos, true);
 		}
 

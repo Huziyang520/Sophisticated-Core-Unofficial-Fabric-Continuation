@@ -1,24 +1,17 @@
 package net.p3pp3rf1y.sophisticatedcore.crafting;
 
-import com.google.common.base.Preconditions;
-import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
-import net.fabricmc.fabric.impl.datagen.FabricDataGenHelper;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementHolder;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.level.ItemLike;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
+/** Shaped recipe that is written out as a wrapped variant, with the item enabled condition attached. */
 public class ShapeBasedRecipeBuilder extends SCShapedRecipeBuilder {
-
 	private final Function<ShapedRecipe, ? extends ShapedRecipe> factory;
 
 	private ShapeBasedRecipeBuilder(ItemStack result, Function<ShapedRecipe, ? extends ShapedRecipe> factory) {
@@ -43,12 +36,7 @@ public class ShapeBasedRecipeBuilder extends SCShapedRecipeBuilder {
 	}
 
 	@Override
-	public void save(RecipeOutput recipeOutput) {
-		save(recipeOutput, BuiltInRegistries.ITEM.getKey(getResult().asItem()));
-	}
-
-	@Override
-	public void save(RecipeOutput recipeOutput, Identifier id) {
+	public void save(RecipeOutput recipeOutput, ResourceKey<Recipe<?>> id) {
 		HoldingRecipeOutput holdingRecipeOutput = new HoldingRecipeOutput(recipeOutput.advancement());
 		super.save(holdingRecipeOutput, id);
 
@@ -56,21 +44,7 @@ public class ShapeBasedRecipeBuilder extends SCShapedRecipeBuilder {
 			return;
 		}
 
-		withConditions(recipeOutput, new ItemEnabledCondition(getResult())).accept(id, factory.apply(compose), holdingRecipeOutput.getAdvancementHolder());
-	}
-
-	protected RecipeOutput withConditions(final RecipeOutput exporter, final ResourceCondition... conditions) {
-		Preconditions.checkArgument(conditions.length > 0, "Must add at least one condition.");
-		return new RecipeOutput() {
-			@Override
-			public void accept(Identifier location, Recipe<?> recipe, @Nullable AdvancementHolder advancement) {
-				FabricDataGenHelper.addConditions(recipe, conditions);
-				exporter.accept(location, recipe, advancement);
-			}
-
-			public Advancement.Builder advancement() {
-				return exporter.advancement();
-			}
-		};
+		RecipeConditions.withConditions(recipeOutput, new ItemEnabledCondition(getResult()))
+				.accept(id, factory.apply(compose), holdingRecipeOutput.getAdvancementHolder());
 	}
 }

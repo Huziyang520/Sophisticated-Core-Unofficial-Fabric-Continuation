@@ -3,8 +3,8 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 import com.google.common.collect.Lists;
 import com.google.common.util.concurrent.AtomicDouble;
 import net.p3pp3rf1y.sophisticatedcore.platform.TransactionCallback;
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import net.p3pp3rf1y.sophisticatedcore.platform.item.ItemStackHandler;
+import net.p3pp3rf1y.sophisticatedcore.platform.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
@@ -20,6 +20,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.util.RandomSource;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.Containers;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -223,7 +224,7 @@ public class InventoryHelper {
 	}
 
 	private static void playPickupSound(Level level, @NotNull Player player) {
-		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, RandHelper.getRandomMinusOneToOne(level.random) * 1.4F + 2.0F);
+		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, RandHelper.getRandomMinusOneToOne(level.getRandom()) * 1.4F + 2.0F);
 	}
 
 	public static void iterate(Storage<ItemVariant> handler, Consumer<ItemStack> actOn) {
@@ -410,7 +411,7 @@ public class InventoryHelper {
 			}
 		}
 		if (!ret.isEmpty()) {
-			player.drop(ret, true);
+			player.drop(ret, true, Prediction.PREDICTED);
 		}
 	}*/
 

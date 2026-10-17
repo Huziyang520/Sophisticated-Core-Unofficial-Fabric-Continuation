@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.platform;
 
+import net.minecraft.util.Prediction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 
@@ -17,7 +18,7 @@ public final class ItemHandlerHelper {
 		}
 
 		if (!player.getInventory().add(stack)) {
-			player.drop(stack, false);
+			player.drop(stack, false, Prediction.PREDICTED);
 		}
 	}
 }

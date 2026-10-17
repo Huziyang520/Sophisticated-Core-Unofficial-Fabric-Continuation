@@ -1,21 +1,16 @@
 package net.p3pp3rf1y.sophisticatedcore.crafting;
 
-import com.google.common.base.Preconditions;
-import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
-import net.fabricmc.fabric.impl.datagen.FabricDataGenHelper;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.ItemLike;
-import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Function;
 
+/** Shapeless recipe that is written out as a wrapped variant, with the item enabled condition attached. */
 public class ShapelessBasedRecipeBuilder extends SCShapelessRecipeBuilder {
 	private final Function<ShapelessRecipe, ? extends ShapelessRecipe> factory;
 
@@ -53,7 +48,7 @@ public class ShapelessBasedRecipeBuilder extends SCShapelessRecipeBuilder {
 	}
 
 	@Override
-	public void save(RecipeOutput recipeOutput, Identifier id) {
+	public void save(RecipeOutput recipeOutput, ResourceKey<Recipe<?>> id) {
 		HoldingRecipeOutput holdingRecipeOutput = new HoldingRecipeOutput(recipeOutput.advancement());
 		super.save(holdingRecipeOutput, id);
 
@@ -61,20 +56,7 @@ public class ShapelessBasedRecipeBuilder extends SCShapelessRecipeBuilder {
 			return;
 		}
 
-		withConditions(recipeOutput, new ItemEnabledCondition(getResult())).accept(id, factory.apply(compose), holdingRecipeOutput.getAdvancementHolder());
-	}
-
-	protected RecipeOutput withConditions(final RecipeOutput exporter, final ResourceCondition... conditions) {
-		Preconditions.checkArgument(conditions.length > 0, "Must add at least one condition.");
-		return new RecipeOutput() {
-			public void accept(Identifier identifier, Recipe<?> recipe, @Nullable AdvancementHolder advancementEntry) {
-				FabricDataGenHelper.addConditions(recipe, conditions);
-				exporter.accept(identifier, recipe, advancementEntry);
-			}
-
-			public Advancement.Builder advancement() {
-				return exporter.advancement();
-			}
-		};
+		RecipeConditions.withConditions(recipeOutput, new ItemEnabledCondition(getResult()))
+				.accept(id, factory.apply(compose), holdingRecipeOutput.getAdvancementHolder());
 	}
 }

@@ -18,7 +18,7 @@ public class MainSettingsContainer extends SettingsContainerBase<MainSettingsCat
 	@Override
 	public void handlePacket(CompoundTag data) {
 		if (data.contains(CONTEXT_TAG)) {
-			context = Context.fromId(data.getInt(CONTEXT_TAG));
+			context = Context.fromId(data.getIntOr(CONTEXT_TAG, 0));
 		} else {
 			for (String tagName : data.getAllKeys()) {
 				SettingsManager.getSetting(tagName).ifPresent(setting -> setSettingValue(getPlayer(), setting, data));

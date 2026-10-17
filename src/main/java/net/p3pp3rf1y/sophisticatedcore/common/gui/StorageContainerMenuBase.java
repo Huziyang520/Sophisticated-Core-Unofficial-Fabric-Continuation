@@ -12,6 +12,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Inventory;
@@ -220,7 +221,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		Set<Integer> noSortSlotIndexes = getNoSortSlotIndexes();
 		while (slotIndex < inventoryHandler.getSlotCount()) {
 			int finalSlotIndex = slotIndex;
-			StorageInventorySlot slot = new StorageInventorySlot(player.level().isClientSide, storageWrapper, finalSlotIndex, player) {
+			StorageInventorySlot slot = new StorageInventorySlot(player.level().isClientSide(), storageWrapper, finalSlotIndex, player) {
 				@Override
 				public void set(@NotNull ItemStack stack) {
 					super.set(stack);
@@ -303,7 +304,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	}
 
 	protected boolean isClientSide() {
-		return player.level().isClientSide;
+		return player.level().isClientSide();
 	}
 
 	private void addSlotAndUpdateStorageItemSlotNumber(int storageItemSlotIndex, boolean lockStorageItemSlot, int slotIndex, Slot slot) {
@@ -326,7 +327,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 	@Override
 	public void initializeContents(int stateId, List<ItemStack> items, ItemStack carried) {
-		storageWrapper.setPersistent(player.level().isClientSide);
+		storageWrapper.setPersistent(player.level().isClientSide());
 		isUpdatingFromPacket = true;
 		super.initializeContents(stateId, items, carried);
 		isUpdatingFromPacket = false;
@@ -597,18 +598,18 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 	public void handlePacket(CompoundTag data) {
 		if (data.contains("containerId")) {
-			int containerId = data.getInt("containerId");
+			int containerId = data.getIntOr("containerId", 0);
 			if (upgradeContainers.containsKey(containerId)) {
 				upgradeContainers.get(containerId).handlePacket(data);
 			}
 		} else if (data.contains(OPEN_TAB_ID_TAG)) {
-			setOpenTabId(data.getInt(OPEN_TAB_ID_TAG));
+			setOpenTabId(data.getIntOr(OPEN_TAB_ID_TAG, 0));
 		} else if (data.contains(SORT_BY_TAG)) {
-			setSortBy(SortBy.fromName(data.getString(SORT_BY_TAG)));
+			setSortBy(SortBy.fromName(data.getStringOr(SORT_BY_TAG, "")));
 		} else if (data.contains(SEARCH_PHRASE_TAG)) {
-			setSearchPhrase(data.getString(SEARCH_PHRASE_TAG));
+			setSearchPhrase(data.getStringOr(SEARCH_PHRASE_TAG, ""));
 		} else if (data.contains(ACTION_TAG)) {
-			String actionName = data.getString(ACTION_TAG);
+			String actionName = data.getStringOr(ACTION_TAG, "");
 			switch (actionName) {
 				case "sort" -> sort();
 				case "openSettings" -> openSettings();
@@ -617,7 +618,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 				}
 			}
 		} else if (data.contains(UPGRADE_ENABLED_TAG)) {
-			setUpgradeEnabled(data.getInt(UPGRADE_SLOT_TAG), data.getBoolean(UPGRADE_ENABLED_TAG));
+			setUpgradeEnabled(data.getIntOr(UPGRADE_SLOT_TAG, 0), data.getBooleanOr(UPGRADE_ENABLED_TAG, false));
 		}
 	}
 
@@ -1167,7 +1168,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 						slot2.set(itemstack4.split(i2));
 						slot2.onTake(player, slotStack);
 						if (!inventory.add(slotStack)) {
-							player.drop(slotStack, true);
+							player.drop(slotStack, true, Prediction.PREDICTED);
 						}
 					} else {
 						slot2.set(itemstack4);
@@ -1187,7 +1188,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			Slot slot4 = getSlot(slotId);
 			int i1 = dragType == 0 ? 1 : slot4.getItem().getCount();
 			ItemStack itemstack8 = slot4.safeTake(i1, slot4.getItem().getMaxStackSize(), player);
-			player.drop(itemstack8, true);
+			player.drop(itemstack8, true, Prediction.PREDICTED);
 		} else if (clickType == ClickType.PICKUP_ALL && slotId >= 0) {
 			Slot slot3 = getSlot(slotId);
 			ItemStack carriedStack = getCarried();
@@ -1248,12 +1249,12 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 				ItemStack slotStack = slot.getItem();
 				slot.set(ItemStack.EMPTY);
 				if (!player.addItem(slotStack)) {
-					player.drop(slotStack, false);
+					player.drop(slotStack, false, Prediction.PREDICTED);
 				}
 			}
 		}
 		super.removed(player);
-		if (!player.level().isClientSide) {
+		if (!player.level().isClientSide()) {
 			removeOpenTabIfKeepOff();
 		}
 	}

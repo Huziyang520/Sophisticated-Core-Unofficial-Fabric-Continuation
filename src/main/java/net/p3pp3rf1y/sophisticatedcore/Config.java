@@ -1,12 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore;
 
-import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeModConfigEvents;
-import com.electronwill.nightconfig.core.io.WritingException;
+import net.p3pp3rf1y.sophisticatedcore.platform.config.ConfigEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
-import net.neoforged.fml.config.ModConfig;
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.p3pp3rf1y.sophisticatedcore.platform.config.ConfigSpec;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.SortButtonsPosition;
 import net.p3pp3rf1y.sophisticatedcore.util.RegistryHelper;
 import org.apache.commons.lang3.tuple.Pair;
@@ -21,25 +19,25 @@ public class Config {
 	private Config() {}
 
 	public static final Client CLIENT;
-	public static final ModConfigSpec CLIENT_SPEC;
+	public static final ConfigSpec CLIENT_SPEC;
 	public static final Common COMMON;
-	public static final ModConfigSpec COMMON_SPEC;
+	public static final ConfigSpec COMMON_SPEC;
 
 	static {
-		final Pair<Client, ModConfigSpec> clientSpec = new ModConfigSpec.Builder().configure(Client::new);
+		final Pair<Client, ConfigSpec> clientSpec = new ConfigSpec.Builder().configure(Client::new);
 		CLIENT_SPEC = clientSpec.getRight();
 		CLIENT = clientSpec.getLeft();
 
-		final Pair<Common, ModConfigSpec> commonSpec = new ModConfigSpec.Builder().configure(Common::new);
+		final Pair<Common, ConfigSpec> commonSpec = new ConfigSpec.Builder().configure(Common::new);
 		COMMON_SPEC = commonSpec.getRight();
 		COMMON = commonSpec.getLeft();
 	}
 
 	public static class Client {
-		public final ModConfigSpec.EnumValue<SortButtonsPosition> sortButtonsPosition;
-		public final ModConfigSpec.BooleanValue playButtonSound;
+		public final ConfigSpec.EnumValue<SortButtonsPosition> sortButtonsPosition;
+		public final ConfigSpec.BooleanValue playButtonSound;
 
-		Client(ModConfigSpec.Builder builder) {
+		Client(ConfigSpec.Builder builder) {
 			builder.comment("Client Settings").push("client");
 			sortButtonsPosition = builder.comment("Positions where sort buttons can display to help with conflicts with controls from other mods").defineEnum("sortButtonsPosition", SortButtonsPosition.TITLE_LINE_RIGHT);
 			playButtonSound = builder.comment("Whether click sound should play when custom buttons are clicked in gui").define("playButtonSound", true);
@@ -52,15 +50,15 @@ public class Config {
 		public final EnabledItems enabledItems;
 
 		public void initListeners() {
-			NeoForgeModConfigEvents.reloading(SophisticatedCore.MOD_ID).register(this::onConfigReload);
+			ConfigEvents.reloading(SophisticatedCore.MOD_ID).register(this::onConfigReload);
 		}
 
 		@SuppressWarnings("unused") //need the Event parameter for forge reflection to understand what event this listens to
-		public void onConfigReload(ModConfig modConfig) {
+		public void onConfigReload() {
 			enabledItems.enabledMap.clear();
 		}
 
-		Common(ModConfigSpec.Builder builder) {
+		Common(ConfigSpec.Builder builder) {
 			builder.comment("Common Settings").push("common");
 
 			enabledItems = new EnabledItems(builder, () -> configChanged = true);
@@ -74,11 +72,11 @@ public class Config {
 		}
 
 		public static class EnabledItems {
-			private final ModConfigSpec.ConfigValue<List<String>> itemsEnableList;
+			private final ConfigSpec.ConfigValue<List<String>> itemsEnableList;
 			private final Runnable onConfigChange;
 			private final Map<Identifier, Boolean> enabledMap = new ConcurrentHashMap<>();
 
-			EnabledItems(ModConfigSpec.Builder builder, Runnable onConfigChange) {
+			EnabledItems(ConfigSpec.Builder builder, Runnable onConfigChange) {
 				itemsEnableList = builder.comment("Disable / enable any items here (disables their recipes)").define("enabledItems", new ArrayList<>());
 				this.onConfigChange = onConfigChange;
 			}

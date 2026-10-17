@@ -18,7 +18,7 @@ public class REIServerCompat implements REIServerPlugin {
 				new SlotAccessorRegistry.Serializer() {
 					@Override
 					public SlotAccessor read(AbstractContainerMenu menu, Player player, CompoundTag tag) {
-						int slot = tag.getInt("Slot");
+						int slot = tag.getIntOr("Slot", 0);
 						return new SophisticatedSlotAccessor(menu.getSlot(slot));
 					}
 

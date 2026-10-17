@@ -4,7 +4,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.p3pp3rf1y.sophisticatedcore.platform.config.ConfigSpec;
 import net.p3pp3rf1y.sophisticatedcore.Config;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.util.RegistryHelper;
@@ -17,11 +17,11 @@ import java.util.Set;
 
 public class StackUpgradeConfig {
 	private static final String REGISTRY_NAME_MATCHER = "([a-z0-9_.-]+:[a-z0-9_/.-]+)";
-	private final ModConfigSpec.ConfigValue<List<String>> nonStackableItemsList;
+	private final ConfigSpec.ConfigValue<List<String>> nonStackableItemsList;
 	@Nullable
 	private Set<Item> nonStackableItems = null;
 
-	public StackUpgradeConfig(ModConfigSpec.Builder builder) {
+	public StackUpgradeConfig(ConfigSpec.Builder builder) {
 		builder.comment("Stack Upgrade Settings").push("stackUpgrade");
 		nonStackableItemsList = builder.comment("List of items that are not supposed to stack in storage even when stack upgrade is inserted. Item registry names are expected here.").define("nonStackableItems", this::getDefaultNonStackableList, itemNames -> {
 			List<String> registryNames = (List<String>) itemNames;

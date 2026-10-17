@@ -102,7 +102,7 @@ public class FluidStack {
 		return ops(registryLookup)
 				.map(dynamicOps -> FluidVariant.CODEC.parse(dynamicOps, tag.get("variant")).result())
 				.flatMap(result -> result)
-				.map(variant -> new FluidStack(variant, tag.getLong("amount")))
+				.map(variant -> new FluidStack(variant, tag.getLongOr("amount", 0L)))
 				.orElse(EMPTY);
 	}
 

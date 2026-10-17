@@ -4,6 +4,7 @@ import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.Container;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.CraftingContainer;
@@ -100,7 +101,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 								remainingItemStack.grow(recipeInputStack.getCount());
 								craftMatrix.setItem(i, remainingItemStack);
 							} else if (!player.getInventory().add(remainingItemStack)) {
-								player.drop(remainingItemStack, false);
+								player.drop(remainingItemStack, false, Prediction.PREDICTED);
 							}
 						}
 						remaininItemsIndex++;
@@ -108,7 +109,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 				}
 
 				if (!remainingStack.isEmpty()) {
-					player.drop(remainingStack, false);
+					player.drop(remainingStack, false, Prediction.PREDICTED);
 				}
 			}
 
@@ -116,7 +117,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 				for (int j = remaininItemsIndex; j < remainingItems.size(); j++) {
 					ItemStack remaining = remainingItems.get(j);
 					if (!remaining.isEmpty()) {
-						player.drop(remaining, false);
+						player.drop(remaining, false, Prediction.PREDICTED);
 					}
 				}
 				SophisticatedCore.LOGGER.error("Recipe " + (lastRecipe != null ? lastRecipe.id() : "[unknown]") + " returned more than 9 remaining items, ignoring the rest!");
@@ -164,7 +165,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 	}
 
 	private void updateCraftingResult(Level level, Player player, CraftingContainer inventory, ResultContainer inventoryResult, ResultSlot craftingResultSlot) {
-		if (!level.isClientSide) {
+		if (!level.isClientSide()) {
 			ServerPlayer serverplayerentity = (ServerPlayer) player;
 			ItemStack itemstack = ItemStack.EMPTY;
 			if (lastRecipe != null && lastRecipe.value().matches(inventory.asCraftInput(), level)) {
@@ -228,9 +229,9 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 	@Override
 	public void handlePacket(CompoundTag data) {
 		if (data.contains(DATA_SHIFT_CLICK_INTO_STORAGE)) {
-			setShiftClickIntoStorage(data.getBoolean(DATA_SHIFT_CLICK_INTO_STORAGE));
+			setShiftClickIntoStorage(data.getBooleanOr(DATA_SHIFT_CLICK_INTO_STORAGE, false));
 		} else if (data.contains(DATA_SELECT_RESULT)) {
-			selectCraftingResult(data.getInt(DATA_SELECT_RESULT));
+			selectCraftingResult(data.getIntOr(DATA_SELECT_RESULT, 0));
 		}
 	}
 

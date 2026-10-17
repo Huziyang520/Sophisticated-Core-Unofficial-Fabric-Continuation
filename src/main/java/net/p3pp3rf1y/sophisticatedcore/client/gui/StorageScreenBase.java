@@ -461,65 +461,6 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		pose.popPose();
 	}
 
-	/*@SuppressWarnings("java:S4449")
-	//renderFloatingItem should really have altText as nullable as it is then only passed to nullable parameter
-	private void renderSuper(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) { //copy of super.render with storage inventory slots rendering and snap rendering removed
-		int i = leftPos;
-		int j = topPos;
-		renderBg(guiGraphics, partialTick, mouseX, mouseY);
-		//noinspection UnstableApiUsage
-		NeoForge.EVENT_BUS.post(new net.neoforged.neoforge.client.event.ContainerScreenEvent.Render.Background(this, guiGraphics, mouseX, mouseY));
-		RenderSystem.disableDepthTest();
-
-		hoveredSlot = null;
-
-		for (Renderable widget : renderables) {
-			widget.render(guiGraphics, mouseX, mouseY, partialTick);
-		}
-
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
-		poseStack.translate(i, j, 0.0D);
-
-		for (int k = 0; k < StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS; ++k) {
-			Slot slot = getMenu().getSlot(getMenu().getInventorySlotsSize() - StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS + k);
-			if (slot.isActive()) {
-				renderSlot(guiGraphics, slot);
-			}
-
-			if (isHovering(slot, mouseX, mouseY) && slot.isActive()) {
-				hoveredSlot = slot;
-				int l = slot.x;
-				int i1 = slot.y;
-				renderSlotHighlight(guiGraphics, l, i1, 0, getSlotColor(k));
-			}
-		}
-
-		renderLabels(guiGraphics, mouseX, mouseY);
-		//noinspection UnstableApiUsage
-		NeoForge.EVENT_BUS.post(new ContainerScreenEvent.Render.Foreground(this, guiGraphics, mouseX, mouseY));
-		ItemStack itemstack = draggingItem.isEmpty() ? menu.getCarried() : draggingItem;
-		if (!itemstack.isEmpty()) {
-			int i2 = draggingItem.isEmpty() ? 8 : 16;
-			String s = null;
-			if (!draggingItem.isEmpty() && isSplittingStack) {
-				itemstack = itemstack.copy();
-				itemstack.setCount(Mth.ceil(itemstack.getCount() / 2.0F));
-			} else if (isQuickCrafting && quickCraftSlots.size() > 1) {
-				itemstack = itemstack.copy();
-				itemstack.setCount(quickCraftingRemainder);
-				if (itemstack.isEmpty()) {
-					s = ChatFormatting.YELLOW + "0";
-				}
-			}
-
-			//noinspection ConstantConditions - renderFloatingItem should really have altText as nullable as it is then only passed to nullable parameter
-			renderFloatingItem(guiGraphics, itemstack, mouseX - i - 8, mouseY - j - i2, s);
-		}
-
-		poseStack.popPose();
-		RenderSystem.enableDepthTest();
-	}*/
 
 	@Override
 	protected void renderLabels(GuiGraphics guiGraphics, int mouseX, int mouseY) {

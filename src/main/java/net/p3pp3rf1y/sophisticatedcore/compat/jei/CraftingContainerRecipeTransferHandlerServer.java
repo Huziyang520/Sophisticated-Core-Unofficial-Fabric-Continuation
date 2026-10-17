@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
@@ -53,7 +54,7 @@ public class CraftingContainerRecipeTransferHandlerServer {
 		for (ItemStack oldCraftingItem : clearedCraftingItems) {
 			int added = addStack(container, inventorySlots, oldCraftingItem);
 			if (added < oldCraftingItem.getCount() && !player.getInventory().add(oldCraftingItem)) {
-				player.drop(oldCraftingItem, false);
+				player.drop(oldCraftingItem, false, Prediction.PREDICTED);
 			}
 		}
 	}

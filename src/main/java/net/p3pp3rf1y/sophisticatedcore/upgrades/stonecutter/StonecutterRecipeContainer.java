@@ -152,7 +152,7 @@ public class StonecutterRecipeContainer {
 
 	public void handlePacket(CompoundTag data) {
 		if (data.contains(DATA_SELECTED_RECIPE_INDEX)) {
-			selectRecipe(data.getInt(DATA_SELECTED_RECIPE_INDEX));
+			selectRecipe(data.getIntOr(DATA_SELECTED_RECIPE_INDEX, 0));
 		}
 	}
 

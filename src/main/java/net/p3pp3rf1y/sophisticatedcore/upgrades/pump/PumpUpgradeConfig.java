@@ -1,13 +1,13 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.pump;
 
-import net.neoforged.neoforge.common.ModConfigSpec;
+import net.p3pp3rf1y.sophisticatedcore.platform.config.ConfigSpec;
 
 public class PumpUpgradeConfig {
-	public final ModConfigSpec.IntValue maxInputOutput;
-	public final ModConfigSpec.DoubleValue stackMultiplierRatio;
-	public final ModConfigSpec.IntValue filterSlots;
+	public final ConfigSpec.IntValue maxInputOutput;
+	public final ConfigSpec.DoubleValue stackMultiplierRatio;
+	public final ConfigSpec.IntValue filterSlots;
 
-	public PumpUpgradeConfig(ModConfigSpec.Builder builder) {
+	public PumpUpgradeConfig(ConfigSpec.Builder builder) {
 		builder.comment("Pump Upgrade Settings").push("pumpUpgrade");
 		filterSlots = builder.comment("Number of fluid filter slots").defineInRange("filterSlots", 4, 1, 20);
 		maxInputOutput = builder.comment("How much mB can be transfered in / out per operation. This is a base transfer rate that gets multiplied by number of rows in storage and stack multiplier.").defineInRange("maxInputOutput", 20, 1, 1000);

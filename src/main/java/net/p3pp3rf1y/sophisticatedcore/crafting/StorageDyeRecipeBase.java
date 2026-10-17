@@ -1,29 +1,25 @@
 package net.p3pp3rf1y.sophisticatedcore.crafting;
 
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.DyeItem;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CustomRecipe;
 import net.minecraft.world.level.Level;
-
 import org.jetbrains.annotations.Nullable;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/** Shared logic for the dye recipes: one storage item plus dyes laid out in columns around it. */
 public abstract class StorageDyeRecipeBase extends CustomRecipe {
-	protected StorageDyeRecipeBase(CraftingBookCategory category) {
-		super(category);
+	protected StorageDyeRecipeBase() {
+		super();
 	}
 
 	@Override
@@ -50,9 +46,10 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 	}
 
 	@Override
-	public ItemStack assemble(CraftingInput inv, HolderLookup.Provider registries) {
+	public ItemStack assemble(CraftingInput inv) {
 		Map<Integer, List<DyeColor>> columnDyes = new HashMap<>();
-		Tuple<Integer, ItemStack> columnStorage = null;
+		int storageColumn = -1;
+		ItemStack storageStack = ItemStack.EMPTY;
 
 		for (int slot = 0; slot < inv.size(); slot++) {
 			ItemStack slotStack = inv.getItem(slot);
@@ -61,11 +58,12 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 			}
 			int column = slot % inv.width();
 			if (isDyeableStorageItem(slotStack)) {
-				if (columnStorage != null) {
+				if (storageColumn >= 0) {
 					return ItemStack.EMPTY;
 				}
 
-				columnStorage = new Tuple<>(column, slotStack);
+				storageColumn = column;
+				storageStack = slotStack;
 			} else if (slotStack.is(ConventionalItemTags.DYES)) {
 				DyeColor dyeColor = getColorFromStack(slotStack);
 				if (dyeColor == null) {
@@ -76,13 +74,12 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 				return ItemStack.EMPTY;
 			}
 		}
-		if (columnStorage == null) {
+		if (storageColumn < 0) {
 			return ItemStack.EMPTY;
 		}
 
-		ItemStack coloredStorage = columnStorage.getB().copy();
+		ItemStack coloredStorage = storageStack.copy();
 		coloredStorage.setCount(1);
-		int storageColumn = columnStorage.getA();
 
 		applyTintColors(columnDyes, coloredStorage, storageColumn);
 
@@ -114,16 +111,13 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 		return width >= 2 && height >= 1;
 	}
 
+	/** @return the colour of a dye stack, read from the conventional dye tags, or {@code null} when it is not a dye. */
 	@Nullable
 	public static DyeColor getColorFromStack(ItemStack stack) {
-		Item item = stack.getItem();
-		if (item instanceof DyeItem dyeItem) {
-			return dyeItem.getDyeColor();
-		}
-
 		for (DyeColor color : DyeColor.values()) {
-			if (stack.is(TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", color.getName() + "_dyes"))))
+			if (stack.is(TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", color.getName() + "_dyes")))) {
 				return color;
+			}
 		}
 
 		return null;

@@ -246,12 +246,12 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 	@Override
 	public void handlePacket(CompoundTag data) {
 		if (data.contains("categoryName")) {
-			String categoryName = data.getString("categoryName");
+			String categoryName = data.getStringOr("categoryName", "");
 			if (settingsContainers.containsKey(categoryName)) {
 				settingsContainers.get(categoryName).handlePacket(data);
 			}
 		} else if (data.contains(TemplatePersistanceContainer.TEMPLATE_PERSISTANCE_TAG, Tag.TAG_COMPOUND)) {
-			templatePersistanceContainer.handlePacket(data.getCompound(TemplatePersistanceContainer.TEMPLATE_PERSISTANCE_TAG));
+			templatePersistanceContainer.handlePacket(data.getCompoundOrEmpty(TemplatePersistanceContainer.TEMPLATE_PERSISTANCE_TAG));
 		}
 	}
 
@@ -338,7 +338,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 	}
 
 	protected boolean isServer() {
-		return !player.level().isClientSide;
+		return !player.level().isClientSide();
 	}
 
 	public void sendAdditionalSlotInfo() {

@@ -100,6 +100,8 @@ fabricApi {
 tasks.withType(JavaCompile).configureEach {
     it.options.encoding = 'UTF-8'
     it.options.release = project.java_version as int
+    // javac 默认只报前 100 条错误，改这个移植量下不够用；一次看全，减少迭代轮次。
+    it.options.compilerArgs << '-Xmaxerrs' << '10000'
 }
 
 java {
@@ -110,5 +112,17 @@ java {
 jar {
     from('/') {
         include 'LICENSE'
+    }
+}
+
+// 供存储/背包在本地 mavenLocal() 里取核心作为编译期依赖（三者是独立仓库，不用复合构建）。
+publishing {
+    publications {
+        register('mavenJava', MavenPublication) {
+            from components.java
+            groupId = mod_group_id
+            artifactId = mod_id
+            version = mod_version
+        }
     }
 }

@@ -2,8 +2,8 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.stonecutter;
 
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import net.p3pp3rf1y.sophisticatedcore.platform.item.ItemStackHandler;
+import net.p3pp3rf1y.sophisticatedcore.platform.item.SlottedStackStorage;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
 import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;

@@ -205,31 +205,31 @@ public class FilterLogicContainerBase<T extends FilterLogic, S extends Slot> {
 		for (String key : data.getAllKeys()) {
 			switch (key) {
 				case DATA_IS_ALLOW_LIST -> {
-					setAllowList(data.getBoolean(DATA_IS_ALLOW_LIST));
+					setAllowList(data.getBooleanOr(DATA_IS_ALLOW_LIST, false));
 					return true;
 				}
 				case DATA_MATCH_DURABILITY -> {
-					setMatchDurability(data.getBoolean(DATA_MATCH_DURABILITY));
+					setMatchDurability(data.getBooleanOr(DATA_MATCH_DURABILITY, false));
 					return true;
 				}
 				case DATA_MATCH_NBT -> {
-					setMatchNbt(data.getBoolean(DATA_MATCH_NBT));
+					setMatchNbt(data.getBooleanOr(DATA_MATCH_NBT, false));
 					return true;
 				}
 				case DATA_PRIMARY_MATCH -> {
-					setPrimaryMatch(PrimaryMatch.fromName(data.getString(DATA_PRIMARY_MATCH)));
+					setPrimaryMatch(PrimaryMatch.fromName(data.getStringOr(DATA_PRIMARY_MATCH, "")));
 					return true;
 				}
 				case DATA_ADD_TAG_NAME -> {
-					addTagName(TagKey.create(Registries.ITEM, Identifier.parse(data.getString(DATA_ADD_TAG_NAME))));
+					addTagName(TagKey.create(Registries.ITEM, Identifier.parse(data.getStringOr(DATA_ADD_TAG_NAME, ""))));
 					return true;
 				}
 				case DATA_REMOVE_TAG_NAME -> {
-					removeSelectedTag(TagKey.create(Registries.ITEM, Identifier.parse(data.getString(DATA_REMOVE_TAG_NAME))));
+					removeSelectedTag(TagKey.create(Registries.ITEM, Identifier.parse(data.getStringOr(DATA_REMOVE_TAG_NAME, ""))));
 					return true;
 				}
 				case DATA_MATCH_ANY_TAG -> {
-					setMatchAnyTag(data.getBoolean(DATA_MATCH_ANY_TAG));
+					setMatchAnyTag(data.getBooleanOr(DATA_MATCH_ANY_TAG, false));
 					return true;
 				}
 				default -> {
@@ -241,7 +241,7 @@ public class FilterLogicContainerBase<T extends FilterLogic, S extends Slot> {
 	}
 
 	protected boolean isDifferentFilterLogicsData(CompoundTag data) {
-		return data.contains(DATA_COMPONENT_KEY) && !filterLogic.get().getAttributesComponent().getKey().location().toString().equals(data.getString(DATA_COMPONENT_KEY));
+		return data.contains(DATA_COMPONENT_KEY) && !filterLogic.get().getAttributesComponent().getKey().location().toString().equals(data.getStringOr(DATA_COMPONENT_KEY, ""));
 	}
 
 	public class TagSelectionSlot extends Slot implements IFilterSlot {

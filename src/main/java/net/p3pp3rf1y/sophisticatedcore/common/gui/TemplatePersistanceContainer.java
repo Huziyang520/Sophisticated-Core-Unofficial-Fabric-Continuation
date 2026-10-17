@@ -101,17 +101,17 @@ public class TemplatePersistanceContainer {
 
 	public void handlePacket(CompoundTag data) {
 		if (data.contains(ACTION_TAG)) {
-			String action = data.getString(ACTION_TAG);
+			String action = data.getStringOr(ACTION_TAG, "");
 			switch (action) {
-				case "saveTemplate" -> saveTemplate(data.getString("slotName"));
+				case "saveTemplate" -> saveTemplate(data.getStringOr("slotName", ""));
 				case "loadTemplate" -> loadTemplate();
-				case "exportTemplate" -> exportTemplate(data.getString("fileName"));
+				case "exportTemplate" -> exportTemplate(data.getStringOr("fileName", ""));
 			}
 		}
 		if (data.contains(SAVE_SLOT_TAG)) {
-			scrollSaveSlot(data.getBoolean(SAVE_SLOT_TAG));
+			scrollSaveSlot(data.getBooleanOr(SAVE_SLOT_TAG, false));
 		} else if (data.contains(LOAD_SLOT_TAG)) {
-			scrollLoadSlot(data.getBoolean(LOAD_SLOT_TAG));
+			scrollLoadSlot(data.getBooleanOr(LOAD_SLOT_TAG, false));
 		}
 	}
 

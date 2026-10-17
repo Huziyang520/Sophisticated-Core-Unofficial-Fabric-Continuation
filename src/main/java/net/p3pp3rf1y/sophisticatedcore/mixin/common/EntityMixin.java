@@ -88,7 +88,7 @@ public class EntityMixin implements SophisticatedEntity {
 	@Inject(method = "load", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"))
 	public void sophisticatedCore$readAdditionalData(CompoundTag compound, CallbackInfo ci) {
 		if (compound.contains(SOPHISTICATEDCOREDATA_NBT_KEY)) {
-			this.sophisticatedCore$customData = compound.getCompound(SOPHISTICATEDCOREDATA_NBT_KEY);
+			this.sophisticatedCore$customData = compound.getCompoundOrEmpty(SOPHISTICATEDCOREDATA_NBT_KEY);
 		}
 	}
 }

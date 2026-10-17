@@ -2,36 +2,35 @@ package net.p3pp3rf1y.sophisticatedcore.crafting;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementRequirements;
-import net.minecraft.advancements.AdvancementRewards;
-import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
+import net.minecraft.advancements.triggers.Criterion;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
-import net.minecraft.resources.Identifier;
+import net.minecraft.data.recipes.RecipeUnlockAdvancementBuilder;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
+/** Shaped recipe builder that can hand the built recipe to a wrapper instead of writing it out directly. */
 public class SCShapedRecipeBuilder implements RecipeBuilder {
-	private final RecipeCategory category;
+	protected final RecipeCategory category;
 	private final Item result;
-	private final ItemStack resultStack;
-	private final List<String> rows = Lists.<String>newArrayList();
-	private final Map<Character, Ingredient> key = Maps.<Character, Ingredient>newLinkedHashMap();
-	private final Map<String, Criterion<?>> criteria = new LinkedHashMap<>();
+	protected final ItemStack resultStack;
+	private final List<String> rows = Lists.newArrayList();
+	private final Map<Character, Ingredient> key = Maps.newLinkedHashMap();
+	private final RecipeUnlockAdvancementBuilder advancementBuilder = new RecipeUnlockAdvancementBuilder();
 	@Nullable
 	private String group;
 	private boolean showNotification = true;
@@ -46,37 +45,25 @@ public class SCShapedRecipeBuilder implements RecipeBuilder {
 		this.resultStack = result;
 	}
 
-	/**
-	 * Creates a new builder for a shaped recipe.
-	 */
 	public static SCShapedRecipeBuilder shaped(RecipeCategory category, ItemLike result) {
 		return shaped(category, result, 1);
 	}
 
-	/**
-	 * Creates a new builder for a shaped recipe.
-	 */
 	public static SCShapedRecipeBuilder shaped(RecipeCategory category, ItemLike result, int count) {
 		return new SCShapedRecipeBuilder(category, result, count);
 	}
 
-	/**
-	 * Adds a key to the recipe pattern.
-	 */
+	/** Adds a key to the recipe pattern. */
 	public SCShapedRecipeBuilder define(Character symbol, TagKey<Item> tag) {
-		return this.define(symbol, Ingredient.of(tag));
+		return this.define(symbol, Ingredient.of(BuiltInRegistries.ITEM.getOrThrow(tag)));
 	}
 
-	/**
-	 * Adds a key to the recipe pattern.
-	 */
+	/** Adds a key to the recipe pattern. */
 	public SCShapedRecipeBuilder define(Character symbol, ItemLike item) {
 		return this.define(symbol, Ingredient.of(item));
 	}
 
-	/**
-	 * Adds a key to the recipe pattern.
-	 */
+	/** Adds a key to the recipe pattern. */
 	public SCShapedRecipeBuilder define(Character symbol, Ingredient ingredient) {
 		if (this.key.containsKey(symbol)) {
 			throw new IllegalArgumentException("Symbol '" + symbol + "' is already defined!");
@@ -88,11 +75,9 @@ public class SCShapedRecipeBuilder implements RecipeBuilder {
 		}
 	}
 
-	/**
-	 * Adds a new entry to the patterns for this recipe.
-	 */
+	/** Adds a new entry to the patterns for this recipe. */
 	public SCShapedRecipeBuilder pattern(String pattern) {
-		if (!this.rows.isEmpty() && pattern.length() != ((String)this.rows.get(0)).length()) {
+		if (!this.rows.isEmpty() && pattern.length() != this.rows.get(0).length()) {
 			throw new IllegalArgumentException("Pattern must be the same width on every line!");
 		} else {
 			this.rows.add(pattern);
@@ -101,10 +86,11 @@ public class SCShapedRecipeBuilder implements RecipeBuilder {
 	}
 
 	public SCShapedRecipeBuilder unlockedBy(String name, Criterion<?> criterion) {
-		this.criteria.put(name, criterion);
+		this.advancementBuilder.unlockedBy(name, criterion);
 		return this;
 	}
 
+	@Override
 	public SCShapedRecipeBuilder group(@Nullable String groupName) {
 		this.group = groupName;
 		return this;
@@ -115,34 +101,23 @@ public class SCShapedRecipeBuilder implements RecipeBuilder {
 		return this;
 	}
 
-	@Override
 	public Item getResult() {
 		return this.result;
 	}
 
 	@Override
-	public void save(RecipeOutput recipeOutput, Identifier id) {
-		ShapedRecipePattern shapedRecipePattern = this.ensureValid(id);
-		Advancement.Builder builder = recipeOutput.advancement()
-				.addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
-				.rewards(AdvancementRewards.Builder.recipe(id))
-				.requirements(AdvancementRequirements.Strategy.OR);
-		this.criteria.forEach(builder::addCriterion);
-		ShapedRecipe shapedRecipe = new ShapedRecipe(
-				Objects.requireNonNullElse(this.group, ""),
-				RecipeBuilder.determineBookCategory(this.category),
-				shapedRecipePattern,
-				this.resultStack,
-				this.showNotification
-		);
-		recipeOutput.accept(id, shapedRecipe, builder.build(id.withPrefix("recipes/" + this.category.getFolderName() + "/")));
+	public ResourceKey<Recipe<?>> defaultId() {
+		return RecipeBuilder.getDefaultRecipeId(resultStack);
 	}
 
-	private ShapedRecipePattern ensureValid(Identifier loaction) {
-		if (this.criteria.isEmpty()) {
-			throw new IllegalStateException("No way of obtaining recipe " + loaction);
-		} else {
-			return ShapedRecipePattern.of(this.key, this.rows);
-		}
+	@Override
+	public void save(RecipeOutput recipeOutput, ResourceKey<Recipe<?>> id) {
+		ShapedRecipe shapedRecipe = new ShapedRecipe(
+				RecipeBuilder.createCraftingCommonInfo(this.showNotification),
+				RecipeBuilder.createCraftingBookInfo(this.category, this.group),
+				ShapedRecipePattern.of(this.key, this.rows),
+				ItemStackTemplate.fromNonEmptyStack(this.resultStack)
+		);
+		recipeOutput.accept(id, shapedRecipe, this.advancementBuilder.build(recipeOutput, id, this.category));
 	}
 }

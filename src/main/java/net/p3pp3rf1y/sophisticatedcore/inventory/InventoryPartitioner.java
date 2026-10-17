@@ -220,9 +220,9 @@ public class InventoryPartitioner {
 			return;
 		}
 
-		baseIndexes = tag.getIntArray(BASE_INDEXES_TAG);
+		baseIndexes = tag.getIntArray(BASE_INDEXES_TAG.orElse(new int[0]));
 		inventoryPartHandlers = new IInventoryPartHandler[baseIndexes.length];
-		ListTag partNamesTag = tag.getList("inventoryPartNames", Tag.TAG_STRING);
+		ListTag partNamesTag = tag.getListOrEmpty("inventoryPartNames");
 		int i = 0;
 		for (Tag t : partNamesTag) {
 			SlotRange slotRange = new SlotRange(baseIndexes[i], (i + 1 < baseIndexes.length ? baseIndexes[i + 1] : parent.getSlotCount()) - baseIndexes[i]);
