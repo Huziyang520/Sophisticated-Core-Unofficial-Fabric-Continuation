@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui;
 
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -59,7 +60,7 @@ public abstract class Tab extends CompositeWidgetBase<WidgetBase> {
 	public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		super.extractTooltip(screen, guiGraphics, mouseX, mouseY);
 		if (shouldRender.getAsBoolean() && isClosedTooltipVisible(mouseX, mouseY)) {
-			guiGraphics.setTooltipForNextFrame(screen.font, tooltip, Optional.empty(), mouseX, mouseY);
+			guiGraphics.setTooltipForNextFrame(screen.getFont(), tooltip, Optional.empty(), mouseX, mouseY);
 		}
 	}
 
@@ -92,7 +93,7 @@ public abstract class Tab extends CompositeWidgetBase<WidgetBase> {
 		int secondHalfHeight = halfHeight + oddHeightAddition;
 		guiGraphics.blit(GuiHelper.GUI_CONTROLS, x, y, (float) TEXTURE_WIDTH - width, 0, width, halfHeight, TEXTURE_WIDTH, TEXTURE_HEIGHT);
 		guiGraphics.blit(GuiHelper.GUI_CONTROLS, x, y + halfHeight, (float) TEXTURE_WIDTH - width, (float) TEXTURE_HEIGHT - secondHalfHeight, width, secondHalfHeight, TEXTURE_WIDTH, TEXTURE_HEIGHT);
-		guiGraphics.blit(GuiHelper.GUI_CONTROLS, x - 3, y, TEXTURE_WIDTH / 2, TEXTURE_HEIGHT - height, 3, height);
+		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, GuiHelper.GUI_CONTROLS, x - 3, y, TEXTURE_WIDTH / 2, TEXTURE_HEIGHT - height, 3, height, 256, 256);
 	}
 
 	protected boolean isClosedTooltipVisible(int mouseX, int mouseY) {

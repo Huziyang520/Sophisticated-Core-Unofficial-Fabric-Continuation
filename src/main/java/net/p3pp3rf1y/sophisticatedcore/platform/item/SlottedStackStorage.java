@@ -2,6 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.platform.item;
 
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage;
+import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.world.item.ItemStack;
 
@@ -37,6 +38,23 @@ public interface SlottedStackStorage extends SlottedStorage<ItemVariant> {
 
 	default boolean isItemValid(int slot, ItemVariant resource, int count) {
 		return true;
+	}
+
+	@Override
+	default java.util.Iterator<StorageView<ItemVariant>> iterator() {
+		return new java.util.Iterator<>() {
+			private int next = 0;
+
+			@Override
+			public boolean hasNext() {
+				return next < getSlotCount();
+			}
+
+			@Override
+			public StorageView<ItemVariant> next() {
+				return getSlot(next++);
+			}
+		};
 	}
 
 	@Override

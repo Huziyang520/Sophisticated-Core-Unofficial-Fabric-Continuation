@@ -34,23 +34,8 @@ public class StackUpgradeConfig {
 		List<String> ret = new ArrayList<>();
 
 		ret.add(RegistryHelper.getItemKey(Items.BUNDLE).toString());
+		// 26.3 turned dyed shulkers into the single shulker_box item with a colour component, so one entry covers them all
 		ret.add(RegistryHelper.getItemKey(Items.SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.WHITE_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.ORANGE_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.MAGENTA_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.LIGHT_BLUE_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.YELLOW_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.LIME_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.PINK_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.GRAY_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.LIGHT_GRAY_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.CYAN_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.PURPLE_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.BLUE_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.BROWN_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.GREEN_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.RED_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.BLACK_SHULKER_BOX).toString());
 
 		return ret;
 	}

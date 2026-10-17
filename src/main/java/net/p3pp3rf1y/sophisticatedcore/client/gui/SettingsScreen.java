@@ -1,5 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui;
 
+import net.minecraft.client.resources.model.sprite.SpriteId;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.KeyEvent;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -32,6 +35,9 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	private StorageSettingsTabControlBase settingsTabControl;
 	private InventoryScrollPanel inventoryScrollPanel = null;
 	private TemplatePersistanceControl templatePersistanceControl = null;
+	/** 26.3 made the parent fields final; this screen is sized from the menu so it shadows them. */
+	protected int imageWidth;
+	protected int imageHeight;
 	private StorageBackgroundProperties storageBackgroundProperties;
 	private boolean mouseDragHandledByOther = false;
 
@@ -42,9 +48,9 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	}
 
 	@Override
-	public void resize(Minecraft minecraft, int width, int height) {
+	public void resize(int width, int height) {
 		updateDimensionsAndSlotPositions(height);
-		super.resize(minecraft, width, height);
+		super.resize(width, height);
 	}
 
 	private void updateDimensionsAndSlotPositions(int height) {
@@ -148,15 +154,15 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
 		poseStack.translate(0, 0);
-		renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
+		extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
 		poseStack.popMatrix();
 
 		settingsTabControl.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		templatePersistanceControl.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		super.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
-		settingsTabControl.setTooltipForNextFrame(this, guiGraphics, mouseX, mouseY);
-		templatePersistanceControl.setTooltipForNextFrame(this, guiGraphics, mouseX, mouseY);
-		renderTooltip(guiGraphics, mouseX, mouseY);
+		settingsTabControl.extractTooltip(this, guiGraphics, mouseX, mouseY);
+		templatePersistanceControl.extractTooltip(this, guiGraphics, mouseX, mouseY);
+		extractTooltip(guiGraphics, mouseX, mouseY);
 	}
 
 	@Override
@@ -164,13 +170,13 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		Matrix3x2fStack pose = guiGraphics.pose();
 		pose.pushMatrix();
 		pose.translate(0, 0);
-		super.renderTransparentBackground(guiGraphics);
+		super.extractTransparentBackground(guiGraphics);
 		pose.popMatrix();
 	}
 
 	@Override
 	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-		super.renderLabels(guiGraphics, mouseX, mouseY);
+		super.extractLabels(guiGraphics, mouseX, mouseY);
 		if (inventoryScrollPanel == null) {
 			renderInventorySlots(guiGraphics, mouseX, mouseY, true);
 		}
@@ -180,7 +186,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	public void renderInventorySlots(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, boolean canShowHover) {
 		for (int slotId = 0; slotId < menu.ghostSlots.size(); ++slotId) {
 			Slot slot = menu.ghostSlots.get(slotId);
-			renderSlot(guiGraphics, slot);
+			extractSlot(guiGraphics, slot, mouseX, mouseY);
 
 			settingsTabControl.renderSlotOverlays(guiGraphics, slot, this::renderSlotOverlay, isTemplateLoadHovered());
 
@@ -194,7 +200,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	}
 
 	@Override
-	public void extractSlot(GuiGraphicsExtractor guiGraphics, Slot slot) {
+	public void extractSlot(GuiGraphicsExtractor guiGraphics, Slot slot, int mouseX, int mouseY) {
 		ItemStack itemstack = slot.getItem() != ItemStack.EMPTY ? slot.getItem() : settingsTabControl.getSlotStackDisplayOverride(slot.sophisticatedCore_getSlotIndex(), isTemplateLoadHovered());
 
 		Matrix3x2fStack poseStack = guiGraphics.pose();
@@ -208,7 +214,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 				Pair<Identifier, Identifier> pair = slot.getNoItemIcon();
 				if (pair != null) {
 					TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(pair.getFirst()).apply(pair.getSecond());
-					guiGraphics.blit(slot.x, slot.y, 0, 16, 16, textureatlassprite);
+					guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, textureatlassprite, slot.x, slot.y, 16, 16);
 				}
 			}
 		}
@@ -264,8 +270,8 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	}
 
 	@Override
-	protected boolean hasClickedOutside(double mouseX, double mouseY, int guiLeftIn, int guiTopIn, int mouseButton) {
-		return super.hasClickedOutside(mouseX, mouseY, guiLeftIn, guiTopIn, mouseButton) && hasClickedOutsideOfSettings(mouseX, mouseY);
+	protected boolean hasClickedOutside(double mouseX, double mouseY, int guiLeftIn, int guiTopIn) {
+		return super.hasClickedOutside(mouseX, mouseY, guiLeftIn, guiTopIn) && hasClickedOutsideOfSettings(mouseX);
 	}
 
 	private boolean hasClickedOutsideOfSettings(double mouseX, double mouseY) {

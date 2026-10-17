@@ -1,1 +1,3 @@
-{"parent":"sophisticatedcore:item/bucket","fluid":"sophisticatedcore:xp_still","loader":"sophisticatedcore:fluid_container"}
+{
+  "parent": "sophisticatedcore:item/bucket"
+}

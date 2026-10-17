@@ -72,7 +72,7 @@ public class Button extends ButtonBase {
 	public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		super.extractTooltip(screen, guiGraphics, mouseX, mouseY);
 		if (visible && isMouseOver(mouseX, mouseY)) {
-			guiGraphics.setTooltipForNextFrame(screen.font, getTooltip(), Optional.empty(), mouseX, mouseY);
+			guiGraphics.setTooltipForNextFrame(screen.getFont(), getTooltip(), Optional.empty(), mouseX, mouseY);
 		}
 	}
 }

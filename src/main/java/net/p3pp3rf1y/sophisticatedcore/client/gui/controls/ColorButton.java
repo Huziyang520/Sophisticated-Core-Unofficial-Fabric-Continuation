@@ -47,7 +47,7 @@ public class ColorButton extends ButtonBase {
 	public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		super.extractTooltip(screen, guiGraphics, mouseX, mouseY);
 		if (visible && isMouseOver(mouseX, mouseY) && !tooltip.isEmpty()) {
-			guiGraphics.setTooltipForNextFrame(screen.font, tooltip, Optional.empty(), mouseX, mouseY);
+			guiGraphics.setTooltipForNextFrame(screen.getFont(), tooltip, Optional.empty(), mouseX, mouseY);
 		}
 	}
 }

@@ -7,7 +7,7 @@ import net.p3pp3rf1y.sophisticatedcore.init.ModFluids;
 
 import java.util.concurrent.CompletableFuture;
 
-public class SCFluidTagsProvider extends FabricTagProvider.FluidTagProvider {
+public class SCFluidTagsProvider extends FabricTagsProvider.FluidTagProvider {
 	public SCFluidTagsProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> completableFuture) {
 		super(output, completableFuture);
 	}

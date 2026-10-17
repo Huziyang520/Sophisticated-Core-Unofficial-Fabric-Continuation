@@ -84,7 +84,7 @@ class SearchBox extends TextBox {
 		}
 
 		guiGraphics.pose().pushMatrix();
-		guiGraphics.pose().translate(0, 0, 100);
+		guiGraphics.pose().translate(0, 0);
 		guiGraphics.fill(x, y, x + getWidth(), y + getHeight(), 0xFF777777);
 		guiGraphics.pose().popMatrix();
 	}
@@ -93,7 +93,7 @@ class SearchBox extends TextBox {
 	public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		super.extractTooltip(screen, guiGraphics, mouseX, mouseY);
 		if (!isFocused() && isMouseOver(mouseX, mouseY)) {
-			guiGraphics.setTooltipForNextFrame(screen.font, TOOLTIP, Optional.empty(), mouseX, mouseY);
+			guiGraphics.setTooltipForNextFrame(screen.getFont(), TOOLTIP, Optional.empty(), mouseX, mouseY);
 		}
 	}
 }

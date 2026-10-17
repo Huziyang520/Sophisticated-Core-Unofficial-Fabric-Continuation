@@ -143,7 +143,7 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 			}
 
 			guiGraphics.pose().pushMatrix();
-			guiGraphics.pose().translate(0, 0, 410);
+			guiGraphics.pose().translate(0, 0);
 
 			renderResultSelectionBackground(guiGraphics, matchedCraftingResults, resultListPositionDimensions.getRight().width(), resultListPositionDimensions.getRight().height(), resultListPositionDimensions.getLeft().x(), resultListPositionDimensions.getLeft().y());
 			renderResultChoices(guiGraphics, matchedCraftingResults, resultListPositionDimensions.getLeft().x(), resultListPositionDimensions.getLeft().y());
@@ -277,7 +277,7 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 	public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		super.extractTooltip(screen, guiGraphics, mouseX, mouseY);
 		guiGraphics.pose().pushMatrix();
-		guiGraphics.pose().translate(0, 0, 410);
+		guiGraphics.pose().translate(0, 0);
 		getResultChoiceHovered(mouseX, mouseY).ifPresent(i -> {
 			List<ItemStack> matchedCraftingResults = getContainer().getMatchedCraftingResults();
 			if (i < matchedCraftingResults.size()) {

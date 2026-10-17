@@ -81,7 +81,11 @@ public class GuiHelper {
 	}
 
 	public static void blit(GuiGraphicsExtractor guiGraphics, int x, int y, TextureBlitData texData) {
-		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, texData.getTextureName(), x + texData.getXOffset(), y + texData.getYOffset(), texData.getU(), texData.getV(), texData.getWidth(), texData.getHeight(), texData.getTextureWidth(), texData.getTextureHeight());
+		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, texData.getTextureName(),
+				x + texData.getXOffset(), y + texData.getYOffset(),
+				texData.getU(), texData.getV(),
+				texData.getWidth(), texData.getHeight(),
+				texData.getTextureWidth(), texData.getTextureHeight());
 	}
 
 	public static void blit(GuiGraphicsExtractor guiGraphics, int x, int y, TextureBlitData texData, int width, int height) {
@@ -229,8 +233,8 @@ public class GuiHelper {
 	}
 
 	public static void setTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, List<Component> components, int x, int y) {
-		List<ClientTooltipComponent> list = gatherTooltipComponents(components, x, screen.width, screen.height, screen.font);
-		guiGraphics.tooltip(screen.font, list, x, y, DefaultTooltipPositioner.INSTANCE, null, false);
+		List<ClientTooltipComponent> list = gatherTooltipComponents(components, x, screen.width, screen.height, screen.getFont());
+		guiGraphics.tooltip(screen.getFont(), list, x, y, DefaultTooltipPositioner.INSTANCE, null, false);
 	}
 
 	//copy of ForgeHooksClient.gatherTooltipComponents with splitting always called so that new lines in translation are properly wrapped

@@ -303,7 +303,7 @@ public abstract class FilterLogicControlBase<F extends FilterLogic, S extends Sl
 	public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		super.extractTooltip(screen, guiGraphics, mouseX, mouseY);
 		if (container.getPrimaryMatch() == PrimaryMatch.TAGS && isMouseOverTagList(mouseX, mouseY)) {
-			guiGraphics.setTooltipForNextFrame(screen.font, tagListTooltip, Optional.empty(), mouseX, mouseY);
+			guiGraphics.setTooltipForNextFrame(screen.getFont(), tagListTooltip, Optional.empty(), mouseX, mouseY);
 		}
 	}
 

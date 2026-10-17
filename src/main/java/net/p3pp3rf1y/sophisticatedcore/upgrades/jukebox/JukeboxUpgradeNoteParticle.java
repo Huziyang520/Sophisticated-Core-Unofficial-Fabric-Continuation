@@ -1,12 +1,23 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.*;
+import net.minecraft.client.particle.Particle;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.SingleQuadParticle;
+import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.util.Mth;
-
+import net.minecraft.util.RandomSource;
 import org.jetbrains.annotations.Nullable;
 
-public class JukeboxUpgradeNoteParticle extends TextureSheetParticle {
+/**
+ * Notes drifting out of the jukebox upgrade.
+ * <p>
+ * 26.3 renamed {@code TextureSheetParticle} to {@link SingleQuadParticle}, made {@code getGroup} the render type
+ * accessor and turned the colour fields into setters, so this is the same particle against the new base class.
+ */
+public class JukeboxUpgradeNoteParticle extends SingleQuadParticle {
+	private static final float BASE_QUAD_SIZE = 1.5F * 1.5F;
+
 	protected JukeboxUpgradeNoteParticle(ClientLevel level, double x, double y, double z) {
 		super(level, x, y, z, 0.0D, 0.0D, 0.0D);
 		xd *= 0.01F;
@@ -14,21 +25,23 @@ public class JukeboxUpgradeNoteParticle extends TextureSheetParticle {
 		zd *= 0.01F;
 		yd += 0.01D;
 		double color = level.getRandom().nextDouble();
-		rCol = Math.max(0.0F, Mth.sin(((float) color + 0.0F) * ((float) Math.PI * 2F)) * 0.65F + 0.35F);
-		gCol = Math.max(0.0F, Mth.sin(((float) color + 0.33333334F) * ((float) Math.PI * 2F)) * 0.65F + 0.35F);
-		bCol = Math.max(0.0F, Mth.sin(((float) color + 0.6666667F) * ((float) Math.PI * 2F)) * 0.65F + 0.35F);
-		quadSize *= 1.5F;
-		lifetime = 20;
+		setColor(
+				Math.max(0.0F, Mth.sin(((float) color + 0.0F) * ((float) Math.PI * 2F)) * 0.65F + 0.35F),
+				Math.max(0.0F, Mth.sin(((float) color + 0.33333334F) * ((float) Math.PI * 2F)) * 0.65F + 0.35F),
+				Math.max(0.0F, Mth.sin(((float) color + 0.6666667F) * ((float) Math.PI * 2F)) * 0.65F + 0.35F)
+		);
+		scale(BASE_QUAD_SIZE);
+		setLifetime(20);
 	}
 
 	@Override
-	public ParticleRenderType getRenderType() {
-		return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
+	public SingleQuadParticle.Layer getLayer() {
+		return SingleQuadParticle.Layer.OPAQUE;
 	}
 
 	@Override
 	public float getQuadSize(float scaleFactor) {
-		return quadSize * Mth.clamp((age + scaleFactor) / lifetime * 32.0F, 0.0F, 1.0F);
+		return BASE_QUAD_SIZE * Mth.clamp((age + scaleFactor) / lifetime * 32.0F, 0.0F, 1.0F);
 	}
 
 	@Override
@@ -60,9 +73,10 @@ public class JukeboxUpgradeNoteParticle extends TextureSheetParticle {
 
 		@Nullable
 		@Override
-		public Particle createParticle(JukeboxUpgradeNoteParticleData type, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
+		public Particle createParticle(JukeboxUpgradeNoteParticleData type, ClientLevel level, double x, double y, double z,
+									   double xSpeed, double ySpeed, double zSpeed, RandomSource random) {
 			JukeboxUpgradeNoteParticle particle = new JukeboxUpgradeNoteParticle(level, x, y, z);
-			particle.pickSprite(spriteSet);
+			particle.setSpriteFromAge(spriteSet);
 			return particle;
 		}
 	}

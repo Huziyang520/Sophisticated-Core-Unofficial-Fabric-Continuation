@@ -137,7 +137,7 @@ public class StonecutterRecipeControl extends WidgetBase {
 	}
 
 	private void extractTooltip(GuiGraphicsExtractor guiGraphics, ItemStack itemStack, int mouseX, int mouseY) {
-		guiGraphics.renderComponentTooltip(this.font, Screen.getTooltipFromItem(minecraft, itemStack), mouseX, mouseY);	}
+		guiGraphics.setComponentTooltipForNextFrame(this.font, Screen.getTooltipFromItem(minecraft, itemStack), mouseX, mouseY);	}
 
 	private void onInventoryUpdate() {
 		hasItemsInInputSlot = container.hasItemsInInputSlot();
