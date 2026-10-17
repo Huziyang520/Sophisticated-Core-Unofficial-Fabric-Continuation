@@ -1,5 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.controller;
 
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.level.storage.ValueInput;
 import net.p3pp3rf1y.sophisticatedcore.platform.item.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
@@ -807,10 +809,15 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.saveAdditional(tag, registries);
+	protected void saveAdditional(ValueOutput output) {
+		super.saveAdditional(output);
 
-		saveData(tag);
+		// 26.3 的方块实体走 ValueOutput，整块 NBT 作为一个字段存下去
+		output.store("sophisticatedcore_data", CompoundTag.CODEC, saveData(savedTag()));
+	}
+
+	private static CompoundTag savedTag() {
+		return new CompoundTag();
 	}
 
 	private CompoundTag saveData(CompoundTag tag) {
@@ -825,9 +832,10 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	}
 
 	@Override
-	public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.loadAdditional(tag, registries);
+	public void loadAdditional(ValueInput input) {
+		super.loadAdditional(input);
 
+		CompoundTag tag = input.read("sophisticatedcore_data", CompoundTag.CODEC).orElseGet(CompoundTag::new);
 		storagePositions = NBTHelper.getCollection(tag, "storagePositions", Tag.TAG_LONG, t -> Optional.of(BlockPos.of(((LongTag) t).longValue())), ArrayList::new).orElseGet(ArrayList::new);
 		connectingBlocks = NBTHelper.getCollection(tag, "connectingBlocks", Tag.TAG_LONG, t -> Optional.of(BlockPos.of(((LongTag) t).longValue())), LinkedHashSet::new).orElseGet(LinkedHashSet::new);
 		nonConnectingBlocks = NBTHelper.getCollection(tag, "nonConnectingBlocks", Tag.TAG_LONG, t -> Optional.of(BlockPos.of(((LongTag) t).longValue())), LinkedHashSet::new).orElseGet(LinkedHashSet::new);

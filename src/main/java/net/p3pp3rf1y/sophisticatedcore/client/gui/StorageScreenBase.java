@@ -497,7 +497,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			Slot slot = menu.realInventorySlots.get(slotId);
 			extractSlot(guiGraphics, slot, mouseX, mouseY);
 
-			if (canShowHover && isHovering(slot, mouseX, mouseY) && slot.isActive()) {
+			if (canShowHover && isHoveringSlot(slot, mouseX, mouseY) && slot.isActive()) {
 				hoveredSlot = slot;
 				GuiHelper.renderSlotHighlight(guiGraphics, slot.x, slot.y, 0, sophisticatedCore_getSlotColor(slotId));
 			}
@@ -514,7 +514,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 				}
 			}
 
-			if (isHovering(slot, mouseX, mouseY) && slot.isActive()) {
+			if (isHoveringSlot(slot, mouseX, mouseY) && slot.isActive()) {
 				hoveredSlot = slot;
 				GuiHelper.renderSlotHighlight(guiGraphics, slot.x, slot.y, 0, sophisticatedCore_getSlotColor(slotId));
 			}
@@ -550,8 +550,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 				stackToRender = carriedStack.copyWithCount(renderCount);
 			} else {
 				quickCraftSlots.remove(slot);
-				recalculateQuickCraftRemaining();
-			}
+					}
 		}
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
@@ -625,7 +624,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		guiGraphics.fillGradient(xPos, yPos, xPos + width, yPos + height, slotColor, slotColor);
 	}
 
-	protected void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		int x = (width - imageWidth) / 2;
 		int y = (height - imageHeight) / 2;
 		drawInventoryBg(guiGraphics, x, y, storageBackgroundProperties.getTextureName());
@@ -743,7 +742,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	@Nullable
 	private Slot findSlotInMenu(double mouseX, double mouseY) {
 		for (Slot slot : menu.slots) {
-			if (isHovering(slot, mouseX, mouseY) && slot.isActive()) {
+			if (isHoveringSlot(slot, mouseX, mouseY) && slot.isActive()) {
 				return slot;
 			}
 		}
@@ -755,7 +754,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	public Slot findSlot(double mouseX, double mouseY) {
 		for (int i = 0; i < menu.upgradeSlots.size(); ++i) {
 			Slot slot = menu.upgradeSlots.get(i);
-			if (isHovering(slot, mouseX, mouseY) && slot.isActive()) {
+			if (isHoveringSlot(slot, mouseX, mouseY) && slot.isActive()) {
 				return slot;
 			}
 		}
@@ -771,7 +770,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		} else {
 			for (int i = 0; i < menu.realInventorySlots.size(); ++i) {
 				Slot slot = menu.realInventorySlots.get(i);
-				if (isHovering(slot, mouseX, mouseY) && slot.isActive()) {
+				if (isHoveringSlot(slot, mouseX, mouseY) && slot.isActive()) {
 					return slot;
 				}
 			}
@@ -830,55 +829,12 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	private void handleInventoryMouseClick(int slotNumber, int mouseButton, ContainerInput type) {
 		StorageContainerMenuBase<?> menu = getMenu();
-		List<ItemStack> realInventoryItems = new ArrayList<>(menu.realInventorySlots.size());
-		menu.realInventorySlots.forEach(slot -> realInventoryItems.add(slot.getItem().copy()));
-		List<ItemStack> upgradeItems = new ArrayList<>(menu.upgradeSlots.size());
-		menu.upgradeSlots.forEach(slot -> upgradeItems.add(slot.getItem().copy()));
-
-		//noinspection ConstantConditions - by this point minecraft isn't null
-		menu.clicked(slotNumber, mouseButton, type, minecraft.player);
-		Int2ObjectMap<ItemStack> changedSlotIndexes = new Int2ObjectOpenHashMap<>();
-
-		int inventorySlotsToCheck = Math.min(realInventoryItems.size() - StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS, menu.getInventorySlotsSize() - StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS);
-
-		for (int i = 0; i < inventorySlotsToCheck; i++) {
-			ItemStack itemstack = realInventoryItems.get(i);
-			ItemStack slotStack = menu.getSlot(i).getItem();
-			if (!ItemStack.matches(itemstack, slotStack)) {
-				changedSlotIndexes.put(i, slotStack.copy());
-			}
+		if (minecraft == null || minecraft.gameMode == null || minecraft.player == null) {
+			return;
 		}
 
-		for (int i = 0; i < StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS; i++) {
-			ItemStack itemstack = realInventoryItems.get(realInventoryItems.size() - StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS + i);
-			int slotIndex = menu.getInventorySlotsSize() - StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS + i;
-			ItemStack slotStack = menu.getSlot(slotIndex).getItem();
-			if (!ItemStack.matches(itemstack, slotStack)) {
-				changedSlotIndexes.put(slotIndex, slotStack.copy());
-			}
-		}
-
-		int lastChecked = 0;
-		int upgradeSlotsToCheck = Math.min(menu.getUpgradeSlotsSize(), upgradeItems.size());
-
-		for (; lastChecked < upgradeSlotsToCheck; lastChecked++) {
-			ItemStack itemstack = upgradeItems.get(lastChecked);
-			ItemStack slotStack = menu.getSlot(menu.getInventorySlotsSize() + lastChecked).getItem();
-			if (!ItemStack.matches(itemstack, slotStack)) {
-				break;
-			}
-		}
-
-		for (int i = upgradeSlotsToCheck - 1; i >= lastChecked; i--) {
-			ItemStack itemstack = upgradeItems.get(i);
-			int slotIndex = menu.getInventorySlotsSize() + i;
-			ItemStack slotStack = menu.getSlot(slotIndex).getItem();
-			if (!ItemStack.matches(itemstack, slotStack)) {
-				changedSlotIndexes.put(slotIndex, slotStack.copy());
-			}
-		}
-
-		minecraft.player.connection.send(new ServerboundContainerClickPacket(menu.containerId, menu.getStateId(), slotNumber, mouseButton, type, menu.getCarried().copy(), changedSlotIndexes));
+		// 26.3 的点击包要带 HashedStack，手工拼包已不可行，交给游戏模式统一构造并发送
+		minecraft.gameMode.handleInventoryMouseClick(menu.containerId, slotNumber, mouseButton, type, minecraft.player);
 	}
 
 	@Override
@@ -918,8 +874,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 					&& menu.canDragTo(slot)
 					&& isAllowedSlotCombination(slot, itemstack)) {
 				quickCraftSlots.add(slot);
-				recalculateQuickCraftRemaining();
-			}
+					}
 			return true;
 		}
 
@@ -935,7 +890,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	@Override
 	protected boolean hasClickedOutside(double mouseX, double mouseY, int guiLeftIn, int guiTopIn) {
-		return super.hasClickedOutside(mouseX, mouseY, guiLeftIn, guiTopIn) && hasClickedOutsideOfUpgradeSlots(mouseX)
+		return super.hasClickedOutside(mouseX, mouseY, guiLeftIn, guiTopIn) && hasClickedOutsideOfUpgradeSlots(mouseX, mouseY)
 				&& hasClickedOutsideOfUpgradeSettings(mouseX, mouseY);
 	}
 
@@ -1040,12 +995,11 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	@Override
 	public boolean isMouseOverSlot(Slot slot, double mouseX, double mouseY) {
-		return isHovering(slot, mouseX, mouseY);
+		return isHoveringSlot(slot, mouseX, mouseY);
 	}
 
-	@Override
-	public boolean isHovering(Slot slot, double mouseX, double mouseY) {
-		return super.isHovering(slot, mouseX, mouseY) && getUpgradeSettingsControl().slotIsNotCoveredAt(slot, mouseX, mouseY);
+	public boolean isHoveringSlot(Slot slot, double mouseX, double mouseY) {
+		return isHovering(slot.x, slot.y, 16, 16, mouseX, mouseY) && getUpgradeSettingsControl().slotIsNotCoveredAt(slot, mouseX, mouseY);
 	}
 
 	@Override

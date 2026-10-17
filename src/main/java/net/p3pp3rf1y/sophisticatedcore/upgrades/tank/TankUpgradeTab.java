@@ -20,7 +20,7 @@ public class TankUpgradeTab extends UpgradeSettingsTab<TankUpgradeContainer> {
 
 	@Override
 	protected void extractContents(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
-		super.renderBg(guiGraphics, minecraft, mouseX, mouseY);
+		super.extractContents(guiGraphics, minecraft, mouseX, mouseY);
 		if (getContainer().isOpen()) {
 			GuiHelper.renderSlotsBackground(guiGraphics, x + 3, y + 24, 1, 1);
 			GuiHelper.renderSlotsBackground(guiGraphics, x + 24, y + 24, 1, 1);

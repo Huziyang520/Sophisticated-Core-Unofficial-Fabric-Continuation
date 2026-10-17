@@ -45,7 +45,6 @@ public abstract class WidgetBase implements Renderable, GuiEventListener, Narrat
 
 		isHovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
 		extractContents(guiGraphics, minecraft, mouseX, mouseY);
-		renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 
 	@Override

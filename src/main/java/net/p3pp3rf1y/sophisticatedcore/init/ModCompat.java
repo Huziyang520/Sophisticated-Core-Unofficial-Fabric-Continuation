@@ -4,7 +4,6 @@ import net.p3pp3rf1y.sophisticatedcore.compat.CompatInfo;
 import net.p3pp3rf1y.sophisticatedcore.compat.CompatModIds;
 import net.p3pp3rf1y.sophisticatedcore.compat.CompatRegistry;
 import net.p3pp3rf1y.sophisticatedcore.compat.jei.JeiCompat;
-import net.p3pp3rf1y.sophisticatedcore.compat.rei.REICompat;
 
 import static net.p3pp3rf1y.sophisticatedcore.SophisticatedCore.MOD_ID;
 
@@ -21,6 +20,5 @@ public class ModCompat {
 	public static void register() {
 		CompatRegistry registry = CompatRegistry.getRegistry(MOD_ID);
 		registry.registerCompat(new CompatInfo(CompatModIds.JEI, null), () -> new JeiCompat());
-		registry.registerCompat(new CompatInfo(CompatModIds.REI, null), () -> new REICompat());
 	}
 }

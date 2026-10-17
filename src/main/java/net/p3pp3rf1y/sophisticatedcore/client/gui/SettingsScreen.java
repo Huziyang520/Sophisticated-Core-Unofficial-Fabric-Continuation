@@ -130,7 +130,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	protected abstract StorageSettingsTabControlBase initializeTabControl();
 
 	@Override
-	protected void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		int x = (width - imageWidth) / 2;
 		int y = (height - imageHeight) / 2;
 		StorageGuiHelper.renderStorageBackground(new Position(x, y), guiGraphics, storageBackgroundProperties.getTextureName(), imageWidth, getStorageInventoryHeight(getNumberOfVisibleRows()));
@@ -203,9 +203,9 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 			if (!getMenu().getSlotFilterItem(slot.index).isEmpty()) {
 				guiGraphics.item(getMenu().getSlotFilterItem(slot.index), slot.x, slot.y);
 			} else {
-				Pair<Identifier, Identifier> pair = slot.getNoItemIcon();
-				if (pair != null) {
-					TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(pair.getFirst()).apply(pair.getSecond());
+				Identifier noItemIcon = slot.getNoItemIcon();
+				if (noItemIcon != null) {
+					TextureAtlasSprite textureatlassprite = GuiHelper.getSprite(noItemIcon);
 					guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, textureatlassprite, slot.x, slot.y, 16, 16);
 				}
 			}
@@ -249,11 +249,10 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	}
 
 	@Nullable
-	@Override
 	public Slot findSlot(double mouseX, double mouseY) {
 		for (int i = 0; i < menu.ghostSlots.size(); ++i) {
 			Slot slot = menu.ghostSlots.get(i);
-			if (isHovering(slot, mouseX, mouseY) && slot.isActive()) {
+			if (isHovering(slot.x, slot.y, 16, 16, mouseX, mouseY) && slot.isActive()) {
 				return slot;
 			}
 		}
@@ -263,7 +262,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 	@Override
 	protected boolean hasClickedOutside(double mouseX, double mouseY, int guiLeftIn, int guiTopIn) {
-		return super.hasClickedOutside(mouseX, mouseY, guiLeftIn, guiTopIn) && hasClickedOutsideOfSettings(mouseX);
+		return super.hasClickedOutside(mouseX, mouseY, guiLeftIn, guiTopIn) && hasClickedOutsideOfSettings(mouseX, mouseY);
 	}
 
 	private boolean hasClickedOutsideOfSettings(double mouseX, double mouseY) {

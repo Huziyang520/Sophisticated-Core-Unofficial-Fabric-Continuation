@@ -82,17 +82,17 @@ public class ItemStackHandler implements SlottedStackStorage {
 	}
 
 	/** Called whenever a slot's contents changed. Defaults to doing nothing. */
-	public void onContentsChanged(int slot) {
+	protected void onContentsChanged(int slot) {
 		// no-op by default
 	}
 
 	/** Called after this handler was loaded from NBT. */
-	public void onLoad() {
+	protected void onLoad() {
 		// no-op by default
 	}
 
 	/** Reports a stack that could not be read while loading. */
-	public void onLoadFailed(int slot, String error) {
+	protected void onLoadFailed(int slot, String error) {
 		SophisticatedCore.LOGGER.error("Tried to load an invalid item in slot {}: '{}'", slot, error);
 	}
 

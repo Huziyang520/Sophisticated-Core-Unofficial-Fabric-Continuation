@@ -149,7 +149,7 @@ public abstract class FilterLogicControlBase<F extends FilterLogic, S extends Sl
 			@Override
 			protected void extractContents(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
 				if (container.getPrimaryMatch() == PrimaryMatch.TAGS) {
-					super.renderBg(guiGraphics, minecraft, mouseX, mouseY);
+					super.extractContents(guiGraphics, minecraft, mouseX, mouseY);
 				}
 			}
 
@@ -340,7 +340,7 @@ public abstract class FilterLogicControlBase<F extends FilterLogic, S extends Sl
 		@Override
 		protected void extractContents(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
 			if (container.getPrimaryMatch() == PrimaryMatch.TAGS) {
-				super.renderBg(guiGraphics, minecraft, mouseX, mouseY);
+				super.extractContents(guiGraphics, minecraft, mouseX, mouseY);
 			}
 		}
 

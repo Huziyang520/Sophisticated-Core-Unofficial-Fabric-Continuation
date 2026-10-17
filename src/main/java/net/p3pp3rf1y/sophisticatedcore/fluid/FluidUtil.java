@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.fluid;
 
+import net.p3pp3rf1y.sophisticatedcore.platform.item.ItemStackHandler;
 import net.p3pp3rf1y.sophisticatedcore.platform.FluidStack;
-import io.github.fabricators_of_create.porting_lib.transfer.MutableContainerItemContext;
 import net.p3pp3rf1y.sophisticatedcore.platform.ItemHandlerHelper;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
@@ -87,7 +87,7 @@ public class FluidUtil {
 			extraction.commit();
 		}
 
-		if (level.dimensionType().ultraWarm() && fluid.defaultFluidState().is(FluidTags.WATER)) {
+		if (level.dimension() == Level.NETHER && fluid.defaultFluidState().is(FluidTags.WATER)) {
 			level.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5f, 2.6f + (level.getRandom().nextFloat() - level.getRandom().nextFloat()) * 0.8f);
 			for (int i = 0; i < 8; ++i) {
 				level.addParticle(ParticleTypes.LARGE_SMOKE, (double) pos.getX() + Math.random(), (double) pos.getY() + Math.random(), (double) pos.getZ() + Math.random(), 0.0, 0.0, 0.0);
@@ -185,7 +185,7 @@ public class FluidUtil {
                     }
 
                     if (player != null) {
-						player.playNotifySound(sound, SoundSource.BLOCKS, 1, 1);
+						player.playSound(sound, 1, 1);
 					}
 
                     return true;
@@ -200,7 +200,7 @@ public class FluidUtil {
 	public static FluidActionResult tryFillContainer(ItemStack container, Storage<FluidVariant> fluidSource, long maxAmount, @Nullable Player player, boolean doFill) {
 		ItemStack containerCopy = container.copyWithCount(1); // do not modify the input
 
-		ContainerItemContext context = new MutableContainerItemContext(containerCopy);
+		ContainerItemContext context = stackContext(containerCopy);
 		Storage<FluidVariant> containerFluidHandler = context.find(FluidStorage.ITEM);
 		if (containerFluidHandler == null) {
 			return  FluidActionResult.FAILURE;
@@ -222,7 +222,7 @@ public class FluidUtil {
 	public static FluidActionResult tryEmptyContainer(ItemStack container, Storage<FluidVariant> fluidDestination, long maxAmount, @Nullable Player player, boolean doDrain) {
 		ItemStack containerCopy = container.copyWithCount(1); // do not modify the input
 
-		ContainerItemContext context = new MutableContainerItemContext(containerCopy);
+		ContainerItemContext context = stackContext(containerCopy);
 		Storage<FluidVariant> containerFluidHandler = context.find(FluidStorage.ITEM);
 		if (containerFluidHandler == null) {
 			return  FluidActionResult.FAILURE;
@@ -331,5 +331,15 @@ public class FluidUtil {
 			return fluidContained.filter(f -> !f.resource().isBlank());
 		}
 		return Optional.empty();
+	}
+
+	/**
+	 * Porting Lib 的 {@code MutableContainerItemContext} 已随库消失，这里用一个单槽存储包住容器堆叠，
+	 * 让 {@code ContainerItemContext} 仍能读回被流体处理器改动后的物品。
+	 */
+	public static ContainerItemContext stackContext(ItemStack stack) {
+		ItemStackHandler handler = new ItemStackHandler(1);
+		handler.setStackInSlot(0, stack);
+		return ContainerItemContext.ofSingleSlot(handler.getSlot(0));
 	}
 }

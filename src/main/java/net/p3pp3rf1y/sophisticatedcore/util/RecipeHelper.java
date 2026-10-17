@@ -1,5 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 import net.minecraft.world.item.crafting.display.RecipeDisplay;
 import net.minecraft.world.item.crafting.RecipeManager;
@@ -48,7 +50,23 @@ public class RecipeHelper {
 
 	public static Optional<RecipeHolder<?>> getRecipeByKey(Level level, Identifier id) {
 		RecipeManager manager = getRecipeManager(level);
-		return manager == null ? Optional.empty() : manager.byKey(id);
+		return manager == null ? Optional.empty() : manager.byKey(ResourceKey.create(Registries.RECIPE, id));
+	}
+
+	/** 26.3 dropped the bulk {@code getRecipesFor} lookups; the full recipe list is filtered instead. */
+	@SuppressWarnings("unchecked")
+	private static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> filterRecipes(RecipeManager manager, RecipeType<T> recipeType, I inventory, Level level) {
+		List<RecipeHolder<T>> result = new ArrayList<>();
+		for (RecipeHolder<?> holder : manager.getRecipes()) {
+			if (holder.value().getType() != recipeType) {
+				continue;
+			}
+			Recipe<I> recipe = (Recipe<I>) holder.value();
+			if (recipe.matches(inventory, level)) {
+				result.add((RecipeHolder<T>) holder);
+			}
+		}
+		return result;
 	}
 
 	/** Resolves the primary output of a recipe through its display, since {@code getResultItem} is gone. */
@@ -308,7 +326,7 @@ public class RecipeHelper {
 	public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> getRecipesOfType(RecipeType<T> recipeType, I inventory) {
 		return getLevel().map(w -> {
 			RecipeManager manager = getRecipeManager(w);
-			return manager == null ? List.<RecipeHolder<T>>of() : manager.getRecipesFor(recipeType, inventory, w);
+			return manager == null ? List.<RecipeHolder<T>>of() : filterRecipes(manager, recipeType, inventory, w);
 		}).orElse(Collections.emptyList());
 	}
 
@@ -329,7 +347,7 @@ public class RecipeHelper {
 	public static <I extends CraftingInput, T extends Recipe<I>> List<RecipeHolder<T>> safeGetRecipesFor(RecipeType<T> recipeType, I inventory, Level level) {
 		try {
 			RecipeManager manager = getRecipeManager(level);
-			return manager == null ? List.of() : manager.getRecipesFor(recipeType, inventory, level);
+			return manager == null ? List.<RecipeHolder<T>>of() : filterRecipes(manager, recipeType, inventory, level);
 		} catch (Exception e) {
 			SophisticatedCore.LOGGER.error("Error while getting recipe ", e);
 			return Collections.emptyList();

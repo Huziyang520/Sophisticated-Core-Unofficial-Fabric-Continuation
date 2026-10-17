@@ -144,7 +144,7 @@ public class StonecutterRecipeContainer {
 		if (!recipes.isEmpty() && isIndexInRecipeBounds(selectedRecipe.get())) {
 			RecipeHolder<StonecutterRecipe> stonecuttingrecipe = recipes.get(selectedRecipe.get());
 			resultInventory.setRecipeUsed(stonecuttingrecipe);
-			outputSlot.set(stonecuttingrecipe.value().assemble(new SingleRecipeInput(inputInventory.getItem(0)), level.registryAccess()));
+			outputSlot.set(stonecuttingrecipe.value().assemble(new SingleRecipeInput(inputInventory.getItem(0))));
 		} else {
 			outputSlot.set(ItemStack.EMPTY);
 		}
@@ -175,7 +175,7 @@ public class StonecutterRecipeContainer {
 
 		@Override
 		public void onTake(Player player, ItemStack stack) {
-			stack.onCraftedBy(player.level(), player, stack.getCount());
+			stack.onCraftedBy(player, stack.getCount());
 			resultInventory.awardUsedRecipes(player, List.of(inputSlot.getItem()));
 			ItemStack itemstack = inputSlot.remove(1);
 			if (!itemstack.isEmpty()) {

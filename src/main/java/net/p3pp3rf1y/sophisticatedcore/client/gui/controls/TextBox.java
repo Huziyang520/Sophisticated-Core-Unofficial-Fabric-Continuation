@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui.controls;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.CharacterEvent;
 import org.joml.Matrix3x2fStack;
@@ -38,7 +39,7 @@ public class TextBox extends WidgetBase {
 		if (editBox.getValue().isEmpty() && unfocusedEmptyHint != null && !editBox.isFocused()) {
 			int x = editBox.getX() + editBox.getWidth() / 2 + 2/* editBox.isBordered() ? editBox.getX() + 4 : editBox.getX()*/;
 			int y = editBox.isBordered() ? editBox.getY() + (editBox.getHeight() - 8) / 2 : editBox.getY();
-			guiGraphics.drawCenteredString(this.font, unfocusedEmptyHint, x, y, editBox.textColor);
+			guiGraphics.text(this.font, unfocusedEmptyHint, x - this.font.width(unfocusedEmptyHint) / 2, y, editBox.textColor);
 		}
 		poseStack.popMatrix();
 	}
@@ -59,11 +60,11 @@ public class TextBox extends WidgetBase {
 		if (!editBox.isFocused()) {
 			return false;
 		}
-		editBox.keyPressed(keyCode, scanCode, modifiers);
-		if (keyCode == GLFW.GLFW_KEY_ENTER) {
+		editBox.keyPressed(event);
+		if (keyCode == InputConstants.KEY_RETURN) {
 			onEnterPressed();
 		}
-		return keyCode != GLFW.GLFW_KEY_ESCAPE;
+		return keyCode != InputConstants.KEY_ESCAPE;
 	}
 
 	protected void onEnterPressed() {
@@ -76,9 +77,7 @@ public class TextBox extends WidgetBase {
 
 	@Override
 	public boolean charTyped(CharacterEvent event) {
-		char codePoint = (char) event.codepoint();
-		int modifiers = 0;
-		return editBox.charTyped(codePoint, modifiers);
+		return editBox.charTyped(event);
 	}
 
 	@Override

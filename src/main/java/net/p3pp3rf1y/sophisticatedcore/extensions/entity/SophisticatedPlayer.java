@@ -26,15 +26,10 @@ public interface SophisticatedPlayer {
 	}
 
 	default OptionalInt sophisticatedCore_openMenu(MenuProvider menu, Consumer<RegistryFriendlyByteBuf> context) {
-		var screenHandlerFactory = new ExtendedScreenHandlerFactory<>() {
+		var screenHandlerFactory = new ExtendedMenuProvider<byte[]>() {
 			@Override
 			public @Nullable AbstractContainerMenu createMenu(int i, Inventory inventory, Player player) {
 				return menu.createMenu(i, inventory, player);
-			}
-
-			@Override
-			public boolean shouldCloseCurrentScreen() {
-				return menu.shouldCloseCurrentScreen();
 			}
 
 			@Override

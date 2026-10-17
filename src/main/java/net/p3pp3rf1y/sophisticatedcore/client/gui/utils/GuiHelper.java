@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui.utils;
 
+import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.resources.model.sprite.SpriteId;
@@ -316,5 +317,10 @@ public class GuiHelper {
 		Identifier fluidId = BuiltInRegistries.FLUID.getKey(fluid);
 		Identifier texture = Identifier.fromNamespaceAndPath(fluidId.getNamespace(), "block/" + fluidId.getPath() + "_still");
 		return Minecraft.getInstance().getAtlasManager().get(new SpriteId(TextureAtlas.LOCATION_BLOCKS, texture));
+	}
+
+	/** 26.3 取贴图精灵统一走 {@code AtlasManager}，方块图集里包含了物品与 GUI 图标。 */
+	public static TextureAtlasSprite getSprite(Identifier spriteName) {
+		return Minecraft.getInstance().getAtlasManager().get(new SpriteId(TextureAtlas.LOCATION_BLOCKS, spriteName));
 	}
 }

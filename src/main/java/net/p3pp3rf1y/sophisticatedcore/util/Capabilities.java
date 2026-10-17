@@ -39,8 +39,8 @@ public class Capabilities {
 					EntityTypes.CHEST_MINECART,
 					EntityTypes.HOPPER_MINECART);
 			for (var entityType : containerEntities) {
-				ENTITY.registerForType((entity, ctx) -> InventoryStorageWrapper.of((net.minecraft.world.entity.player.Player) entity), entityType);
-				ENTITY_AUTOMATION.registerForType((entity, direction) -> InventoryStorageWrapper.of((net.minecraft.world.entity.player.Player) entity), entityType);
+				ENTITY.registerForType((entity, ctx) -> InventoryStorageWrapper.of((net.minecraft.world.entity.player.Player) (Object) entity), entityType);
+				ENTITY_AUTOMATION.registerForType((entity, direction) -> InventoryStorageWrapper.of((net.minecraft.world.entity.player.Player) (Object) entity), entityType);
 			}
 
 			ENTITY.registerForType((player, ctx) -> InventoryStorageWrapper.of(player), EntityTypes.PLAYER);

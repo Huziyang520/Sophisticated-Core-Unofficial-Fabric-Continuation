@@ -925,7 +925,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	}
 
 	@Override
-	public void setRemoteSlotNoCopy(int slotIndex, ItemStack stack) {
+	public void setRemoteSlot(int slotIndex, ItemStack stack) {
 		if (slotIndex < getInventorySlotsSize()) {
 			ItemStack previous = remoteRealSlots.get(slotIndex);
 			remoteRealSlots.set(slotIndex, stack);
@@ -1066,10 +1066,10 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			if (slotId == -999) {
 				if (!getCarried().isEmpty()) {
 					if (clickaction == ClickAction.PRIMARY) {
-						player.drop(getCarried(), true, ItemStack.Prediction.PREDICTED);
+						player.drop(getCarried(), true, Prediction.PREDICTED);
 						setCarried(ItemStack.EMPTY);
 					} else {
-						player.drop(getCarried().split(1), true, ItemStack.Prediction.PREDICTED);
+						player.drop(getCarried().split(1), true, Prediction.PREDICTED);
 					}
 				}
 			} else if (clickType == ContainerInput.QUICK_MOVE) {

@@ -399,7 +399,7 @@ public class InventoryHelper {
 			}
 		}
 		if (toInsert > 0) {
-			player.drop(resource.toStack((int) toInsert), true);
+			player.drop(resource.toStack((int) toInsert), true, Prediction.PREDICTED);
 		}
 	}
 	/*public static void insertOrDropItem(Player player, ItemStack stack, IItemHandler... inventories) {

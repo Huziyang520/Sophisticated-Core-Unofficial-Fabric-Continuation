@@ -103,7 +103,7 @@ public class SophisticatedTransferHandler<C extends StorageContainerMenuBase<?>,
 			return TransferHandler.Result.createSuccessful();
 		}
 
-		context.getMinecraft().setScreen(containerScreen);
+		context.getMinecraft().setScreenAndShow(containerScreen);
 		if (containerScreen instanceof RecipeUpdateListener listener) {
 			listener.getRecipeBookComponent().ghostRecipe.clear();
 		}

@@ -62,7 +62,7 @@ public class ContextButton extends ButtonBase {
 
 	@Override
 	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		guiGraphics.drawCenteredString(minecraft.font, getTitle.get(), x + getWidth() / 2, y - 4 + getHeight() / 2, 16777215 | (255 << 24));
+		guiGraphics.text(minecraft.font, getTitle.get(), x + getWidth() / 2 - minecraft.font.width(getTitle.get()) / 2, y - 4 + getHeight() / 2, 16777215 | (255 << 24));
 	}
 
 	@Override

@@ -84,7 +84,7 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 	}
 
 	@Override
-	public void renderTooltip(StorageScreenBase<?> screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+	public void extractTooltip(StorageScreenBase<?> screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		FluidStack contents = container.getContents();
 		long capacity = container.getTankCapacity();
 		if (contents.isEmpty()) {

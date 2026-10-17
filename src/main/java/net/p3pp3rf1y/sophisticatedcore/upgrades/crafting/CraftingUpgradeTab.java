@@ -111,7 +111,7 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 
 	@Override
 	protected void extractContents(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
-		super.renderBg(guiGraphics, minecraft, mouseX, mouseY);
+		super.extractContents(guiGraphics, minecraft, mouseX, mouseY);
 		if (getContainer().isOpen()) {
 			GuiHelper.renderSlotsBackground(guiGraphics, x + 3 + craftingUIAddition.getWidth(), y + 44, 3, 3);
 			GuiHelper.blit(guiGraphics, x + 3 + craftingUIAddition.getWidth() + 19, y + 101, ARROW);

@@ -24,9 +24,6 @@
     "client": [
       "net.p3pp3rf1y.sophisticatedcore.client.ClientEventHandler"
     ],
-    "fabric-datagen": [
-      "net.p3pp3rf1y.sophisticatedcore.data.DataGenerators"
-    ],
     "jei_mod_plugin": [
       "net.p3pp3rf1y.sophisticatedcore.compat.jei.CorePlugin"
     ],

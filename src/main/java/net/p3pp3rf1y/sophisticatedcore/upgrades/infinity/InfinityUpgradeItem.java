@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.infinity;
 
+import net.p3pp3rf1y.sophisticatedcore.util.PlayerHelper;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
@@ -47,7 +48,7 @@ public class InfinityUpgradeItem extends UpgradeItemBase<InfinityUpgradeItem.Wra
 
 	@Override
 	public UpgradeSlotChangeResult canRemoveUpgradeFrom(IStorageWrapper storageWrapper, boolean isClientSide, Player player) {
-		if (player.hasPermissions(getPermissionLevel())) {
+		if (PlayerHelper.hasPermissionLevel(player, getPermissionLevel())) {
 			return super.canRemoveUpgradeFrom(storageWrapper, isClientSide, player);
 		}
 

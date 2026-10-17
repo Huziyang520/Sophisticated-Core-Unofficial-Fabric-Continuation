@@ -49,12 +49,12 @@ public class MemorySettingsCategory implements ISettingsCategory<MemorySettingsC
 	private void deserialize() {
 		NBTHelper.getMap(categoryNbt, SLOT_FILTER_ITEMS_TAG,
 						Integer::valueOf,
-						(k, v) -> BuiltInRegistries.ITEM.getOptional(Identifier.parse(v.getAsString())))
+						(k, v) -> v instanceof StringTag stringTag ? BuiltInRegistries.ITEM.getOptional(Identifier.parse(stringTag.value())) : Optional.empty())
 				.ifPresent(map -> map.forEach(this::addSlotItem));
 
 		NBTHelper.getMap(categoryNbt, SLOT_FILTER_STACKS_TAG,
 						Integer::valueOf,
-						(k, v) -> v instanceof CompoundTag tag ? RegistryHelper.getRegistryAccess().flatMap(registryAccess -> ItemStack.parse(registryAccess, tag)) : Optional.empty())
+						(k, v) -> v instanceof CompoundTag compoundTag ? Optional.of(NBTHelper.itemStackFromTag(compoundTag)) : Optional.empty())
 				.ifPresent(map -> map.forEach(this::addSlotStack));
 		ignoreNbt = NBTHelper.getBoolean(categoryNbt, IGNORE_NBT_TAG).orElse(true);
 	}
@@ -238,7 +238,7 @@ public class MemorySettingsCategory implements ISettingsCategory<MemorySettingsC
 	private void serializeFilterItems() {
 		NBTHelper.putMap(categoryNbt, SLOT_FILTER_ITEMS_TAG, slotFilterItems, String::valueOf, i -> StringTag.valueOf(BuiltInRegistries.ITEM.getKey(i).toString()));
 		NBTHelper.putMap(categoryNbt, SLOT_FILTER_STACKS_TAG, slotFilterStacks, String::valueOf,
-				isk -> RegistryHelper.getRegistryAccess().map(registryAccess -> isk.stack().saveOptional(registryAccess)).orElse(new CompoundTag()));
+				isk -> NBTHelper.itemStackToTag(isk.stack()));
 		saveNbt.accept(categoryNbt);
 	}
 

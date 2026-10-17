@@ -64,7 +64,7 @@ public abstract class JukeboxUpgradeTab extends UpgradeSettingsTab<JukeboxUpgrad
 
 	@Override
 	protected void extractContents(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
-		super.renderBg(guiGraphics, minecraft, mouseX, mouseY);
+		super.extractContents(guiGraphics, minecraft, mouseX, mouseY);
 		if (getContainer().isOpen()) {
 			GuiHelper.renderSlotsBackground(guiGraphics, x + 3, y + 24, slotsInRow,  getContainer().getSlots().size() / slotsInRow, getContainer().getSlots().size() % slotsInRow);
 		}
@@ -140,7 +140,7 @@ public abstract class JukeboxUpgradeTab extends UpgradeSettingsTab<JukeboxUpgrad
 
 		@Override
 		protected void extractContents(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
-			super.renderBg(guiGraphics, minecraft, mouseX, mouseY);
+			super.extractContents(guiGraphics, minecraft, mouseX, mouseY);
 			getContainer().getDiscSlotActive().ifPresent(slot -> renderPlaytimeOverLay(guiGraphics, 0x55_00CC00, screen.getLeftX() + slot.x, screen.getTopY() + slot.y, 16, 16));
 		}
 

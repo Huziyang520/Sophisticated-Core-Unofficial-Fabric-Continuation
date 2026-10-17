@@ -191,7 +191,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 		}
 
 		if (synchronizer != null) {
-			synchronizer.sendInitialData(this, remoteGhostSlots, remoteCarried, new int[0]);
+			synchronizer.sendInitialData(this, remoteGhostSlots, getCarried().copy(), new int[0]);
 		}
 
 		if (player instanceof ServerPlayer serverPlayer) {
@@ -252,7 +252,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 			if (settingsContainers.containsKey(categoryName)) {
 				settingsContainers.get(categoryName).handlePacket(data);
 			}
-		} else if (data.contains(TemplatePersistanceContainer.TEMPLATE_PERSISTANCE_TAG, Tag.TAG_COMPOUND)) {
+		} else if (data.contains(TemplatePersistanceContainer.TEMPLATE_PERSISTANCE_TAG)) {
 			templatePersistanceContainer.handlePacket(data.getCompoundOrEmpty(TemplatePersistanceContainer.TEMPLATE_PERSISTANCE_TAG));
 		}
 	}
@@ -378,9 +378,9 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 	}
 
 	@Override
-	public void setRemoteSlotNoCopy(int slot, ItemStack stack) {
+	public void setRemoteSlot(int slot, ItemStack stack) {
 		ItemStack previous = getSlot(slot).getItem();
-		super.setRemoteSlotNoCopy(slot, stack);
+		super.setRemoteSlot(slot, stack);
 
 		if (previous.isEmpty() || stack.isEmpty()) {
 			inventorySlotStackChanged = true;

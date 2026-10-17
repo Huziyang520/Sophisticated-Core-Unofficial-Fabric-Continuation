@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
-import io.github.fabricators_of_create.porting_lib.transfer.MutableContainerItemContext;
 import net.fabricmc.fabric.api.lookup.v1.block.BlockApiLookup;
 import net.fabricmc.fabric.api.lookup.v1.entity.EntityApiLookup;
 import net.fabricmc.fabric.api.lookup.v1.item.ItemApiLookup;
@@ -102,6 +101,6 @@ public class CapabilityHelper {
 	}
 
 	public static void runOnFluidHandler(ItemStack stack, BiConsumer<ContainerItemContext, Storage<FluidVariant>> run) {
-		runOnCapability(stack, FluidStorage.ITEM, new MutableContainerItemContext(stack), run);
+		runOnCapability(stack, FluidStorage.ITEM, FluidUtil.stackContext(stack), run);
 	}
 }

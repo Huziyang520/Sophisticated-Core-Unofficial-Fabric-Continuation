@@ -200,7 +200,6 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 		return width;
 	}
 
-	@Override
 	public int getHeight() {
 		return height;
 	}

@@ -220,13 +220,13 @@ public class InventoryPartitioner {
 			return;
 		}
 
-		baseIndexes = tag.getIntArray(BASE_INDEXES_TAG.orElse(new int[0]));
+		baseIndexes = tag.getIntArray(BASE_INDEXES_TAG).orElse(new int[0]);
 		inventoryPartHandlers = new IInventoryPartHandler[baseIndexes.length];
 		ListTag partNamesTag = tag.getListOrEmpty("inventoryPartNames");
 		int i = 0;
 		for (Tag t : partNamesTag) {
 			SlotRange slotRange = new SlotRange(baseIndexes[i], (i + 1 < baseIndexes.length ? baseIndexes[i + 1] : parent.getSlotCount()) - baseIndexes[i]);
-			inventoryPartHandlers[i] = InventoryPartRegistry.instantiatePart(t.getAsString(), parent, slotRange, getMemorySettings);
+			inventoryPartHandlers[i] = InventoryPartRegistry.instantiatePart(((net.minecraft.nbt.StringTag) t).value(), parent, slotRange, getMemorySettings);
 			i++;
 		}
 	}

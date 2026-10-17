@@ -102,8 +102,8 @@ public class CraftingItemHandler extends TransientCraftingContainer {
 	}
 
 	@Override
-	public void fillStackedContents(StackedContents helper) {
-		InventoryHelper.iterate(supplyInventory.get(), (slot, stack) -> helper.accountSimpleStack(stack));
+	public void fillStackedContents(StackedContents<ItemStack> helper) {
+		InventoryHelper.iterate(supplyInventory.get(), (slot, stack) -> helper.account(stack, stack.getCount()));
 	}
 
 }

@@ -35,12 +35,12 @@ public class ClientRecipeHelper {
 		return Optional.empty();
 	}
 
-	public static <I extends RecipeInput, T extends Recipe<I>, U extends Recipe<?>> List<RecipeHolder<T>> transformAllRecipesOfType(
+	public static <T extends Recipe<?>, U extends Recipe<?>> List<RecipeHolder<T>> transformAllRecipesOfType(
 			RecipeType<T> recipeType, Class<U> filterRecipeClass, Function<U, T> transformRecipe) {
 		return Collections.emptyList();
 	}
 
-	public static <I extends RecipeInput, T extends Recipe<I>, U extends Recipe<?>> List<RecipeHolder<T>> transformAllRecipesOfTypeIntoMultiple(
+	public static <T extends Recipe<?>, U extends Recipe<?>> List<RecipeHolder<T>> transformAllRecipesOfTypeIntoMultiple(
 			RecipeType<T> recipeType, Class<U> filterRecipeClass, Function<U, List<RecipeHolder<T>>> transformRecipe) {
 		return Collections.emptyList();
 	}

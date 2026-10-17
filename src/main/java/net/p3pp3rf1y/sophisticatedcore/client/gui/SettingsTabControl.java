@@ -88,7 +88,7 @@ public abstract class SettingsTabControl<C extends AbstractContainerScreen<?>, T
 
 	@Override
 	public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-		children.forEach(tab -> tab.setTooltipForNextFrame(screen, guiGraphics, mouseX, mouseY));
+		children.forEach(tab -> tab.extractTooltip(screen, guiGraphics, mouseX, mouseY));
 	}
 
 	protected int getTopY() {

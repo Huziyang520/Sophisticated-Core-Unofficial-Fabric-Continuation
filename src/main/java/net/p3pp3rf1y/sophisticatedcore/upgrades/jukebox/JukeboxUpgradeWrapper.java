@@ -138,7 +138,7 @@ public class JukeboxUpgradeWrapper extends UpgradeWrapperBase<JukeboxUpgradeWrap
 	}
 
 	public Optional<Holder<JukeboxSong>> getJukeboxSongHolder(Level level) {
-		return JukeboxSong.fromStack(level.registryAccess(), getDisc());
+		return JukeboxSong.fromStack(getDisc());
 	}
 
 	private void onDiscFinished() {

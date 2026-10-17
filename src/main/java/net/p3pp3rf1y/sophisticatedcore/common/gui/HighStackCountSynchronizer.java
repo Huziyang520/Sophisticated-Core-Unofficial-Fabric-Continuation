@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
+import java.util.List;
 import net.minecraft.core.NonNullList;
 import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
@@ -18,7 +19,7 @@ public class HighStackCountSynchronizer implements ContainerSynchronizer {
 	}
 
 	@Override
-	public void sendInitialData(AbstractContainerMenu containerMenu, NonNullList<ItemStack> stacks, ItemStack carriedStack, int[] dataSlots) {
+	public void sendInitialData(AbstractContainerMenu containerMenu, List<ItemStack> stacks, ItemStack carriedStack, int[] dataSlots) {
 		PacketDistributor.sendToPlayer(player, new SyncContainerStacksPayload(containerMenu.containerId, containerMenu.incrementStateId(), stacks, carriedStack));
 	}
 
