@@ -64,7 +64,7 @@ public class StackUpgradeConfig {
 			nonStackableItemsList.get().forEach(name -> {
 				Identifier registryName = Identifier.parse(name);
 				if (BuiltInRegistries.ITEM.containsKey(registryName)) {
-					nonStackableItems.add(BuiltInRegistries.ITEM.get(registryName));
+					nonStackableItems.add(BuiltInRegistries.ITEM.getValue(registryName));
 				} else {
 					SophisticatedCore.LOGGER.error("Item {} is set to not be affected by stack upgrade in config, but it does not exist in item registry", name);
 				}

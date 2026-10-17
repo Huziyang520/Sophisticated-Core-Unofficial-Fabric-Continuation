@@ -163,7 +163,7 @@ public abstract class RenderInfo {
 
 	private void deserializeUpgradeData(CompoundTag renderInfoTag) {
 		CompoundTag upgrades = renderInfoTag.getCompoundOrEmpty(UPGRADES_TAG);
-		upgrades.getAllKeys().forEach(key -> {
+		upgrades.keySet().forEach(key -> {
 			if (RENDER_DATA_TYPES.containsKey(key)) {
 				UpgradeRenderDataType<?> upgradeRenderDataType = RENDER_DATA_TYPES.get(key);
 				upgradeData.put(upgradeRenderDataType, upgradeRenderDataType.deserialize(upgrades.getCompound(key)));
@@ -308,7 +308,7 @@ public abstract class RenderInfo {
 			if (tag.getTagType(INACCESSIBLE_SLOTS_TAG) == Tag.TAG_INT_ARRAY) {
 				inaccessibleSlots = Arrays.stream(tag.getIntArray(INACCESSIBLE_SLOTS_TAG.orElse(new int[0]))).boxed().collect(Collectors.toCollection(ArrayList::new));
 			} else {
-				inaccessibleSlots = NBTHelper.getCollection(tag, INACCESSIBLE_SLOTS_TAG, Tag.TAG_INT, t -> Optional.of(((IntTag) t).getAsInt()), ArrayList::new).orElseGet(ArrayList::new); //TODO remove this legacy support in the future
+				inaccessibleSlots = NBTHelper.getCollection(tag, INACCESSIBLE_SLOTS_TAG, Tag.TAG_INT, t -> Optional.of(((IntTag) t).intValue()), ArrayList::new).orElseGet(ArrayList::new); //TODO remove this legacy support in the future
 			}
 			List<Integer> infiniteSlots = Arrays.stream(tag.getIntArray(INFINITE_SLOTS_TAG.orElse(new int[0]))).boxed().collect(Collectors.toCollection(ArrayList::new));
 			List<Integer> slotCounts = Arrays.stream(tag.getIntArray(SLOT_COUNTS_TAG.orElse(new int[0]))).boxed().collect(Collectors.toCollection(ArrayList::new));

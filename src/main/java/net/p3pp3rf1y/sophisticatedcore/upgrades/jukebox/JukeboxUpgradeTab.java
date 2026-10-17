@@ -2,7 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.core.Holder;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
@@ -63,7 +63,7 @@ public abstract class JukeboxUpgradeTab extends UpgradeSettingsTab<JukeboxUpgrad
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
+	protected void extractContents(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
 		super.renderBg(guiGraphics, minecraft, mouseX, mouseY);
 		if (getContainer().isOpen()) {
 			GuiHelper.renderSlotsBackground(guiGraphics, x + 3, y + 24, slotsInRow,  getContainer().getSlots().size() / slotsInRow, getContainer().getSlots().size() % slotsInRow);
@@ -139,7 +139,7 @@ public abstract class JukeboxUpgradeTab extends UpgradeSettingsTab<JukeboxUpgrad
 		}
 
 		@Override
-		protected void renderBg(GuiGraphics guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
+		protected void extractContents(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
 			super.renderBg(guiGraphics, minecraft, mouseX, mouseY);
 			getContainer().getDiscSlotActive().ifPresent(slot -> renderPlaytimeOverLay(guiGraphics, 0x55_00CC00, screen.getLeftX() + slot.x, screen.getTopY() + slot.y, 16, 16));
 		}
@@ -153,18 +153,14 @@ public abstract class JukeboxUpgradeTab extends UpgradeSettingsTab<JukeboxUpgrad
 			return song.map(jukeboxSongHolder -> (remaining / (float) jukeboxSongHolder.value().lengthInTicks())).orElse(0f);
 		}
 
-		private void renderPlaytimeOverLay(GuiGraphics guiGraphics,  int slotColor, int xPos, int yPos, int width, int height) {
+		private void renderPlaytimeOverLay(GuiGraphicsExtractor guiGraphics,  int slotColor, int xPos, int yPos, int width, int height) {
 			float remainingProgress = getPlaybackRemainingProgress();
 			if (remainingProgress <= 0) {
 				return;
 			}
 			int progressOver = width - (int) (width * remainingProgress);
 
-			RenderSystem.disableDepthTest();
-			RenderSystem.colorMask(true, true, true, false);
 			guiGraphics.fillGradient(xPos + progressOver, yPos, xPos + width, yPos + height, 0, slotColor, slotColor);
-			RenderSystem.colorMask(true, true, true, true);
-			RenderSystem.enableDepthTest();
 		}
 	}
 }

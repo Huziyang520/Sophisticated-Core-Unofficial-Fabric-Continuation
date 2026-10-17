@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.settings;
 
 import com.google.common.collect.ImmutableMap;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -43,7 +43,7 @@ public abstract class StorageSettingsTabControlBase extends SettingsTabControl<S
 
 	protected abstract Tab instantiateReturnBackTab();
 
-	public void renderSlotOverlays(GuiGraphics guiGraphics, Slot slot, ISlotOverlayRenderer overlayRenderer, boolean templateLoadHovered) {
+	public void renderSlotOverlays(GuiGraphicsExtractor guiGraphics, Slot slot, ISlotOverlayRenderer overlayRenderer, boolean templateLoadHovered) {
 		List<Integer> colors = new ArrayList<>();
 		settingsTabs.forEach(tab -> tab.getSlotOverlayColor(slot.index, templateLoadHovered).ifPresent(colors::add));
 		if (colors.isEmpty()) {
@@ -70,7 +70,7 @@ public abstract class StorageSettingsTabControlBase extends SettingsTabControl<S
 		return ItemStack.EMPTY;
 	}
 
-	public void renderSlotExtra(GuiGraphics guiGraphics, Slot slot) {
+	public void renderSlotExtra(GuiGraphicsExtractor guiGraphics, Slot slot) {
 		settingsTabs.forEach(tab -> tab.renderExtra(guiGraphics, slot));
 	}
 
@@ -78,7 +78,7 @@ public abstract class StorageSettingsTabControlBase extends SettingsTabControl<S
 		getOpenTab().ifPresent(tab -> tab.handleSlotClick(slot, mouseButton));
 	}
 
-	public boolean renderGuiItem(GuiGraphics guiGraphics, ItemRenderer itemRenderer, ItemStack itemstack, Slot slot, boolean templateLoadHovered) {
+	public boolean renderGuiItem(GuiGraphicsExtractor guiGraphics, ItemRenderer itemRenderer, ItemStack itemstack, Slot slot, boolean templateLoadHovered) {
 		for (SettingsTab<?> tab : settingsTabs) {
 			int rotation = tab.getItemRotation(slot.index, templateLoadHovered);
 			if (rotation != 0) {
@@ -87,20 +87,20 @@ public abstract class StorageSettingsTabControlBase extends SettingsTabControl<S
 			}
 		}
 		if (!itemstack.isEmpty()) {
-			guiGraphics.renderItem(itemstack, slot.x, slot.y);
+			guiGraphics.item(itemstack, slot.x, slot.y);
 			return true;
 		}
 		return false;
 	}
 
-	public void drawSlotStackOverlay(GuiGraphics guiGraphics, Slot slot, boolean templateLoadHovered) {
+	public void drawSlotStackOverlay(GuiGraphicsExtractor guiGraphics, Slot slot, boolean templateLoadHovered) {
 		for (SettingsTab<?> tab : settingsTabs) {
 			tab.drawSlotStackOverlay(guiGraphics, slot, templateLoadHovered);
 		}
 	}
 
 	public interface ISlotOverlayRenderer {
-		void renderSlotOverlay(GuiGraphics guiGraphics, int xPos, int yPos, int height, int slotColor);
+		void renderSlotOverlay(GuiGraphicsExtractor guiGraphics, int xPos, int yPos, int height, int slotColor);
 	}
 
 	public interface ISettingsTabFactory<C extends SettingsContainerBase<?>, T extends SettingsTab<C>> {

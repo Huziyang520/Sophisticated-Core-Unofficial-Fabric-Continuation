@@ -33,7 +33,7 @@ public class DeferredHolder<R, T extends R> implements Supplier<T> {
 
 	/** @return the id this entry is registered under. */
 	public Identifier getId() {
-		return key.location();
+		return key.identifier();
 	}
 
 	/** @return the registry key of this entry. */
@@ -44,7 +44,7 @@ public class DeferredHolder<R, T extends R> implements Supplier<T> {
 	@Override
 	public T get() {
 		if (value == null) {
-			throw new IllegalStateException("Tried to access a registry entry before registration: " + key.location());
+			throw new IllegalStateException("Tried to access a registry entry before registration: " + key.identifier());
 		}
 		return value;
 	}

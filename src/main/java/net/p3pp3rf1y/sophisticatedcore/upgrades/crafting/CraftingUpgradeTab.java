@@ -1,11 +1,12 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.crafting;
 
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipPositioner;
 import net.minecraft.network.chat.Component;
-import net.minecraft.util.Tuple;
+import org.apache.commons.lang3.tuple.Pair;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
@@ -65,7 +66,7 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 	private final Button nextResultButton;
 	private final Button selectResultButton;
 	private boolean resultSelectionShown = false;
-	private Tuple<Position, Dimension> resultListPositionDimensions;
+	private Pair<Position, Dimension> resultListPositionDimensions;
 	private final List<Position> resultChoicePositions = new ArrayList<>();
 
 	public CraftingUpgradeTab(CraftingUpgradeContainer upgradeContainer, Position position, StorageScreenBase<?> screen, ButtonDefinition.Toggle<Boolean> shiftClickTargetButton) {
@@ -80,9 +81,9 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 			}
 		}) {
 			@Override
-			public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
+			public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 				if (visible && isMouseOver(mouseX, mouseY)) {
-					guiGraphics.renderTooltip(minecraft.font, getTooltip().stream().map(Component::getVisualOrderText).toList(), LEFT_SIDE_TOOLTIP_POSITIONER, mouseX, mouseY);
+					guiGraphics.setTooltipForNextFrame(minecraft.font, getTooltip().stream().map(Component::getVisualOrderText).toList(), LEFT_SIDE_TOOLTIP_POSITIONER, mouseX, mouseY);
 				}
 			}
 		};
@@ -100,16 +101,16 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 		}) {
 
 			@Override
-			protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-				super.renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
-				guiGraphics.drawString(font, String.valueOf(getContainer().getMatchedCraftingResults().size()), x + 5, y + 2, 0xFFFFFF, true);
+			protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+				super.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
+				guiGraphics.text(font, String.valueOf(getContainer().getMatchedCraftingResults().size()), x + 5, y + 2, 0xFFFFFF, true);
 			}
 		};
 		addHideableChild(selectResultButton);
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
+	protected void extractContents(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
 		super.renderBg(guiGraphics, minecraft, mouseX, mouseY);
 		if (getContainer().isOpen()) {
 			GuiHelper.renderSlotsBackground(guiGraphics, x + 3 + craftingUIAddition.getWidth(), y + 44, 3, 3);
@@ -119,8 +120,8 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 	}
 
 	@Override
-	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		super.render(guiGraphics, mouseX, mouseY, partialTicks);
+	public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		super.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		List<ItemStack> matchedCraftingResults = getContainer().getMatchedCraftingResults();
 		previousResultButton.setVisible(shouldShowResultSelection());
 		nextResultButton.setVisible(shouldShowResultSelection());
@@ -137,22 +138,22 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 				for (int i = 0; i < matchedCraftingResults.size(); i++) {
 					int xOffset = (i % 3) * 18;
 					int yOffset = (i / 3) * 18;
-					resultChoicePositions.add(new Position(resultListPositionDimensions.getA().x() + RESULT_SELECTION_BORDER_WIDTH + xOffset, resultListPositionDimensions.getA().y() + RESULT_SELECTION_BORDER_WIDTH + yOffset));
+					resultChoicePositions.add(new Position(resultListPositionDimensions.getLeft().x() + RESULT_SELECTION_BORDER_WIDTH + xOffset, resultListPositionDimensions.getLeft().y() + RESULT_SELECTION_BORDER_WIDTH + yOffset));
 				}
 			}
 
-			guiGraphics.pose().pushPose();
+			guiGraphics.pose().pushMatrix();
 			guiGraphics.pose().translate(0, 0, 410);
 
-			renderResultSelectionBackground(guiGraphics, matchedCraftingResults, resultListPositionDimensions.getB().width(), resultListPositionDimensions.getB().height(), resultListPositionDimensions.getA().x(), resultListPositionDimensions.getA().y());
-			renderResultChoices(guiGraphics, matchedCraftingResults, resultListPositionDimensions.getA().x(), resultListPositionDimensions.getA().y());
+			renderResultSelectionBackground(guiGraphics, matchedCraftingResults, resultListPositionDimensions.getRight().width(), resultListPositionDimensions.getRight().height(), resultListPositionDimensions.getLeft().x(), resultListPositionDimensions.getLeft().y());
+			renderResultChoices(guiGraphics, matchedCraftingResults, resultListPositionDimensions.getLeft().x(), resultListPositionDimensions.getLeft().y());
 			renderSelectionSlotHover(guiGraphics, mouseX, mouseY);
 
-			guiGraphics.pose().popPose();
+			guiGraphics.pose().popMatrix();
 		}
 	}
 
-	private void renderSelectionSlotHover(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	private void renderSelectionSlotHover(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		getResultChoiceHovered(mouseX, mouseY).ifPresent(i -> {
 			Position position = resultChoicePositions.get(i);
 			GuiHelper.renderSlotHighlight(guiGraphics, position.x() + 1, position.y() + 1, 0, -2130706433);
@@ -163,8 +164,8 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 		if (!resultSelectionShown || resultListPositionDimensions == null) {
 			return Optional.empty();
 		}
-		Position pos = resultListPositionDimensions.getA();
-		Dimension dim = resultListPositionDimensions.getB();
+		Position pos = resultListPositionDimensions.getLeft();
+		Dimension dim = resultListPositionDimensions.getRight();
 		int slotsLeftX = pos.x() + RESULT_SELECTION_BORDER_WIDTH;
 		int slotsTopY = pos.y() + RESULT_SELECTION_BORDER_WIDTH;
 
@@ -180,8 +181,11 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		boolean ret = super.mouseClicked(mouseX, mouseY, button);
+	public boolean mouseClicked(MouseButtonEvent event, boolean isDoubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
+		boolean ret = super.mouseClicked(event, isDoubleClick);
 		if (ret) {
 			return true;
 		}
@@ -199,11 +203,11 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 
 		int resultListLeftX = selectResultButton.getX() + 8 - RESULT_SELECTION_BORDER_WIDTH -(int) (Math.min(matchedCraftingResults.size(), 3) / 2f * 18);
 		int resultListTopY = selectResultButton.getY() - height;
-		resultListPositionDimensions = new Tuple<>(new Position(resultListLeftX, resultListTopY), new Dimension(width, height));
+		resultListPositionDimensions = new Pair<>(new Position(resultListLeftX, resultListTopY), new Dimension(width, height));
 
 	}
 
-	private static void renderResultSelectionBackground(GuiGraphics guiGraphics, List<ItemStack> matchedCraftingResults, int width, int height, int resultListLeftX, int resultListTopY) {
+	private static void renderResultSelectionBackground(GuiGraphicsExtractor guiGraphics, List<ItemStack> matchedCraftingResults, int width, int height, int resultListLeftX, int resultListTopY) {
 		int halfWidth = width / 2;
 		int halfHeight = height / 2;
 
@@ -215,7 +219,7 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 		GuiHelper.renderSlotsBackground(guiGraphics, resultListLeftX + RESULT_SELECTION_BORDER_WIDTH, resultListTopY + RESULT_SELECTION_BORDER_WIDTH, 3, matchedCraftingResults.size() / 3, matchedCraftingResults.size() % 3);
 	}
 
-	private void renderResultChoices(GuiGraphics guiGraphics, List<ItemStack> matchedCraftingResults, int resultListLeftX, int resultListTopY) {
+	private void renderResultChoices(GuiGraphicsExtractor guiGraphics, List<ItemStack> matchedCraftingResults, int resultListLeftX, int resultListTopY) {
 		for (int i = 0; i < matchedCraftingResults.size(); i++) {
 			ItemStack resultStack = matchedCraftingResults.get(i);
 
@@ -223,8 +227,8 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 			int yOffset = (i / 3) * 18;
 			int x = resultListLeftX + RESULT_SELECTION_BORDER_WIDTH + 1 + xOffset;
 			int y = resultListTopY + RESULT_SELECTION_BORDER_WIDTH + 1 + yOffset;
-			guiGraphics.renderItem(resultStack, x, y);
-			guiGraphics.renderItemDecorations(font, resultStack, x, y, null);
+			guiGraphics.item(resultStack, x, y);
+			guiGraphics.itemDecorations(font, resultStack, x, y, null);
 		}
 	}
 
@@ -263,24 +267,24 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 			return true;
 		}
 
-		Position pos = resultListPositionDimensions.getA();
-		Dimension dim = resultListPositionDimensions.getB();
+		Position pos = resultListPositionDimensions.getLeft();
+		Dimension dim = resultListPositionDimensions.getRight();
 
 		return mouseX < pos.x() || mouseX > pos.x() + dim.width() || mouseY < pos.y() || mouseY > pos.y() + dim.height();
 	}
 
 	@Override
-	public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		super.renderTooltip(screen, guiGraphics, mouseX, mouseY);
-		guiGraphics.pose().pushPose();
+	public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.setTooltipForNextFrame(screen, guiGraphics, mouseX, mouseY);
+		guiGraphics.pose().pushMatrix();
 		guiGraphics.pose().translate(0, 0, 410);
 		getResultChoiceHovered(mouseX, mouseY).ifPresent(i -> {
 			List<ItemStack> matchedCraftingResults = getContainer().getMatchedCraftingResults();
 			if (i < matchedCraftingResults.size()) {
 				ItemStack stack = matchedCraftingResults.get(i);
-				guiGraphics.renderTooltip(minecraft.font, stack, mouseX, mouseY);
+				guiGraphics.setTooltipForNextFrame(minecraft.font, stack, mouseX, mouseY);
 			}
 		});
-		guiGraphics.pose().popPose();
+		guiGraphics.pose().popMatrix();
 	}
 }

@@ -1,7 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.stonecutter;
 
+import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -54,7 +55,7 @@ public class StonecutterRecipeControl extends WidgetBase {
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
+	protected void extractContents(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
 		GuiHelper.renderSlotsBackground(guiGraphics, x + getCenteredX(18), y, 1, 1);
 		GuiHelper.blit(guiGraphics, x, y + LIST_Y_OFFSET, LIST_BACKGROUND);
 		GuiHelper.blit(guiGraphics, x + getCenteredX(26), y + INPUT_SLOT_HEIGHT + SPACING + LIST_BACKGROUND.getHeight() + SPACING, GuiHelper.CRAFTING_RESULT_SLOT);
@@ -68,7 +69,7 @@ public class StonecutterRecipeControl extends WidgetBase {
 		drawRecipesItems(guiGraphics, listInnerLeftX, listTopY, recipeIndexOffsetMax);
 	}
 
-	private void drawRecipesItems(GuiGraphics guiGraphics, int listInnerLeftX, int top, int recipeIndexOffsetMax) {
+	private void drawRecipesItems(GuiGraphicsExtractor guiGraphics, int listInnerLeftX, int top, int recipeIndexOffsetMax) {
 		List<RecipeHolder<StonecutterRecipe>> list = container.getRecipeList();
 
 		for (int i = recipeIndexOffset; i < recipeIndexOffsetMax && i < container.getRecipeList().size(); ++i) {
@@ -85,7 +86,7 @@ public class StonecutterRecipeControl extends WidgetBase {
 		return y + LIST_Y_OFFSET;
 	}
 
-	private void renderRecipeBackgrounds(GuiGraphics guiGraphics, int mouseX, int mouseY, int listInnerLeftX, int listTopY, int recipeIndexOffsetMax) {
+	private void renderRecipeBackgrounds(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, int listInnerLeftX, int listTopY, int recipeIndexOffsetMax) {
 		for (int recipeIndex = recipeIndexOffset; recipeIndex < recipeIndexOffsetMax && recipeIndex < container.getRecipeList().size(); ++recipeIndex) {
 			int j = recipeIndex - recipeIndexOffset;
 			int recipeX = listInnerLeftX + j % 4 * 16;
@@ -108,17 +109,17 @@ public class StonecutterRecipeControl extends WidgetBase {
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		//noop - everything is rendered in background or after screen render is done
 	}
 
 	@Override
-	public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		super.renderTooltip(screen, guiGraphics, mouseX, mouseY);
+	public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.setTooltipForNextFrame(screen, guiGraphics, mouseX, mouseY);
 		renderHoveredTooltip(guiGraphics, mouseX, mouseY);
 	}
 
-	private void renderHoveredTooltip(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	private void renderHoveredTooltip(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		if (hasItemsInInputSlot) {
 			int listTopY = getListTopY();
 			int k = recipeIndexOffset + 12;
@@ -135,7 +136,7 @@ public class StonecutterRecipeControl extends WidgetBase {
 		}
 	}
 
-	private void renderTooltip(GuiGraphics guiGraphics, ItemStack itemStack, int mouseX, int mouseY) {
+	private void extractTooltip(GuiGraphicsExtractor guiGraphics, ItemStack itemStack, int mouseX, int mouseY) {
 		guiGraphics.renderComponentTooltip(this.font, Screen.getTooltipFromItem(minecraft, itemStack), mouseX, mouseY);	}
 
 	private void onInventoryUpdate() {
@@ -150,7 +151,10 @@ public class StonecutterRecipeControl extends WidgetBase {
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean isDoubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 		clickedOnScroll = false;
 		if (hasItemsInInputSlot) {
 			int listInnerLeftX = x + 1;
@@ -174,11 +178,14 @@ public class StonecutterRecipeControl extends WidgetBase {
 			}
 		}
 
-		return super.mouseClicked(mouseX, mouseY, button);
+		return super.mouseClicked(event, isDoubleClick);
 	}
 
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+	public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 		if (clickedOnScroll && canScroll()) {
 			int listTopY = y + LIST_Y_OFFSET;
 			int listBottomY = listTopY + 54;
@@ -187,7 +194,7 @@ public class StonecutterRecipeControl extends WidgetBase {
 			recipeIndexOffset = (int) ((sliderProgress * getHiddenRows()) + 0.5D) * 4;
 			return true;
 		} else {
-			return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+			return super.mouseDragged(event, dragX, dragY);
 		}
 	}
 

@@ -4,7 +4,7 @@ import io.github.fabricators_of_create.porting_lib.fluids.BaseFlowingFluid;
 import io.github.fabricators_of_create.porting_lib.fluids.FluidType;
 import io.github.fabricators_of_create.porting_lib.fluids.PortingLibFluids;
 import net.p3pp3rf1y.sophisticatedcore.platform.DeferredRegister;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalFluidTags;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;

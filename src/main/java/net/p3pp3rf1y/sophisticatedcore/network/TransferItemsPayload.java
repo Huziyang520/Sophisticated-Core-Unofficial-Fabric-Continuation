@@ -6,7 +6,7 @@ import net.fabricmc.fabric.api.transfer.v1.item.ContainerStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.fabricmc.fabric.impl.transfer.item.InventoryStorageImpl;
+import net.fabricmc.fabric.impl.transfer.item.ContainerStorageImpl;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -288,10 +288,10 @@ public record TransferItemsPayload(boolean transferToInventory,
 	}
 
 	private static class RangedWrapper implements IItemHandlerSimpleInserter {
-		private final InventoryStorageImpl inventoryStorage;
+		private final ContainerStorageImpl inventoryStorage;
 
 		public RangedWrapper(Inventory inv, int start, int end) {
-			this.inventoryStorage = (InventoryStorageImpl) InventoryStorage.of(inv, null);
+			this.inventoryStorage = (ContainerStorageImpl) InventoryStorage.of(inv, null);
 			this.inventoryStorage.parts = Collections.unmodifiableList(inventoryStorage.parts.subList(start, end));
 		}
 

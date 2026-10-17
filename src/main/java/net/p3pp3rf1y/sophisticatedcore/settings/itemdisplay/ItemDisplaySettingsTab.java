@@ -3,7 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.settings.itemdisplay;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.level.block.state.BlockState;
@@ -106,14 +106,10 @@ public class ItemDisplaySettingsTab extends SettingsTab<ItemDisplaySettingsConta
 	}
 
 	@Override
-	public void renderExtra(GuiGraphics guiGraphics, Slot slot) {
+	public void renderExtra(GuiGraphicsExtractor guiGraphics, Slot slot) {
 		super.renderExtra(guiGraphics, slot);
 		if (isOpen && slot.index == currentSelectedSlot) {
-			RenderSystem.disableDepthTest();
-			RenderSystem.colorMask(true, true, true, false);
 			GuiHelper.blit(guiGraphics, slot.x - 4, slot.y - 4, SLOT_SELECTION);
-			RenderSystem.colorMask(true, true, true, true);
-			RenderSystem.enableDepthTest();
 		}
 	}
 

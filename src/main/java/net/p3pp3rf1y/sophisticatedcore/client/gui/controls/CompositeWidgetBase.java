@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui.controls;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.ContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
@@ -24,8 +25,8 @@ public abstract class CompositeWidgetBase<T extends WidgetBase> extends WidgetBa
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		children.forEach(child -> child.render(guiGraphics, mouseX, mouseY, partialTicks));
+	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		children.forEach(child -> child.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks));
 	}
 
 	protected <U extends T> U addChild(U child) {
@@ -49,9 +50,12 @@ public abstract class CompositeWidgetBase<T extends WidgetBase> extends WidgetBa
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean isDoubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 		return getChildAt(mouseX, mouseY).map(l -> {
-			if (l.mouseClicked(mouseX, mouseY, button)) {
+			if (l.mouseClicked(event, false)) {
 				setFocused(l);
 				if (button == 0) {
 					setDragging(true);
@@ -63,8 +67,11 @@ public abstract class CompositeWidgetBase<T extends WidgetBase> extends WidgetBa
 	}
 
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
-		return getChildAt(mouseX, mouseY).map(l -> l.mouseDragged(mouseX, mouseY, button, dragX, dragY)).orElse(false);
+	public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
+		return getChildAt(mouseX, mouseY).map(l -> l.mouseDragged(event, dragX, dragY)).orElse(false);
 	}
 
 	@Override
@@ -84,8 +91,8 @@ public abstract class CompositeWidgetBase<T extends WidgetBase> extends WidgetBa
 	}
 
 	@Override
-	public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		super.renderTooltip(screen, guiGraphics, mouseX, mouseY);
-		children.forEach(c -> c.renderTooltip(screen, guiGraphics, mouseX, mouseY));
+	public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.setTooltipForNextFrame(screen, guiGraphics, mouseX, mouseY);
+		children.forEach(c -> c.setTooltipForNextFrame(screen, guiGraphics, mouseX, mouseY));
 	}
 }

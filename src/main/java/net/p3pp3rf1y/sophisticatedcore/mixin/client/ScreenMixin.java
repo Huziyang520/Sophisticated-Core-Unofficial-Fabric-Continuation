@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.mixin.client;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.SettingsScreen;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
@@ -17,7 +17,7 @@ public class ScreenMixin {
 			order = 100000, // Make sure this injection runs last
 			cancellable = true
 	)
-	private void sophisticatedCore$renderHead(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+	private void sophisticatedCore$renderHead(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
 		if ((Object) this instanceof StorageScreenBase<?> || (Object) this instanceof SettingsScreen) {
 			ci.cancel();
 		}

@@ -3,7 +3,6 @@ package net.p3pp3rf1y.sophisticatedcore.api;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import team.reborn.energy.api.EnergyStorage;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SortBy;
 import net.p3pp3rf1y.sophisticatedcore.inventory.ITrackedContentsItemHandler;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryHandler;
@@ -75,7 +74,6 @@ public interface IStorageWrapper extends ITintable {
 		return Optional.empty();
 	}
 
-	default Optional<EnergyStorage> getEnergyStorage() { return Optional.empty(); }
 
 	default ItemStack getWrappedStorageStack() {
 		return ItemStack.EMPTY;

@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui;
 
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
 
 public abstract class UpgradeInventoryPartBase<C extends UpgradeContainerBase<?, ?>> {
@@ -12,11 +12,11 @@ public abstract class UpgradeInventoryPartBase<C extends UpgradeContainerBase<?,
 		this.upgradeSlot = upgradeSlot;
 	}
 
-	public abstract void render(GuiGraphics guiGraphics, int mouseX, int mouseY);
+	public abstract void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY);
 
 	public abstract boolean handleMouseReleased(double mouseX, double mouseY, int button);
 
-	public abstract void renderErrorOverlay(GuiGraphics guiGraphics);
+	public abstract void renderErrorOverlay(GuiGraphicsExtractor guiGraphics);
 
-	public abstract void renderTooltip(StorageScreenBase<?> screen, GuiGraphics guiGraphics, int mouseX, int mouseY);
+	public abstract void renderTooltip(StorageScreenBase<?> screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY);
 }

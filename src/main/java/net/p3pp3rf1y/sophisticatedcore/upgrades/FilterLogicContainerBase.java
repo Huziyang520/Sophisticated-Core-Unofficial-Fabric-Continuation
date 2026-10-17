@@ -202,7 +202,7 @@ public class FilterLogicContainerBase<T extends FilterLogic, S extends Slot> {
 			return false;
 		}
 
-		for (String key : data.getAllKeys()) {
+		for (String key : data.keySet()) {
 			switch (key) {
 				case DATA_IS_ALLOW_LIST -> {
 					setAllowList(data.getBooleanOr(DATA_IS_ALLOW_LIST, false));
@@ -259,7 +259,7 @@ public class FilterLogicContainerBase<T extends FilterLogic, S extends Slot> {
 
 		@Override
 		public boolean mayPlace(ItemStack stack) {
-			return stack.isEmpty() || stack.getTags().findAny().isPresent();
+			return stack.isEmpty() || stack.getItem().builtInRegistryHolder().tags().findAny().isPresent();
 		}
 
 		@Override
@@ -292,7 +292,7 @@ public class FilterLogicContainerBase<T extends FilterLogic, S extends Slot> {
 		public void set(ItemStack stack) {
 			this.stack = stack;
 			tagsToAdd.clear();
-			tagsToAdd.addAll(stack.getTags().toList());
+			tagsToAdd.addAll(stack.getItem().builtInRegistryHolder().tags().toList());
 			getTagNames().forEach(tagsToAdd::remove);
 			selectedTagToAdd = 0;
 			onUpdate.run();

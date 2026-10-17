@@ -18,7 +18,7 @@ public class FeedingUpgradeItem extends UpgradeItemBase<FeedingUpgradeWrapper> {
 	}
 
 	public int getFilterSlotCount() {
-		return filterSlotCount.getAsInt();
+		return filterSlotCount.intValue();
 	}
 
 	@Override

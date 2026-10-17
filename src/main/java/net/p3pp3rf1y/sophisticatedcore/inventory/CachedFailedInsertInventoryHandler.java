@@ -48,9 +48,9 @@ public class CachedFailedInsertInventoryHandler implements IItemHandlerSimpleIns
 	@NotNull
 	@Override
 	public ItemStack insertItem(int slot, @NotNull ItemStack stack, boolean simulate) {
-		if (currentCacheTime != timeSupplier.getAsLong()) {
+		if (currentCacheTime != timeSupplier.longValue()) {
 			failedInsertStacks.clear();
-			currentCacheTime = timeSupplier.getAsLong();
+			currentCacheTime = timeSupplier.longValue();
 		}
 
 		if (failedInsertStacks.contains(stack)) {
@@ -68,9 +68,9 @@ public class CachedFailedInsertInventoryHandler implements IItemHandlerSimpleIns
 
 	@Override
 	public long insert(ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		if (currentCacheTime != timeSupplier.getAsLong()) {
+		if (currentCacheTime != timeSupplier.longValue()) {
 			failedInsertStacks.clear();
-			currentCacheTime = timeSupplier.getAsLong();
+			currentCacheTime = timeSupplier.longValue();
 		}
 
 		if (failedInsertStacks.contains(resource.toStack())) {
@@ -87,9 +87,9 @@ public class CachedFailedInsertInventoryHandler implements IItemHandlerSimpleIns
 
 	@Override
 	public long insertSlot(int slot, ItemVariant resource, long maxAmount, TransactionContext ctx) {
-		if (currentCacheTime != timeSupplier.getAsLong()) {
+		if (currentCacheTime != timeSupplier.longValue()) {
 			failedInsertStacks.clear();
-			currentCacheTime = timeSupplier.getAsLong();
+			currentCacheTime = timeSupplier.longValue();
 		}
 
 		if (failedInsertStacks.contains(resource.toStack())) {

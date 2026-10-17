@@ -34,7 +34,7 @@ public class DeferredRegister<R> {
 
 	/** Creates a register for a registry identified by its key. */
 	public static <R> DeferredRegister<R> create(ResourceKey<? extends Registry<R>> registryKey, String modId) {
-		return new DeferredRegister<>(resolveByName(registryKey.location()), modId);
+		return new DeferredRegister<>(resolveByName(registryKey.identifier()), modId);
 	}
 
 	/** Creates a register for a registry identified by its name. */

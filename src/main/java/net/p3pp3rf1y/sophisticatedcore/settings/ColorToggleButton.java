@@ -4,7 +4,7 @@ import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -61,7 +61,7 @@ public class ColorToggleButton extends ButtonBase {
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
+	protected void extractContents(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
 		if (isMouseOver(mouseX, mouseY)) {
 			GuiHelper.blit(guiGraphics, x, y, DEFAULT_BUTTON_HOVERED_BACKGROUND);
 		} else {
@@ -70,20 +70,16 @@ public class ColorToggleButton extends ButtonBase {
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		RenderSystem.disableDepthTest();
-		RenderSystem.colorMask(true, true, true, false);
+	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		int color = getColor.get().getTextureDiffuseColor() | (200 << 24);
 		guiGraphics.fillGradient(x + 3, y + 3, x + 15, y + 15, color, color);
-		RenderSystem.colorMask(true, true, true, true);
-		RenderSystem.enableDepthTest();
 	}
 
 	@Override
-	public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		super.renderTooltip(screen, guiGraphics, mouseX, mouseY);
+	public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.setTooltipForNextFrame(screen, guiGraphics, mouseX, mouseY);
 		if (isMouseOver(mouseX, mouseY)) {
-			guiGraphics.renderTooltip(screen.font, TOOLTIP, Optional.empty(), mouseX, mouseY);
+			guiGraphics.setTooltipForNextFrame(screen.font, TOOLTIP, Optional.empty(), mouseX, mouseY);
 		}
 	}
 

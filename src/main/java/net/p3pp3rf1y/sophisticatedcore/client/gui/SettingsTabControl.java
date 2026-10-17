@@ -1,9 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import org.joml.Matrix3x2fStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -49,21 +49,20 @@ public abstract class SettingsTabControl<C extends AbstractContainerScreen<?>, T
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		PoseStack pose = guiGraphics.pose();
-		pose.pushPose();
+	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		Matrix3x2fStack pose = guiGraphics.pose();
+		pose.pushMatrix();
 		pose.translate(0,0, -11);
 		children.forEach(child -> {
 			if (child != openTab) {
-				child.render(guiGraphics, mouseX, mouseY, partialTicks);
+				child.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 			}
 		});
-		pose.popPose();
+		pose.popMatrix();
 
 		if (openTab != null) {
-			openTab.render(guiGraphics, mouseX, mouseY, partialTicks);
+			openTab.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		}
-		RenderSystem.enableDepthTest();
 	}
 
 	private boolean isNotCovered(T open, Tab t, boolean checkFullyCovered) {
@@ -83,13 +82,13 @@ public abstract class SettingsTabControl<C extends AbstractContainerScreen<?>, T
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
+	protected void extractContents(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
 		//noop
 	}
 
 	@Override
-	public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
-		children.forEach(tab -> tab.renderTooltip(screen, guiGraphics, mouseX, mouseY));
+	public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		children.forEach(tab -> tab.setTooltipForNextFrame(screen, guiGraphics, mouseX, mouseY));
 	}
 
 	protected int getTopY() {

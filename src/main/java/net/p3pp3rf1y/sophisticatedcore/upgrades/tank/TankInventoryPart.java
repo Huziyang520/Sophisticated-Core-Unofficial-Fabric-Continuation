@@ -4,7 +4,7 @@ import net.p3pp3rf1y.sophisticatedcore.platform.FluidStack;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -36,7 +36,7 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 	}
 
 	@Override
-	public void render(GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		GuiHelper.blit(guiGraphics, getTankLeft(), pos.y(), GuiHelper.BAR_BACKGROUND_TOP);
 		int yOffset = 18;
 		for (int i = 0; i < (height - 36) / 18; i++) {
@@ -47,14 +47,14 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 
 		renderFluid(guiGraphics);
 
-		guiGraphics.pose().pushPose();
+		guiGraphics.pose().pushMatrix();
 		guiGraphics.pose().translate(0, 0, 100);
 		yOffset = 0;
 		for (int i = 0; i < height / 18; i++) {
 			GuiHelper.blit(guiGraphics, getTankLeft() + 1, pos.y() + yOffset, OVERLAY);
 			yOffset += 18;
 		}
-		guiGraphics.pose().popPose();
+		guiGraphics.pose().popMatrix();
 	}
 
 	private int getTankLeft() {
@@ -79,12 +79,12 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 	}
 
 	@Override
-	public void renderErrorOverlay(GuiGraphics guiGraphics) {
+	public void renderErrorOverlay(GuiGraphicsExtractor guiGraphics) {
 		screen.renderOverlay(guiGraphics, StorageScreenBase.ERROR_SLOT_COLOR, getTankLeft() + 1, pos.y() + 1, 16, height - 2);
 	}
 
 	@Override
-	public void renderTooltip(StorageScreenBase<?> screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
+	public void renderTooltip(StorageScreenBase<?> screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		FluidStack contents = container.getContents();
 		long capacity = container.getTankCapacity();
 		if (contents.isEmpty()) {
@@ -101,7 +101,7 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 				tooltip.add(FluidVariantAttributes.getName(contents.getVariant()));
 			}
 			tooltip.add(getContentsTooltip(contents, capacity));
-			guiGraphics.renderTooltip(screen.font, tooltip, Optional.empty(), mouseX, mouseY);
+			guiGraphics.setTooltipForNextFrame(screen.font, tooltip, Optional.empty(), mouseX, mouseY);
 		}
 	}
 
@@ -116,7 +116,7 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 		return Component.translatable(TranslationHelper.INSTANCE.translUpgradeKey("tank.contents_tooltip"), String.format("%,d", FluidUtil.toBuckets(contents.getAmount())), String.format("%,d", FluidUtil.toBuckets(capacity)));
 	}
 
-	private void renderFluid(GuiGraphics guiGraphics) {
+	private void renderFluid(GuiGraphicsExtractor guiGraphics) {
 		FluidStack contents = container.getContents();
 		long capacity = container.getTankCapacity();
 		if (contents.isEmpty()) {

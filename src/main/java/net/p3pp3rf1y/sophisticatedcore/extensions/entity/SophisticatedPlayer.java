@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.extensions.entity;
 
 import io.netty.buffer.Unpooled;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedScreenHandlerFactory;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuProvider;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;

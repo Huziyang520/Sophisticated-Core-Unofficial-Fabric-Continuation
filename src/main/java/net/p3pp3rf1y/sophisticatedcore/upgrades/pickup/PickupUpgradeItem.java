@@ -18,7 +18,7 @@ public class PickupUpgradeItem extends UpgradeItemBase<PickupUpgradeWrapper> {
 	}
 
 	public int getFilterSlotCount() {
-		return filterSlotCount.getAsInt();
+		return filterSlotCount.intValue();
 	}
 
 	@Override

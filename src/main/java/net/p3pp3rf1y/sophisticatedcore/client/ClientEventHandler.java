@@ -1,17 +1,17 @@
 package net.p3pp3rf1y.sophisticatedcore.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
+import org.joml.Matrix3x2fStack;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
@@ -47,7 +47,7 @@ public class ClientEventHandler implements ClientModInitializer {
         ModParticles.registerFactories();
 		registerFluidClientExtension();
 
-        ServerWorldEvents.UNLOAD.register(StorageSoundHandler::onWorldUnload);
+        ServerLevelEvents.UNLOAD.register(StorageSoundHandler::onWorldUnload);
 		ClientTickEvents.END_WORLD_TICK.register(StorageSoundHandler::tick);
 
         ClientPlayConnectionEvents.JOIN.register(ClientEventHandler::onPlayerJoinServer);
@@ -62,7 +62,7 @@ public class ClientEventHandler implements ClientModInitializer {
 		});
 	}
 
-	private static void onDrawScreen(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY, float tickDelta) {
+	private static void onDrawScreen(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float tickDelta) {
 		Minecraft mc = Minecraft.getInstance();
 		Screen gui = mc.screen;
 		if (!(gui instanceof AbstractContainerScreen<?> containerGui) || gui instanceof CreativeModeInventoryScreen || mc.player == null) {
@@ -94,31 +94,31 @@ public class ClientEventHandler implements ClientModInitializer {
 		}
 	}
 
-	private static void renderStashSign(Minecraft mc, AbstractContainerScreen<?> containerGui, GuiGraphics guiGraphics, Slot s, ItemStack stack, IStashStorageItem.StashResult stashResult) {
+	private static void renderStashSign(Minecraft mc, AbstractContainerScreen<?> containerGui, GuiGraphicsExtractor guiGraphics, Slot s, ItemStack stack, IStashStorageItem.StashResult stashResult) {
 		int x = containerGui.sophisticatedCore_getGuiLeft() + s.x;
 		int y = containerGui.sophisticatedCore_getGuiTop() + s.y;
 
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
 		// Because of trinkets we need to increase this from the original 300
 		// Trinkets uses 310, so 330 was chosen as 320 was not enough as it cut the plus sign in half
 		poseStack.translate(0, 0, 330);
 
 		int color = stashResult == IStashStorageItem.StashResult.MATCH_AND_SPACE ? ChatFormatting.GREEN.getColor() : 0xFFFF00;
 		if (stack.getItem() instanceof IStashStorageItem) {
-			guiGraphics.drawString(mc.font, "+", x + 10, y + 8, color);
+			guiGraphics.text(mc.font, "+", x + 10, y + 8, color);
 		} else {
-			guiGraphics.drawString(mc.font, "-", x + 1, y, color);
+			guiGraphics.text(mc.font, "-", x + 1, y, color);
 		}
-		poseStack.popPose();
+		poseStack.popMatrix();
 	}
 
-    private static void renderSpecialTooltip(Minecraft mc, GuiGraphics guiGraphics, int x, int y, StashResultAndTooltip stashResultAndTooltip) {
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
+    private static void renderSpecialTooltip(Minecraft mc, GuiGraphicsExtractor guiGraphics, int x, int y, StashResultAndTooltip stashResultAndTooltip) {
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
 		poseStack.translate(0, 0, 100);
-		guiGraphics.renderTooltip(mc.font, Collections.singletonList(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip("storage") + ".right_click_to_add_to_storage")), stashResultAndTooltip.tooltip(), x, y);
-		poseStack.popPose();
+		guiGraphics.setTooltipForNextFrame(mc.font, Collections.singletonList(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip("storage") + ".right_click_to_add_to_storage")), stashResultAndTooltip.tooltip(), x, y);
+		poseStack.popMatrix();
 	}
 
 	private static Optional<StashResultAndTooltip> getStashResultAndTooltip(ItemStack inInventory, ItemStack held) {

@@ -5,10 +5,11 @@
  */
 package net.p3pp3rf1y.sophisticatedcore.client.gui.controls;
 
+import net.minecraft.client.input.MouseButtonEvent;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.AbstractContainerEventHandler;
 import net.minecraft.client.gui.components.events.GuiEventListener;
@@ -148,7 +149,7 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 	/**
 	 * Draws the background of the scroll panel. This runs AFTER Scissors are enabled.
 	 */
-	protected void drawBackground(GuiGraphics guiGraphics, Tesselator tess, float partialTick) {
+	protected void drawBackground(GuiGraphicsExtractor guiGraphics, Tesselator tess, float partialTick) {
 		Screen.renderMenuBackgroundTexture(guiGraphics, Screen.MENU_BACKGROUND, this.left, this.top, 0f, 0f, this.width, this.height);
 	}
 
@@ -156,7 +157,7 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 	 * Draw anything special on the screen. Scissor (RenderSystem.enableScissor) is enabled
 	 * for anything that is rendered outside the view box. Do not mess with Scissor unless you support this.
 	 */
-	protected abstract void drawPanel(GuiGraphics graphics, int entryRight, int relativeY, Tesselator tess, int mouseX, int mouseY);
+	protected abstract void drawPanel(GuiGraphicsExtractor graphics, int entryRight, int relativeY, Tesselator tess, int mouseX, int mouseY);
 
 	protected boolean clickPanel(double mouseX, double mouseY, int button) { return false; }
 
@@ -202,8 +203,11 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (super.mouseClicked(mouseX, mouseY, button))
+	public boolean mouseClicked(MouseButtonEvent event, boolean isDoubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
+		if (super.mouseClicked(event, isDoubleClick))
 			return true;
 
 		this.scrolling = button == 0 && mouseX >= barLeft && mouseX < barLeft + barWidth;
@@ -218,8 +222,11 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 	}
 
 	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		if (super.mouseReleased(mouseX, mouseY, button))
+	public boolean mouseReleased(MouseButtonEvent event) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
+		if (super.mouseReleased(event))
 			return true;
 		boolean ret = this.scrolling;
 		this.scrolling = false;
@@ -250,7 +257,7 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 	}
 
 	@Override
-	public void render(GuiGraphics graphics, int mouseX, int mouseY, float partialTick) {
+	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
 		Tesselator tess = Tesselator.getInstance();
 
 		double scale = client.getWindow().getGuiScale();
@@ -262,7 +269,6 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 		int baseY = this.top + border - (int)this.scrollDistance;
 		this.drawPanel(graphics, right, baseY, tess, mouseX, mouseY);
 
-		RenderSystem.disableDepthTest();
 
 		int extraHeight = (this.getContentHeight() + border) - height;
 		if (extraHeight > 0) {
@@ -311,11 +317,10 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 			BufferUploader.drawWithShader(worldr.buildOrThrow());
 		}
 
-		RenderSystem.disableBlend();
 		RenderSystem.disableScissor();
 	}
 
-	protected void drawGradientRect(GuiGraphics guiGraphics, int left, int top, int right, int bottom, int startColor, int endColor) {
+	protected void drawGradientRect(GuiGraphicsExtractor guiGraphics, int left, int top, int right, int bottom, int startColor, int endColor) {
 		guiGraphics.fillGradient(left, top, right, bottom, startColor, endColor);
 	}
 

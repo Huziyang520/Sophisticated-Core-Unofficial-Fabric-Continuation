@@ -103,7 +103,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	public void searchAndAddBoundables() {
 		Set<BlockPos> positionsToCheck = new HashSet<>();
 		for (Direction dir : Direction.values()) {
-			positionsToCheck.add(getBlockPos().offset(dir.getNormal()));
+			positionsToCheck.add(getBlockPos().offset(dir.getStep()));
 		}
 		searchAndAddBoundables(positionsToCheck, false);
 	}
@@ -188,7 +188,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 
 	private void addUncheckedPositionsAround(Set<BlockPos> positionsToCheck, Set<BlockPos> positionsChecked, BlockPos currentPos) {
 		for (Direction dir : Direction.values()) {
-			BlockPos pos = currentPos.offset(dir.getNormal());
+			BlockPos pos = currentPos.offset(dir.getStep());
 			if (!positionsChecked.contains(pos) && ((!storagePositions.contains(pos) && !connectingBlocks.contains(pos) && !nonConnectingBlocks.contains(pos)) || linkedBlocks.contains(pos)) && isWithinRange(pos)) {
 				positionsToCheck.add(pos);
 			}
@@ -442,7 +442,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 
 		Set<BlockPos> positionsToCheck = new HashSet<>();
 		for (Direction dir : Direction.values()) {
-			BlockPos offsetPos = getBlockPos().offset(dir.getNormal());
+			BlockPos offsetPos = getBlockPos().offset(dir.getStep());
 			if (toVerify.contains(offsetPos)) {
 				positionsToCheck.add(offsetPos);
 			}
@@ -482,7 +482,7 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 				toVerify.remove(posToCheck);
 				if (h.canConnectStorages()) {
 					for (Direction dir : Direction.values()) {
-						BlockPos pos = posToCheck.offset(dir.getNormal());
+						BlockPos pos = posToCheck.offset(dir.getStep());
 						if (!positionsChecked.contains(pos) && toVerify.contains(pos)) {
 							positionsToCheck.add(pos);
 						}
@@ -828,12 +828,12 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
 		super.loadAdditional(tag, registries);
 
-		storagePositions = NBTHelper.getCollection(tag, "storagePositions", Tag.TAG_LONG, t -> Optional.of(BlockPos.of(((LongTag) t).getAsLong())), ArrayList::new).orElseGet(ArrayList::new);
-		connectingBlocks = NBTHelper.getCollection(tag, "connectingBlocks", Tag.TAG_LONG, t -> Optional.of(BlockPos.of(((LongTag) t).getAsLong())), LinkedHashSet::new).orElseGet(LinkedHashSet::new);
-		nonConnectingBlocks = NBTHelper.getCollection(tag, "nonConnectingBlocks", Tag.TAG_LONG, t -> Optional.of(BlockPos.of(((LongTag) t).getAsLong())), LinkedHashSet::new).orElseGet(LinkedHashSet::new);
-		baseIndexes = NBTHelper.getCollection(tag, "baseIndexes", Tag.TAG_INT, t -> Optional.of(((IntTag) t).getAsInt()), ArrayList::new).orElseGet(ArrayList::new);
+		storagePositions = NBTHelper.getCollection(tag, "storagePositions", Tag.TAG_LONG, t -> Optional.of(BlockPos.of(((LongTag) t).longValue())), ArrayList::new).orElseGet(ArrayList::new);
+		connectingBlocks = NBTHelper.getCollection(tag, "connectingBlocks", Tag.TAG_LONG, t -> Optional.of(BlockPos.of(((LongTag) t).longValue())), LinkedHashSet::new).orElseGet(LinkedHashSet::new);
+		nonConnectingBlocks = NBTHelper.getCollection(tag, "nonConnectingBlocks", Tag.TAG_LONG, t -> Optional.of(BlockPos.of(((LongTag) t).longValue())), LinkedHashSet::new).orElseGet(LinkedHashSet::new);
+		baseIndexes = NBTHelper.getCollection(tag, "baseIndexes", Tag.TAG_INT, t -> Optional.of(((IntTag) t).intValue()), ArrayList::new).orElseGet(ArrayList::new);
 		totalSlots = tag.getIntOr("totalSlots", 0);
-		linkedBlocks = NBTHelper.getCollection(tag, "linkedBlocks", Tag.TAG_LONG, t -> Optional.of(BlockPos.of(((LongTag) t).getAsLong())), LinkedHashSet::new).orElseGet(LinkedHashSet::new);
+		linkedBlocks = NBTHelper.getCollection(tag, "linkedBlocks", Tag.TAG_LONG, t -> Optional.of(BlockPos.of(((LongTag) t).longValue())), LinkedHashSet::new).orElseGet(LinkedHashSet::new);
 	}
 
 	@Override

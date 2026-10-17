@@ -2,9 +2,9 @@ package net.p3pp3rf1y.sophisticatedcore.settings.memory;
 
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
+import org.joml.Matrix3x2fStack;
 import net.minecraft.ChatFormatting;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
@@ -81,7 +81,7 @@ public class MemorySettingsTab extends SettingsTab<MemorySettingsContainer> {
 	}
 
 	@Override
-	public void drawSlotStackOverlay(GuiGraphics guiGraphics, Slot slot, boolean templateLoadHovered) {
+	public void drawSlotStackOverlay(GuiGraphicsExtractor guiGraphics, Slot slot, boolean templateLoadHovered) {
 		if (templateLoadHovered) {
 			if (!getSettingsContainer().getSelectedTemplatesMemorizedStack(slot.sophisticatedCore_getSlotIndex()).isEmpty()) {
 				drawMemorizedStackOverlay(guiGraphics, slot);
@@ -91,14 +91,10 @@ public class MemorySettingsTab extends SettingsTab<MemorySettingsContainer> {
 		}
 	}
 
-	private void drawMemorizedStackOverlay(GuiGraphics guiGraphics, Slot slot) {
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
-		RenderSystem.enableBlend();
-		RenderSystem.disableDepthTest();
+	private void drawMemorizedStackOverlay(GuiGraphicsExtractor guiGraphics, Slot slot) {
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
 		guiGraphics.blit(GuiHelper.GUI_CONTROLS, slot.x, slot.y, 77, 0, 16, 16);
-		RenderSystem.enableDepthTest();
-		RenderSystem.disableBlend();
-		poseStack.popPose();
+		poseStack.popMatrix();
 	}
 }

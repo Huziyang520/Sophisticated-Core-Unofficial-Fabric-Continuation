@@ -1,5 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui.utils;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import org.lwjgl.glfw.GLFW;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.*;
@@ -10,7 +12,7 @@ import net.minecraft.CrashReportCategory;
 import net.minecraft.ReportedException;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
@@ -59,11 +61,11 @@ public class GuiHelper {
 
 	private GuiHelper() {}
 
-	public static void renderItemInGUI(GuiGraphics guiGraphics, Minecraft minecraft, ItemStack stack, int xPosition, int yPosition) {
+	public static void renderItemInGUI(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, ItemStack stack, int xPosition, int yPosition) {
 		renderItemInGUI(guiGraphics, minecraft, stack, xPosition, yPosition, false);
 	}
 
-	public static void renderSlotsBackground(GuiGraphics guiGraphics, int x, int y, int slotWidth, int slotHeight) {
+	public static void renderSlotsBackground(GuiGraphicsExtractor guiGraphics, int x, int y, int slotWidth, int slotHeight) {
 		for (int currentY = y, remainingSlotHeight = slotHeight; remainingSlotHeight > 0; currentY += 12 * 18, remainingSlotHeight -= Math.min(slotHeight, 12)) {
 			int finalRemainingSlotHeight = remainingSlotHeight;
 			int key = getSlotsBackgroundKey(slotWidth, remainingSlotHeight);
@@ -77,24 +79,23 @@ public class GuiHelper {
 		return slotWidth * 31 + slotHeight;
 	}
 
-	public static void renderItemInGUI(GuiGraphics guiGraphics, Minecraft minecraft, ItemStack stack, int xPosition, int yPosition, boolean renderOverlay) {
+	public static void renderItemInGUI(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, ItemStack stack, int xPosition, int yPosition, boolean renderOverlay) {
 		renderItemInGUI(guiGraphics, minecraft, stack, xPosition, yPosition, renderOverlay, null);
 	}
 
-	public static void renderItemInGUI(GuiGraphics guiGraphics, Minecraft minecraft, ItemStack stack, int xPosition, int yPosition, boolean renderOverlay,
+	public static void renderItemInGUI(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, ItemStack stack, int xPosition, int yPosition, boolean renderOverlay,
 									   @Nullable String countText) {
-		RenderSystem.enableDepthTest();
-		guiGraphics.renderItem(stack, xPosition, yPosition);
+		guiGraphics.item(stack, xPosition, yPosition);
 		if (renderOverlay) {
-			guiGraphics.renderItemDecorations(minecraft.font, stack, xPosition, yPosition, countText);
+			guiGraphics.itemDecorations(minecraft.font, stack, xPosition, yPosition, countText);
 		}
 	}
 
-	public static void blit(GuiGraphics guiGraphics, int x, int y, TextureBlitData texData) {
+	public static void blit(GuiGraphicsExtractor guiGraphics, int x, int y, TextureBlitData texData) {
 		guiGraphics.blit(texData.getTextureName(), x + texData.getXOffset(), y + texData.getYOffset(), texData.getU(), texData.getV(), texData.getWidth(), texData.getHeight(), texData.getTextureWidth(), texData.getTextureHeight());
 	}
 
-	public static void blit(GuiGraphics guiGraphics, int x, int y, TextureBlitData texData, int width, int height) {
+	public static void blit(GuiGraphicsExtractor guiGraphics, int x, int y, TextureBlitData texData, int width, int height) {
 		int halfWidth = width / 2;
 		int secondHalfWidth = width - halfWidth;
 		int halfHeight = height / 2;
@@ -144,18 +145,14 @@ public class GuiHelper {
 		fillGradient(matrix4f, bufferbuilder, leftX + tooltipWidth + 2, topY - 3 + 1, leftX + tooltipWidth + 3, topY + tooltipHeight + 3 - 1, borderColorStart, borderColorEnd);
 		fillGradient(matrix4f, bufferbuilder, leftX - 3, topY - 3, leftX + tooltipWidth + 3, topY - 3 + 1, borderColorStart, borderColorStart);
 		fillGradient(matrix4f, bufferbuilder, leftX - 3, topY + tooltipHeight + 2, leftX + tooltipWidth + 3, topY + tooltipHeight + 3, borderColorEnd, borderColorEnd);
-		RenderSystem.enableDepthTest();
-		RenderSystem.enableBlend();
-		RenderSystem.defaultBlendFunc();
 		BufferUploader.drawWithShader(bufferbuilder.buildOrThrow());
-		RenderSystem.disableBlend();
 	}
 
-	public static void writeTooltipLines(GuiGraphics guiGraphics, List<FormattedCharSequence> textLines, Font font, float leftX, int topY, Matrix4f matrix4f, MultiBufferSource.BufferSource renderTypeBuffer, int color) {
+	public static void writeTooltipLines(GuiGraphicsExtractor guiGraphics, List<FormattedCharSequence> textLines, Font font, float leftX, int topY, Matrix4f matrix4f, MultiBufferSource.BufferSource renderTypeBuffer, int color) {
 		for (int i = 0; i < textLines.size(); ++i) {
 			FormattedCharSequence line = textLines.get(i);
 			if (line != null) {
-				guiGraphics.drawString(font, line, (int) leftX, topY, color, true);
+				guiGraphics.text(font, line, (int) leftX, topY, color, true);
 			}
 
 			if (i == 0) {
@@ -181,11 +178,11 @@ public class GuiHelper {
 		builder.addVertex(matrix, x2, y2, 400).setColor(f5, f6, f7, f4);
 	}
 
-	public static void fill(GuiGraphics guiGraphics, float minX, float minY, float maxX, float maxY, int color) {
+	public static void fill(GuiGraphicsExtractor guiGraphics, float minX, float minY, float maxX, float maxY, int color) {
 		fill(guiGraphics, RenderType.gui(), minX, minY, maxX, maxY, 0, color);
 	}
 
-	public static void fill(GuiGraphics guiGraphics, RenderType renderType, float minX, float minY, float maxX, float maxY, float z, int color) {
+	public static void fill(GuiGraphicsExtractor guiGraphics, RenderType renderType, float minX, float minY, float maxX, float maxY, float z, int color) {
 		Matrix4f matrix4f = guiGraphics.pose().last().pose();
 		float j;
 		if (minX < maxX) {
@@ -226,14 +223,14 @@ public class GuiHelper {
 		return new ToggleButton.StateData(new TextureBlitData(ICONS, offset, Dimension.SQUARE_256, uv, dimension), tooltip);
 	}
 
-	public static void renderSlotsBackground(GuiGraphics guiGraphics, int x, int y, int slotsInRow, int fullSlotRows, int extraRowSlots) {
+	public static void renderSlotsBackground(GuiGraphicsExtractor guiGraphics, int x, int y, int slotsInRow, int fullSlotRows, int extraRowSlots) {
 		renderSlotsBackground(guiGraphics, x, y, slotsInRow, fullSlotRows);
 		if (extraRowSlots > 0) {
 			renderSlotsBackground(guiGraphics, x, y + fullSlotRows * 18, extraRowSlots, 1);
 		}
 	}
 
-	public static void renderTiledFluidTextureAtlas(GuiGraphics guiGraphics, TextureAtlasSprite sprite, int color, int x, int y, int height) {
+	public static void renderTiledFluidTextureAtlas(GuiGraphicsExtractor guiGraphics, TextureAtlasSprite sprite, int color, int x, int y, int height) {
 		RenderSystem.setShader(GameRenderer::getPositionTexColorShader);
 		RenderSystem.setShaderTexture(0, sprite.atlasLocation());
 		BufferBuilder builder = Tesselator.getInstance().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.POSITION_TEX_COLOR);
@@ -264,7 +261,7 @@ public class GuiHelper {
 		BufferUploader.drawWithShader(builder.buildOrThrow());
 	}
 
-	public static void renderControlBackground(GuiGraphics guiGraphics, int x, int y, int renderWidth, int renderHeight) {
+	public static void renderControlBackground(GuiGraphicsExtractor guiGraphics, int x, int y, int renderWidth, int renderHeight) {
 		int u = 29;
 		int v = 146;
 		int textureBgWidth = 66;
@@ -272,7 +269,7 @@ public class GuiHelper {
 		renderControlBackground(guiGraphics, x, y, renderWidth, renderHeight, u, v, textureBgWidth, textureBgHeight);
 	}
 
-	public static void renderControlBackground(GuiGraphics guiGraphics, int x, int y, int renderWidth, int renderHeight, int u, int v, int textureBgWidth, int textureBgHeight) {
+	public static void renderControlBackground(GuiGraphicsExtractor guiGraphics, int x, int y, int renderWidth, int renderHeight, int u, int v, int textureBgWidth, int textureBgHeight) {
 		int halfWidth = renderWidth / 2;
 		int halfHeight = renderHeight / 2;
 		guiGraphics.blit(GuiHelper.GUI_CONTROLS, x, y, u, v, halfWidth, halfHeight, GUI_CONTROLS_TEXTURE_WIDTH, GUI_CONTROLS_TEXTURE_HEIGHT);
@@ -281,7 +278,7 @@ public class GuiHelper {
 		guiGraphics.blit(GuiHelper.GUI_CONTROLS, x + halfWidth, y + halfHeight, (float) u + textureBgWidth - halfWidth, (float) v + textureBgHeight - halfHeight, halfWidth, halfHeight, GUI_CONTROLS_TEXTURE_WIDTH, GUI_CONTROLS_TEXTURE_HEIGHT);
 	}
 
-	public static void tryRenderGuiItem(GuiGraphics guiGraphics, ItemRenderer itemRenderer, @Nullable LivingEntity livingEntity, ItemStack stack, int x, int y, int rotation) {
+	public static void tryRenderGuiItem(GuiGraphicsExtractor guiGraphics, ItemRenderer itemRenderer, @Nullable LivingEntity livingEntity, ItemStack stack, int x, int y, int rotation) {
 		if (!stack.isEmpty()) {
 			BakedModel bakedmodel = itemRenderer.getModel(stack, null, livingEntity, 0);
 			try {
@@ -297,9 +294,9 @@ public class GuiHelper {
 		}
 	}
 
-	private static void renderGuiItem(GuiGraphics guiGraphics, ItemRenderer itemRenderer, ItemStack stack, int x, int y, BakedModel bakedModel, int rotation) {
-		PoseStack posestack = guiGraphics.pose();
-		posestack.pushPose();
+	private static void renderGuiItem(GuiGraphicsExtractor guiGraphics, ItemRenderer itemRenderer, ItemStack stack, int x, int y, BakedModel bakedModel, int rotation) {
+		Matrix3x2fStack posestack = guiGraphics.pose();
+		posestack.pushMatrix();
 		posestack.translate(x + 8F, y + 8F, 150.0F);
 		if (rotation != 0) {
 			posestack.mulPose(Axis.ZP.rotationDegrees(rotation));
@@ -315,21 +312,19 @@ public class GuiHelper {
 
 		itemRenderer.render(stack, ItemDisplayContext.GUI, false, posestack, bufferSource, 15728880, OverlayTexture.NO_OVERLAY, bakedModel);
 
-		RenderSystem.disableDepthTest();
 		bufferSource.endBatch();
-		RenderSystem.enableDepthTest();
 
 		if (flag) {
 			Lighting.setupFor3DItems();
 		}
 
-		posestack.popPose();
+		posestack.popMatrix();
 		RenderSystem.applyModelViewMatrix();
 	}
 
-	public static void renderTooltip(Screen screen, GuiGraphics guiGraphics, List<Component> components, int x, int y) {
+	public static void setTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, List<Component> components, int x, int y) {
 		List<ClientTooltipComponent> list = gatherTooltipComponents(components, x, screen.width, screen.height, screen.font);
-		guiGraphics.renderTooltipInternal(screen.font, list, x, y, DefaultTooltipPositioner.INSTANCE);
+		guiGraphics.tooltip(screen.font, list, x, y, DefaultTooltipPositioner.INSTANCE, null, false);
 	}
 
 	//copy of ForgeHooksClient.gatherTooltipComponents with splitting always called so that new lines in translation are properly wrapped
@@ -390,7 +385,16 @@ public class GuiHelper {
 		return Optional.of(new Rect2i(positiveX, positiveY, positiveWidth, positiveHeight));
 	}
 
-	public static void renderSlotHighlight(GuiGraphics guiGraphics, int x, int y, int blitOffset, int color) {
+	public static void renderSlotHighlight(GuiGraphicsExtractor guiGraphics, int x, int y, int blitOffset, int color) {
 		guiGraphics.fillGradient(RenderType.guiOverlay(), x, y, x + 16, y + 16, color, color, blitOffset);
+	}
+
+	/** 26.3 dropped {@code Screen.hasShiftDown} / {@code hasControlDown}; keyboard state is read directly. */
+	public static boolean isShiftDown() {
+		return InputConstants.isKeyDown(GLFW.GLFW_KEY_LEFT_SHIFT) || InputConstants.isKeyDown(GLFW.GLFW_KEY_RIGHT_SHIFT);
+	}
+
+	public static boolean isControlDown() {
+		return InputConstants.isKeyDown(GLFW.GLFW_KEY_LEFT_CONTROL) || InputConstants.isKeyDown(GLFW.GLFW_KEY_RIGHT_CONTROL);
 	}
 }

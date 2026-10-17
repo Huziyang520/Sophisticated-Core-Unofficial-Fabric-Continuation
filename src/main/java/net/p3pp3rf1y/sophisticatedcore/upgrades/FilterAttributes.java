@@ -14,10 +14,8 @@ import net.p3pp3rf1y.sophisticatedcore.util.CodecHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.StreamCodecHelper;
 import org.jetbrains.annotations.Unmodifiable;
 
-import org.jetbrains.annotations.Immutable;
 import java.util.*;
 
-@Immutable
 public record FilterAttributes(Set<TagKey<Item>> tagKeys, boolean isAllowList, boolean matchDurability,
 							   boolean matchComponents, PrimaryMatch primaryMatch, boolean matchAnyTag,
 							   @Unmodifiable List<ItemStack> filterItems, boolean filterByStorage, boolean filterByInventory) {

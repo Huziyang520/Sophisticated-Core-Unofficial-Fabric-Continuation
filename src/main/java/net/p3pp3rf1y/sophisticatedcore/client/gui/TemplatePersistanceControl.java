@@ -2,7 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.client.gui;
 
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
@@ -65,11 +65,11 @@ public class TemplatePersistanceControl extends CompositeWidgetBase<WidgetBase> 
 			}
 
 			@Override
-			public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
+			public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 				boolean mouseOver = isMouseOver(mouseX, mouseY);
 				boolean showTextBox = container.showsTextbox() && mouseOver;
 				if (mouseOver) {
-					guiGraphics.renderTooltip(screen.font, getTooltip(), Optional.empty(), saveTemplateButton.getX() + 10, saveTemplateButton.getY() + (showTextBox ? -13 : 6));
+					guiGraphics.setTooltipForNextFrame(screen.font, getTooltip(), Optional.empty(), saveTemplateButton.getX() + 10, saveTemplateButton.getY() + (showTextBox ? -13 : 6));
 				}
 				saveInput.setVisible(showTextBox);
 				saveInput.setFocused(showTextBox);
@@ -92,10 +92,10 @@ public class TemplatePersistanceControl extends CompositeWidgetBase<WidgetBase> 
 			}
 
 			@Override
-			public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
+			public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 				boolean mouseOver = isMouseOver(mouseX, mouseY);
 				if (mouseOver) {
-					guiGraphics.renderTooltip(screen.font, getTooltip(), Optional.empty(), loadTemplateButton.getX() + 10, loadTemplateButton.getY() + 6);
+					guiGraphics.setTooltipForNextFrame(screen.font, getTooltip(), Optional.empty(), loadTemplateButton.getX() + 10, loadTemplateButton.getY() + 6);
 				}
 			}
 		};
@@ -113,10 +113,10 @@ public class TemplatePersistanceControl extends CompositeWidgetBase<WidgetBase> 
 		addChild(exportInput);
 		exportTemplateButton = new Button(new Position(x, y + 2 * (18 + BUTTON_GAP)), EXPORT_TEMPLATE, button -> container.exportTemplate(exportInput.getValue())) {
 			@Override
-			public void renderTooltip(Screen screen, GuiGraphics guiGraphics, int mouseX, int mouseY) {
+			public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 				boolean mouseOver = isMouseOver(mouseX, mouseY);
 				if (mouseOver) {
-					guiGraphics.renderTooltip(screen.font, getTooltip(), Optional.empty(), exportTemplateButton.getX() + 10, exportTemplateButton.getY() - 13);
+					guiGraphics.setTooltipForNextFrame(screen.font, getTooltip(), Optional.empty(), exportTemplateButton.getX() + 10, exportTemplateButton.getY() - 13);
 				}
 				exportInput.setVisible(mouseOver);
 				exportInput.setFocused(mouseOver);
@@ -160,7 +160,7 @@ public class TemplatePersistanceControl extends CompositeWidgetBase<WidgetBase> 
 	}
 
 	@Override
-	protected void renderBg(GuiGraphics guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
+	protected void extractContents(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
 		//noop
 	}
 

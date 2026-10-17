@@ -27,6 +27,6 @@ public class FilterUpgradeItem extends UpgradeItemBase<FilterUpgradeWrapper> {
 	}
 
 	public int getFilterSlotCount() {
-		return filterSlotCount.getAsInt();
+		return filterSlotCount.intValue();
 	}
 }

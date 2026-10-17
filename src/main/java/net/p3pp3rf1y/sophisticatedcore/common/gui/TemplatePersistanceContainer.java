@@ -139,7 +139,7 @@ public class TemplatePersistanceContainer {
 		sendDataToServer(() -> NBTHelper.putString(new CompoundTag(), ACTION_TAG, "loadTemplate"));
 
 		if (getPlayer().level().isClientSide()) {
-			getPlayer().displayClientMessage(Component.translatable(TranslationHelper.INSTANCE.translSettingsMessage("load_template"), loadSlots.get(loadSlotIndex).getSlotName()), false);
+			getPlayer().sendSystemMessage(Component.translatable(TranslationHelper.INSTANCE.translSettingsMessage("load_template"), loadSlots.get(loadSlotIndex).getSlotName()), false);
 		}
 	}
 
@@ -162,7 +162,7 @@ public class TemplatePersistanceContainer {
 		moveSaveSlotIndexTo(saveSlot.getSlotName());
 
 		if (getPlayer().level().isClientSide()) {
-			getPlayer().displayClientMessage(Component.translatable(TranslationHelper.INSTANCE.translSettingsMessage("save_template"), saveSlot.getSlotName()), false);
+			getPlayer().sendSystemMessage(Component.translatable(TranslationHelper.INSTANCE.translSettingsMessage("save_template"), saveSlot.getSlotName()), false);
 		}
 	}
 
@@ -254,13 +254,13 @@ public class TemplatePersistanceContainer {
 
 	public void exportTemplate(String fileName) {
 		if (fileName.isEmpty()) {
-			getPlayer().displayClientMessage(Component.translatable(TranslationHelper.INSTANCE.translSettingsMessage("export_template.empty_name")).withStyle(ChatFormatting.RED), false);
+			getPlayer().sendSystemMessage(Component.translatable(TranslationHelper.INSTANCE.translSettingsMessage("export_template.empty_name")).withStyle(ChatFormatting.RED), false);
 			return;
 		}
 
 		Matcher matcher = EXPORT_FILE_NAME_PATTERN.matcher(fileName);
 		if (!matcher.matches()) {
-			getPlayer().displayClientMessage(Component.translatable(TranslationHelper.INSTANCE.translSettingsMessage("export_template.invalid_characters"), findNonMatchingCharacters(matcher, fileName)).withStyle(ChatFormatting.RED), false);
+			getPlayer().sendSystemMessage(Component.translatable(TranslationHelper.INSTANCE.translSettingsMessage("export_template.invalid_characters"), findNonMatchingCharacters(matcher, fileName)).withStyle(ChatFormatting.RED), false);
 			return;
 		}
 
@@ -298,7 +298,7 @@ public class TemplatePersistanceContainer {
 
 			initSlots();
 
-			getPlayer().displayClientMessage(
+			getPlayer().sendSystemMessage(
 					Component.translatable(TranslationHelper.INSTANCE.translSettingsMessage("export_template"),
 							serverLevel.getServer().getWorldPath(LevelResource.ROOT).relativize(exportPath)), false
 			);

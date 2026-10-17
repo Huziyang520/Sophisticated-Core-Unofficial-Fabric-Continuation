@@ -95,7 +95,7 @@ public class NBTHelper {
 
 		Map<K, V> map = initMap.get();
 
-		for (String tagName : mapNbt.getAllKeys()) {
+		for (String tagName : mapNbt.keySet()) {
 			getValue.apply(tagName, mapNbt.get(tagName)).ifPresent(value -> map.put(getKey.apply(tagName), value));
 		}
 
