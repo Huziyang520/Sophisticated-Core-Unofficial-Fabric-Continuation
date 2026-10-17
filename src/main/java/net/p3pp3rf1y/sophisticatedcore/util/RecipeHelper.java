@@ -112,7 +112,7 @@ public class RecipeHelper {
 	}
 
 	@SuppressWarnings("unused") //event parameter used to identify which event this listener is for
-	public static void onRecipesUpdated(RecipeManager manager) {
+	public static void onRecipesUpdated() {
 		runOnCache(cache -> {
 			cache.clearCache();
 			cache.recipeChangeListeners.notifyAllListeners();

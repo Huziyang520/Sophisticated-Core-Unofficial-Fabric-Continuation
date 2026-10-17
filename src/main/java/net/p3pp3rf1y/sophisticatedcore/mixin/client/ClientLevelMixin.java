@@ -29,7 +29,7 @@ public class ClientLevelMixin {
     private Minecraft minecraft;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void sophisticatedcore$construct(ClientPacketListener clientPacketListener, ClientLevel.ClientLevelData clientLevelData, ResourceKey<Level> resourceKey, Holder<DimensionType> holder, int i, int j, Supplier<ProfilerFiller> supplier, LevelRenderer levelRenderer, boolean bl, long l, CallbackInfo ci) {
+    private void sophisticatedcore$construct(CallbackInfo ci) {
         ClientLifecycleEvents.CLIENT_LEVEL_LOAD.invoker().onWorldLoad(minecraft, MixinHelper.cast(this));
     }
 
