@@ -7,14 +7,18 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.storage.DimensionDataStorage;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
 import java.util.*;
 
 public class SettingsTemplateStorage extends SavedData {
-	private static final String SAVED_DATA_NAME = SophisticatedCore.MOD_ID + "_settings_templates";
+	private static final net.minecraft.world.level.saveddata.SavedDataType<SettingsTemplateStorage> SAVED_DATA_TYPE =
+			new net.minecraft.world.level.saveddata.SavedDataType<>(
+					SophisticatedCore.getRL("settings_templates"),
+					SettingsTemplateStorage::new,
+					CompoundTag.CODEC.xmap(SettingsTemplateStorage::fromTag, SettingsTemplateStorage::toTag),
+					net.minecraft.util.datafix.DataFixTypes.SAVED_DATA_MAP_DATA);
 	private Map<UUID, Map<Integer, CompoundTag>> playerTemplates = new HashMap<>();
 	private Map<UUID, Map<String, CompoundTag>> playerNamedTemplates = new HashMap<>();
 	private static final SettingsTemplateStorage clientStorageCopy = new SettingsTemplateStorage();
@@ -45,8 +49,12 @@ public class SettingsTemplateStorage extends SavedData {
 		return playerNamedTemplates.getOrDefault(player.getUUID(), new TreeMap<>());
 	}
 
-	@Override
-	public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
+	/**
+	 * 26.3 的 SavedData 只能通过 {@link net.minecraft.world.level.saveddata.SavedDataType} 登记，
+	 * 所以这里保留 NBT 读写作为 codec 的两端。
+	 */
+	public CompoundTag toTag() {
+		CompoundTag tag = new CompoundTag();
 		NBTHelper.putMap(tag, "playerTemplates", playerTemplates, UUID::toString, slotTemplates -> NBTHelper.putMap(new CompoundTag(), "slotTemplates", slotTemplates, String::valueOf, settingsTag -> settingsTag));
 		NBTHelper.putMap(tag, "playerNamedTemplates", playerNamedTemplates, UUID::toString, namedTemplates -> NBTHelper.putMap(new CompoundTag(), "namedTemplates", namedTemplates, v -> v, settingsTag -> settingsTag));
 		return tag;
@@ -58,14 +66,14 @@ public class SettingsTemplateStorage extends SavedData {
 			if (server != null) {
 				ServerLevel overworld = server.getLevel(Level.OVERWORLD);
 				//noinspection ConstantConditions - by this time overworld is loaded
-				DimensionDataStorage storage = overworld.getDataStorage();
-				return storage.computeIfAbsent(new Factory<>(SettingsTemplateStorage::new, SettingsTemplateStorage::load, null), SAVED_DATA_NAME);
+				net.minecraft.world.level.storage.SavedDataStorage storage = overworld.getDataStorage();
+				return storage.computeIfAbsent(SAVED_DATA_TYPE);
 			}
 		}
 		return clientStorageCopy;
 	}
 
-	private static SettingsTemplateStorage load(CompoundTag tag, HolderLookup.Provider registries) {
+	private static SettingsTemplateStorage fromTag(CompoundTag tag) {
 		return new SettingsTemplateStorage(
 				NBTHelper.getMap(tag, "playerTemplates", UUID::fromString,
 						(key, playerTemplatesTag) -> NBTHelper.getMap((CompoundTag) playerTemplatesTag, "slotTemplates", Integer::valueOf, (k, settingsTag) -> Optional.of((CompoundTag) settingsTag))

@@ -48,7 +48,7 @@ public class InventoryScrollPanel extends ScrollPanel {
 	protected void drawPanel(GuiGraphicsExtractor guiGraphics, int entryRight, int relativeY, int mouseX, int mouseY) {
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
-		poseStack.translate(screen.getLeftX(), screen.getTopY(), 0.0D);
+		poseStack.translate(screen.getLeftX(), screen.getTopY());
 
 		screen.renderInventorySlots(guiGraphics, mouseX, mouseY, isMouseOver(mouseX, mouseY));
 
@@ -102,8 +102,10 @@ public class InventoryScrollPanel extends ScrollPanel {
 	}
 
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-		boolean ret = super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+	public boolean mouseDragged(net.minecraft.client.input.MouseButtonEvent event, double deltaX, double deltaY) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		boolean ret = super.mouseDragged(event, deltaX, deltaY);
 		updateSlotsPosition();
 		return ret;
 	}

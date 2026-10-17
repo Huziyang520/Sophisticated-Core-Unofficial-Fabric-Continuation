@@ -175,7 +175,7 @@ public class ItemDisplaySettingsCategory implements ISettingsCategory<ItemDispla
 	}
 
 	private void serializeSlotIndexes() {
-		categoryNbt.putIntArray(SLOTS_TAG, slotIndexes);
+		categoryNbt.putIntArray(SLOTS_TAG, slotIndexes.stream().mapToInt(Integer::intValue).toArray());
 		saveNbt.accept(categoryNbt);
 	}
 

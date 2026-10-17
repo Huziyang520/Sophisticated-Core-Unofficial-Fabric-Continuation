@@ -323,4 +323,9 @@ public class GuiHelper {
 	public static TextureAtlasSprite getSprite(Identifier spriteName) {
 		return Minecraft.getInstance().getAtlasManager().get(new SpriteId(TextureAtlas.LOCATION_BLOCKS, spriteName));
 	}
+
+	/** 26.3 的物品 tooltip 由 extractor 直接接管，这里保留原来的调用形状。 */
+	public static void renderTooltip(GuiGraphicsExtractor guiGraphics, ItemStack stack, int mouseX, int mouseY) {
+		guiGraphics.setTooltipForNextFrame(Minecraft.getInstance().font, stack, mouseX, mouseY);
+	}
 }

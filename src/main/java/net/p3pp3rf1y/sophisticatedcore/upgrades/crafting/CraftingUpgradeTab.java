@@ -83,7 +83,7 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 			@Override
 			public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 				if (visible && isMouseOver(mouseX, mouseY)) {
-					guiGraphics.setTooltipForNextFrame(minecraft.font, getTooltip().stream().map(Component::getVisualOrderText).toList(), LEFT_SIDE_TOOLTIP_POSITIONER, mouseX, mouseY);
+					guiGraphics.setTooltipForNextFrame(minecraft.font, getTooltip(), java.util.Optional.empty(), mouseX, mouseY);
 				}
 			}
 		};
@@ -203,7 +203,7 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 
 		int resultListLeftX = selectResultButton.getX() + 8 - RESULT_SELECTION_BORDER_WIDTH -(int) (Math.min(matchedCraftingResults.size(), 3) / 2f * 18);
 		int resultListTopY = selectResultButton.getY() - height;
-		resultListPositionDimensions = new Pair<>(new Position(resultListLeftX, resultListTopY), new Dimension(width, height));
+		resultListPositionDimensions = Pair.of(new Position(resultListLeftX, resultListTopY), new Dimension(width, height));
 
 	}
 

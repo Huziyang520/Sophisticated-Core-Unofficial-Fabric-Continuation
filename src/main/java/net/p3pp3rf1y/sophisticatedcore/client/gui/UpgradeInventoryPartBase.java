@@ -18,5 +18,5 @@ public abstract class UpgradeInventoryPartBase<C extends UpgradeContainerBase<?,
 
 	public abstract void renderErrorOverlay(GuiGraphicsExtractor guiGraphics);
 
-	public abstract void renderTooltip(StorageScreenBase<?> screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY);
+	public abstract void extractTooltip(StorageScreenBase<?> screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY);
 }

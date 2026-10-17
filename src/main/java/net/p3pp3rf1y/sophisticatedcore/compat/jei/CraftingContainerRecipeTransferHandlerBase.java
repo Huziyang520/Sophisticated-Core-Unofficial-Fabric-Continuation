@@ -107,7 +107,7 @@ public abstract class CraftingContainerRecipeTransferHandlerBase<C extends Stora
 			Identifier recipeTypeId = BuiltInRegistries.RECIPE_TYPE.getKey(recipe.value().getType());
 			if (recipeTypeId != null) {
 				TransferRecipePayload packet = new TransferRecipePayload(
-						recipe.id(),
+						recipe.id().identifier(),
 						recipeTypeId,
 						toMap(transferOperations.results, container),
 						craftingSlotIndexes,

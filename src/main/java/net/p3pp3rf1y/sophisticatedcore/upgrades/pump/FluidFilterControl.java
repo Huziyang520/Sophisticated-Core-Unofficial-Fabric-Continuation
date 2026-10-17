@@ -66,7 +66,7 @@ public class FluidFilterControl extends WidgetBase {
 		getSlotClicked(mouseX, mouseY).ifPresent(slot -> {
 			FluidStack fluid = container.getFluid(slot);
 			if (!fluid.isEmpty()) {
-				GuiHelper.setTooltip(screen, guiGraphics, List.of(fluid.getHoverName()), mouseX, mouseY);
+				GuiHelper.setTooltip(screen, guiGraphics, List.of(FluidVariantRendering.getTooltip(fluid.getVariant()).stream().findFirst().orElse(net.minecraft.network.chat.Component.empty())), mouseX, mouseY);
 			}
 		});
 	}

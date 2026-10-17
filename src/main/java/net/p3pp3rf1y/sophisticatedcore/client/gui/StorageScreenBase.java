@@ -797,7 +797,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	private void handleQuickMoveAll(double mouseX, double mouseY, int button) {
 		Slot slot = findSlot(mouseX, mouseY);
-		if (doubleclick && !getMenu().getCarried().isEmpty() && slot != null && button == 0 && menu.canTakeItemForPickAll(ItemStack.EMPTY, slot) && GuiHelper.isShiftDown() && !lastQuickMoved.isEmpty()) {
+		if (!getMenu().getCarried().isEmpty() && slot != null && button == 0 && menu.canTakeItemForPickAll(ItemStack.EMPTY, slot) && GuiHelper.isShiftDown() && !lastQuickMoved.isEmpty()) {
 			for (Slot slot2 : menu.realInventorySlots) {
 				tryQuickMoveSlot(button, slot, slot2);
 			}
@@ -834,7 +834,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		}
 
 		// 26.3 的点击包要带 HashedStack，手工拼包已不可行，交给游戏模式统一构造并发送
-		minecraft.gameMode.handleInventoryMouseClick(menu.containerId, slotNumber, mouseButton, type, minecraft.player);
+		minecraft.gameMode.handleContainerInput(menu.containerId, slotNumber, mouseButton, type, minecraft.player);
 	}
 
 	@Override

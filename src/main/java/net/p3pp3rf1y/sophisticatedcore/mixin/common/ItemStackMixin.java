@@ -15,8 +15,9 @@ public abstract class ItemStackMixin implements SophisticatedItemStack, Sophisti
 	@Shadow @Final public PatchedDataComponentMap components;
 
 	@Override
+	@SuppressWarnings("unchecked")
 	public <T> @Nullable T sophisticatedCore_set(DataComponentType<? super T> type, @Nullable T value) {
-		return this.components.set(type, value);
+		return (T) this.components.set((DataComponentType<T>) type, value);
 	}
 
 	@Override

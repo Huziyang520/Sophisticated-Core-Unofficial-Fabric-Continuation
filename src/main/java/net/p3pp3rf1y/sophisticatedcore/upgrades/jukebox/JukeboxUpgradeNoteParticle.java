@@ -18,8 +18,8 @@ import org.jetbrains.annotations.Nullable;
 public class JukeboxUpgradeNoteParticle extends SingleQuadParticle {
 	private static final float BASE_QUAD_SIZE = 1.5F * 1.5F;
 
-	protected JukeboxUpgradeNoteParticle(ClientLevel level, double x, double y, double z) {
-		super(level, x, y, z, 0.0D, 0.0D, 0.0D);
+	protected JukeboxUpgradeNoteParticle(ClientLevel level, double x, double y, double z, net.minecraft.client.renderer.texture.TextureAtlasSprite sprite) {
+		super(level, x, y, z, sprite);
 		xd *= 0.01F;
 		yd *= 0.05F;
 		zd *= 0.01F;
@@ -75,7 +75,7 @@ public class JukeboxUpgradeNoteParticle extends SingleQuadParticle {
 		@Override
 		public Particle createParticle(JukeboxUpgradeNoteParticleData type, ClientLevel level, double x, double y, double z,
 									   double xSpeed, double ySpeed, double zSpeed, RandomSource random) {
-			JukeboxUpgradeNoteParticle particle = new JukeboxUpgradeNoteParticle(level, x, y, z);
+			JukeboxUpgradeNoteParticle particle = new JukeboxUpgradeNoteParticle(level, x, y, z, spriteSet.get(0, 1));
 			particle.setSpriteFromAge(spriteSet);
 			return particle;
 		}

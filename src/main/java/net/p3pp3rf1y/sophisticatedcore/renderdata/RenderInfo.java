@@ -313,7 +313,7 @@ public abstract class RenderInfo {
 			}
 			List<Integer> infiniteSlots = Arrays.stream(tag.getIntArray(INFINITE_SLOTS_TAG).orElse(new int[0])).boxed().collect(Collectors.toCollection(ArrayList::new));
 			List<Integer> slotCounts = Arrays.stream(tag.getIntArray(SLOT_COUNTS_TAG).orElse(new int[0])).boxed().collect(Collectors.toCollection(ArrayList::new));
-			List<Float> slotFillRatios = NBTHelper.getCollection(tag, SLOT_FILL_RATIOS_TAG, Tag.TAG_FLOAT, t -> Optional.of(((FloatTag) t).getAsFloat()), ArrayList::new).orElseGet(ArrayList::new);
+			List<Float> slotFillRatios = new ArrayList<>(NBTHelper.<Float, ArrayList<Float>>getCollection(tag, SLOT_FILL_RATIOS_TAG, Tag.TAG_FLOAT, t -> Optional.of(((FloatTag) t).floatValue()), ArrayList<Float>::new).orElseGet(ArrayList::new));
 			if (tag.contains(DisplayItem.ITEM_TAG)) {
 				return new ItemDisplayRenderInfo(DisplayItem.deserialize(tag), inaccessibleSlots, infiniteSlots, slotCounts, slotFillRatios);
 			} else if (tag.contains(ITEMS_TAG)) {

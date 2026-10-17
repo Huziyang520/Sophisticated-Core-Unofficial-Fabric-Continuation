@@ -6,6 +6,7 @@ import net.minecraft.network.protocol.game.ClientboundContainerSetSlotPacket;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.ContainerSynchronizer;
+import net.minecraft.world.inventory.RemoteSlot;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedcore.network.SyncContainerStacksPayload;
@@ -36,5 +37,10 @@ public class HighStackCountSynchronizer implements ContainerSynchronizer {
 	@Override
 	public void sendDataChange(AbstractContainerMenu containerMenu, int slotInd, int data) {
 		//noop - not used in StorageContainer
+	}
+
+	@Override
+	public RemoteSlot createSlot() {
+		return RemoteSlot.PLACEHOLDER;
 	}
 }

@@ -70,7 +70,7 @@ public class UpgradeHandler extends ItemStackHandler {
 	}
 
 	@Override
-	protected void onContentsChanged(int slot) {
+	public void onContentsChanged(int slot) {
 		super.onContentsChanged(slot);
 		if (persistent) {
 			saveInventory();
@@ -447,6 +447,10 @@ public class UpgradeHandler extends ItemStackHandler {
 			long extracted = super.extract(variant, maxAmount, ctx);
 			TransactionCallback.onSuccess(ctx, this::onFinalCommit);
 			return extracted;
+		}
+
+		private void onFinalCommit() {
+			handler.onContentsChanged(index);
 		}
 
 		public void setInternalNewStack(ItemStack stack) {

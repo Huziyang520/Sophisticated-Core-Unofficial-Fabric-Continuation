@@ -1,5 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.stonecutter;
 
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
+import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -77,7 +79,7 @@ public class StonecutterRecipeControl extends WidgetBase {
 			int k = listInnerLeftX + j % 4 * 16;
 			int l = j / 4;
 			int i1 = top + l * 18 + 2;
-			GuiHelper.renderItemInGUI(guiGraphics, minecraft, list.get(i).value().getResultItem(minecraft.level), k, i1);
+			GuiHelper.renderItemInGUI(guiGraphics, minecraft, RecipeHelper.getResultItem(list.get(i).value(), minecraft.level), k, i1);
 		}
 
 	}
@@ -130,7 +132,7 @@ public class StonecutterRecipeControl extends WidgetBase {
 				int recipeLeftX = x + inviewRecipeIndex % 4 * 16;
 				int k1 = listTopY + inviewRecipeIndex / 4 * 18 + 2;
 				if (mouseX >= recipeLeftX && mouseX < recipeLeftX + 16 && mouseY >= k1 && mouseY < k1 + 18) {
-					renderTooltip(guiGraphics, list.get(recipeIndex).value().getResultItem(minecraft.level), mouseX, mouseY);
+					GuiHelper.renderTooltip(guiGraphics, RecipeHelper.getResultItem(list.get(recipeIndex).value(), minecraft.level), mouseX, mouseY);
 				}
 			}
 		}
@@ -189,7 +191,7 @@ public class StonecutterRecipeControl extends WidgetBase {
 		if (clickedOnScroll && canScroll()) {
 			int listTopY = y + LIST_Y_OFFSET;
 			int listBottomY = listTopY + 54;
-			sliderProgress = (mouseY - listTopY - 7.5F) / ((listBottomY - listTopY) - 15.0F);
+			sliderProgress = (float) ((mouseY - listTopY - 7.5D) / ((listBottomY - listTopY) - 15.0D));
 			sliderProgress = Mth.clamp(sliderProgress, 0.0F, 1.0F);
 			recipeIndexOffset = (int) ((sliderProgress * getHiddenRows()) + 0.5D) * 4;
 			return true;

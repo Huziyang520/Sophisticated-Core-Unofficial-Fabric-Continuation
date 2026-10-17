@@ -82,7 +82,7 @@ public class NBTHelper {
 	}
 
 	public static Optional<Component> getComponent(CompoundTag tag, String key, HolderLookup.Provider registries) {
-		return getTagValue(tag, key, ComponentSerialization.CODEC.parse(registries.createSerializationContext(NbtOps.INSTANCE), tag.get(key)).result());
+		return getTagValue(tag, key, (t, k) -> ComponentSerialization.CODEC.parse(registries.createSerializationContext(NbtOps.INSTANCE), t.get(k)).result().orElse(Component.empty()));
 	}
 
 	public static Optional<String> getString(CompoundTag tag, String key) {

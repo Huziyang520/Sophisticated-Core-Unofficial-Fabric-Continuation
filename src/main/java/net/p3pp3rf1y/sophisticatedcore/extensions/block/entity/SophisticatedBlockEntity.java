@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.extensions.block.entity;
 
-import net.fabricmc.fabric.impl.lookup.block.ServerWorldCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.block.entity.BlockEntity;
 
@@ -15,7 +14,6 @@ public interface SophisticatedBlockEntity {
 			return;
 		}
 
-		((ServerWorldCache) serverLevel).fabric_invalidateCache(be.getBlockPos());
 	}
 
 	default void sophisticatedCore_onLoad() {

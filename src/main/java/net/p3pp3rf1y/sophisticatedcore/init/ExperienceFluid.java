@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.init;
 
+import net.minecraft.world.level.Level;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvent;
@@ -49,7 +50,9 @@ public abstract class ExperienceFluid extends FlowingFluid {
 
 	@Override
 	protected void beforeDestroyingBlock(LevelAccessor level, BlockPos pos, BlockState state) {
-		Block.dropResources(state, level, pos);
+		if (level instanceof Level serverLevel) {
+			Block.dropResources(state, serverLevel, pos);
+		}
 	}
 
 	@Override

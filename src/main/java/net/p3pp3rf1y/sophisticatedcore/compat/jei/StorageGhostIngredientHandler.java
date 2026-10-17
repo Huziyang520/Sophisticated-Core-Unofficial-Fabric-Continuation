@@ -29,7 +29,7 @@ public class StorageGhostIngredientHandler<S extends StorageScreenBase<?>> imple
 			StorageContainerMenuBase<?> container = gui.getMenu();
 			ingredient.getItemStack().ifPresent(ghostStack -> {
 						FluidStack fluidStack = CapabilityHelper.getFromFluidHandler(ghostStack,
-								fluidHandler -> Optional.ofNullable(StorageUtil.findExtractableContent(fluidHandler, null)).map(FluidStack::new).orElse(FluidStack.EMPTY), FluidStack.EMPTY);
+								fluidHandler -> extractFirstFluid(fluidHandler), FluidStack.EMPTY);
 						if (!fluidStack.isEmpty()) {
 							gui.getUpgradeSettingsControl().getOpenTab().filter(tab -> tab instanceof PumpUpgradeTab.Advanced).map(PumpUpgradeTab.Advanced.class::cast).ifPresent(pumpUpgradeTab -> {
 								addFluidTargets(pumpUpgradeTab, fluidStack, targets);
@@ -84,5 +84,16 @@ public class StorageGhostIngredientHandler<S extends StorageScreenBase<?>> imple
 	@Override
 	public void onComplete() {
 		//noop
+	}
+
+	/** 26.3 没有 Porting 的 StorageUtil，这里取第一个可抽取的流体视图。 */
+	private static FluidStack extractFirstFluid(net.fabricmc.fabric.api.transfer.v1.storage.Storage<net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant> storage) {
+		for (net.fabricmc.fabric.api.transfer.v1.storage.StorageView<net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant> view : storage) {
+			if (!view.isResourceBlank() && view.getAmount() > 0) {
+				return new FluidStack(view);
+			}
+		}
+
+		return FluidStack.EMPTY;
 	}
 }

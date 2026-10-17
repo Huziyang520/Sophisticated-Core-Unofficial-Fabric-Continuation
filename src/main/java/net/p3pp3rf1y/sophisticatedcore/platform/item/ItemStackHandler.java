@@ -82,7 +82,7 @@ public class ItemStackHandler implements SlottedStackStorage {
 	}
 
 	/** Called whenever a slot's contents changed. Defaults to doing nothing. */
-	protected void onContentsChanged(int slot) {
+	public void onContentsChanged(int slot) {
 		// no-op by default
 	}
 
@@ -119,8 +119,9 @@ public class ItemStackHandler implements SlottedStackStorage {
 
 			CompoundTag itemTag = new CompoundTag();
 			itemTag.putInt(SLOT_TAG, slot);
+			int slotIndex = slot;
 			Tag encoded = ItemStack.CODEC.encodeStart(provider.createSerializationContext(NbtOps.INSTANCE), stack)
-					.resultOrPartial(error -> onLoadFailed(slot, error))
+					.resultOrPartial(error -> onLoadFailed(slotIndex, error))
 					.orElse(new CompoundTag());
 			if (encoded instanceof CompoundTag encodedTag) {
 				encodedTag.keySet().forEach(key -> itemTag.put(key, encodedTag.get(key)));
@@ -132,5 +133,16 @@ public class ItemStackHandler implements SlottedStackStorage {
 		ret.put(ITEMS_TAG, items);
 		ret.putInt(SIZE_TAG, getSlotCount());
 		return ret;
+	}
+
+	/** All slots that currently hold the given item, ordered by slot index. */
+	public java.util.SortedSet<ItemStackHandlerSlot> getSlotsContaining(net.minecraft.world.item.Item item) {
+		java.util.SortedSet<ItemStackHandlerSlot> result = new java.util.TreeSet<>(java.util.Comparator.comparingInt(ItemStackHandlerSlot::getIndex));
+		for (ItemStackHandlerSlot slot : slots) {
+			if (slot.getStack().is(item)) {
+				result.add(slot);
+			}
+		}
+		return result;
 	}
 }

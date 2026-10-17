@@ -94,7 +94,7 @@ public class UpgradeNextTierRecipe implements CraftingRecipe, IWrapperRecipe<Sha
 	}
 
 	@Override
-	public RecipeType<? extends Recipe<CraftingInput>> getType() {
+	public RecipeType<CraftingRecipe> getType() {
 		return compose.getType();
 	}
 

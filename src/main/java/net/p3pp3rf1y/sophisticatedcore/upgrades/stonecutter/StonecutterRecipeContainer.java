@@ -129,7 +129,7 @@ public class StonecutterRecipeContainer {
 	public boolean selectRecipe(int recipeIndex) {
 		if (isIndexInRecipeBounds(recipeIndex)) {
 			selectedRecipe.set(recipeIndex);
-			setLastSelectedRecipeId.accept(recipes.get(recipeIndex).id());
+			setLastSelectedRecipeId.accept(recipes.get(recipeIndex).id().identifier());
 			updateRecipeResultSlot();
 			serverUpdater.sendDataToServer(() -> NBTHelper.putInt(new CompoundTag(), DATA_SELECTED_RECIPE_INDEX, recipeIndex));
 		}

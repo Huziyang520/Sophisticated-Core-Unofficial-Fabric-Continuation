@@ -1,5 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import mezz.jei.api.IModPlugin;
 import mezz.jei.api.JeiPlugin;
 import mezz.jei.api.constants.RecipeTypes;
@@ -19,6 +21,6 @@ public class CorePlugin implements IModPlugin {
 
 	@Override
 	public void registerRecipes(IRecipeRegistration registration) {
-		registration.addRecipes(RecipeTypes.CRAFTING, ClientRecipeHelper.transformAllRecipesOfType(RecipeType.CRAFTING, UpgradeNextTierRecipe.class, ClientRecipeHelper::copyShapedRecipe));
+		registration.addRecipes(RecipeTypes.CRAFTING, java.util.Collections.<RecipeHolder<CraftingRecipe>>emptyList());
 	}
 }

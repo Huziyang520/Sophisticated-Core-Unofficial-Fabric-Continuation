@@ -86,7 +86,7 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 			ItemStack singleItemCopy = stack.copy();
 			singleItemCopy.setCount(1);
 
-			if (singleItemCopy.use(level, player, InteractionHand.MAIN_HAND).getResult() == InteractionResult.CONSUME) {
+			if (singleItemCopy.use(level, player, InteractionHand.MAIN_HAND) == InteractionResult.CONSUME) {
 				stack.shrink(1);
 				inventory.setStackInSlot(slot, stack);
 

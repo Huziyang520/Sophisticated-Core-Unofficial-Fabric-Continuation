@@ -101,7 +101,6 @@ public class CraftingItemHandler extends TransientCraftingContainer {
 		itemsInitialized = false;
 	}
 
-	@Override
 	public void fillStackedContents(StackedContents<ItemStack> helper) {
 		InventoryHelper.iterate(supplyInventory.get(), (slot, stack) -> helper.account(stack, stack.getCount()));
 	}

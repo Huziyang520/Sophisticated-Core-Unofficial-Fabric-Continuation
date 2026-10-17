@@ -140,7 +140,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 						matchedCraftingRecipes = RecipeHelper.safeGetRecipesFor(RecipeType.CRAFTING, craftMatrix.asCraftInput(), player.level());
 						int resultIndex = 0;
 						for (RecipeHolder<CraftingRecipe> craftingRecipe : matchedCraftingRecipes) {
-							ItemStack result = craftingRecipe.value().assemble(craftMatrix.asCraftInput(), player.level().registryAccess());
+							ItemStack result = craftingRecipe.value().assemble(craftMatrix.asCraftInput());
 							matchedCraftingResults.add(result);
 							if (ItemStack.isSameItemSameComponents(getItem(), result)) {
 								selectedCraftingResultIndex = resultIndex;

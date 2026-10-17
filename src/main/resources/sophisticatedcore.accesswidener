@@ -44,3 +44,4 @@ accessible method net/minecraft/world/inventory/Slot onSwapCraft (I)V
 accessible method net/minecraft/world/inventory/AbstractContainerMenu createCarriedSlotAccess ()Lnet/minecraft/world/entity/SlotAccess;
 accessible method net/minecraft/world/entity/player/Player closeContainer ()V
 accessible field net/minecraft/world/item/crafting/AbstractCookingRecipe cookingTime I
+accessible method net/minecraft/client/gui/components/EditBox isEditable ()Z

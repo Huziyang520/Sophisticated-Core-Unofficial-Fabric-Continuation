@@ -40,7 +40,7 @@ public record TransferRecipePayload(Identifier recipeId, Identifier recipeTypeId
 	}
 
 	public static void handlePayload(TransferRecipePayload payload, ServerPlayNetworking.Context context) {
-		RecipeType<?> recipeType = BuiltInRegistries.RECIPE_TYPE.get(payload.recipeTypeId);
+		RecipeType<?> recipeType = BuiltInRegistries.RECIPE_TYPE.get(payload.recipeTypeId).map(net.minecraft.core.Holder.Reference::value).orElse(null);
 		if (recipeType == null) {
 			return;
 		}

@@ -21,7 +21,7 @@ public class StonecutterUpgradeWrapper extends UpgradeWrapperBase<StonecutterUpg
 
 		inputInventory = new ItemStackHandler(1) {
 			@Override
-			protected void onContentsChanged(int slot) {
+			public void onContentsChanged(int slot) {
 				super.onContentsChanged(slot);
 				if (slot == 0) {
 					upgrade.sophisticatedCore_set(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.copyOf(getStackInSlot(0)));

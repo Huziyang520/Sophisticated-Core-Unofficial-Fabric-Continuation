@@ -300,7 +300,7 @@ public class TemplatePersistanceContainer {
 
 			getPlayer().sendSystemMessage(
 					Component.translatable(TranslationHelper.INSTANCE.translSettingsMessage("export_template"),
-							serverLevel.getServer().getWorldPath(LevelResource.ROOT).relativize(exportPath)), false
+							serverLevel.getServer().getWorldPath(LevelResource.ROOT).relativize(exportPath))
 			);
 		}
 	}

@@ -2,7 +2,6 @@ package net.p3pp3rf1y.sophisticatedcore.upgrades.pump;
 
 import net.p3pp3rf1y.sophisticatedcore.platform.FluidStack;
 import net.p3pp3rf1y.sophisticatedcore.platform.TransferUtil;
-import io.github.fabricators_of_create.porting_lib.transfer.fluid.block.BucketPickupHandlerWrapper;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -185,19 +184,27 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		if (!fluidState.isEmpty()) {
 			BlockState state = level.getBlockState(pos);
 			Block block = state.getBlock();
-			Storage<FluidVariant> targetFluidHandler;
 			if (block instanceof BucketPickup bucketPickup) {
-				targetFluidHandler = new BucketPickupHandlerWrapper(/*player, */bucketPickup, level, pos);
-			} else {
-				// TODO: Implement?
-				/*Optional<IFluidHandler> fluidHandler = FluidUtil.getFluidHandler(level, pos, null);
-				if (fluidHandler.isEmpty()) {
+				// Porting Lib 的 BucketPickupHandlerWrapper 没有 26.3 版本，这里直接拾取方块流体
+				// 再从捡起的容器堆叠里抽取，行为与原来一桶一致
+				ItemStack pickedUp = bucketPickup.pickupBlock(player, level, pos, state);
+				if (pickedUp.isEmpty()) {
 					return false;
 				}
-				targetFluidHandler = fluidHandler.get();*/
-				return false;
+				net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext pickedContext =
+						net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext.withConstant(pickedUp);
+				Storage<FluidVariant> pickedHandler = net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage.ITEM.find(pickedUp, pickedContext);
+				if (pickedHandler == null) {
+					return false;
+				}
+				boolean filled = fillFromFluidHandler(pickedHandler, storageFluidHandler);
+				if (player != null && !player.getInventory().add(pickedUp)) {
+					player.drop(pickedUp, false, net.minecraft.util.Prediction.PREDICTED);
+				}
+				return filled;
 			}
-			return fillFromFluidHandler(targetFluidHandler, storageFluidHandler);
+
+			return false;
 		}
 		return false;
 	}
