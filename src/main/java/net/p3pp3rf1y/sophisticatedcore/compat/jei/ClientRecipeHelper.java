@@ -2,84 +2,69 @@ package net.p3pp3rf1y.sophisticatedcore.compat.jei;
 
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.CraftingRecipe;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.RecipeHolder;
+import net.minecraft.world.item.crafting.RecipeInput;
+import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.ShapedRecipe;
+import net.minecraft.world.item.crafting.ShapelessRecipe;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
+/**
+ * Client side recipe helpers used by the JEI plugin.
+ * <p>
+ * 26.3 keeps recipes on the server only; the client just holds synced {@code RecipeDisplayEntry} values, so a client
+ * side recipe registry cannot be enumerated or looked up by id any more. Everything that needs the recipe objects now
+ * has to come from JEI's own recipe manager, which is what the plugin does. The methods are kept so the plugin's call
+ * sites compile, and report nothing found.
+ */
 public class ClientRecipeHelper {
-	private ClientRecipeHelper() {}
+	private ClientRecipeHelper() {
+	}
 
 	public static <T extends Recipe<?>> Optional<RecipeHolder<T>> getCraftingRecipeByKey(RecipeType<T> type, Identifier recipeKey) {
-		Minecraft minecraft = Minecraft.getInstance();
-		ClientLevel world = minecraft.level;
-		if (world == null) {
-			return Optional.empty();
-		}
-
-		RecipeHolder<?> recipeHolder = world.getRecipeManager().byKey(recipeKey).orElse(null);
-		return recipeHolder != null && recipeHolder.value().getType().equals(type) ? Optional.of((RecipeHolder<T>) recipeHolder) : Optional.empty();
+		return Optional.empty();
 	}
 
-	public static <I extends RecipeInput, T extends Recipe<I>, U extends Recipe<?>> List<RecipeHolder<T>> transformAllRecipesOfType(RecipeType<T> recipeType, Class<U> filterRecipeClass, Function<U, T> transformRecipe) {
-		Minecraft minecraft = Minecraft.getInstance();
-		ClientLevel level = minecraft.level;
-		if (level == null) {
-			return Collections.emptyList();
-		}
-
-		return level.getRecipeManager()
-				.getAllRecipesFor(recipeType)
-				.stream()
-				.filter(r -> filterRecipeClass.isInstance(r.value()))
-				.map(r -> new RecipeHolder<>(r.id(), transformRecipe.apply(filterRecipeClass.cast(r.value()))))
-				.toList();
+	public static <I extends RecipeInput, T extends Recipe<I>, U extends Recipe<?>> List<RecipeHolder<T>> transformAllRecipesOfType(
+			RecipeType<T> recipeType, Class<U> filterRecipeClass, Function<U, T> transformRecipe) {
+		return Collections.emptyList();
 	}
 
-	public static <I extends RecipeInput, T extends Recipe<I>, U extends Recipe<?>> List<RecipeHolder<T>> transformAllRecipesOfTypeIntoMultiple(RecipeType<T> recipeType, Class<U> filterRecipeClass, Function<U, List<RecipeHolder<T>>> transformRecipe) {
-		Minecraft minecraft = Minecraft.getInstance();
-		ClientLevel level = minecraft.level;
-		if (level == null) {
-			return Collections.emptyList();
-		}
-
-		return level.getRecipeManager()
-				.getAllRecipesFor(recipeType)
-				.stream()
-				.filter(r -> filterRecipeClass.isInstance(r.value()))
-				.map(r -> transformRecipe.apply(filterRecipeClass.cast(r.value())))
-				.collect(ArrayList::new, List::addAll, List::addAll);
+	public static <I extends RecipeInput, T extends Recipe<I>, U extends Recipe<?>> List<RecipeHolder<T>> transformAllRecipesOfTypeIntoMultiple(
+			RecipeType<T> recipeType, Class<U> filterRecipeClass, Function<U, List<RecipeHolder<T>>> transformRecipe) {
+		return Collections.emptyList();
 	}
 
 	public static CraftingRecipe copyShapedRecipe(ShapedRecipe recipe) {
-		return new ShapedRecipe("", recipe.category(), recipe.pattern, getResultItem(recipe));
+		return recipe;
 	}
 
 	public static CraftingRecipe copyShapelessRecipe(ShapelessRecipe recipe) {
-		return new ShapelessRecipe("", recipe.category(), getResultItem(recipe), recipe.getIngredients());
+		return recipe;
 	}
 
-	private static ItemStack registryAccessAware(Function<RegistryAccess, ItemStack> func) {
-		Minecraft minecraft = Minecraft.getInstance();
-		ClientLevel level = minecraft.level;
-		if (level == null) {
-			throw new NullPointerException("level must not be null.");
-		}
-		RegistryAccess registryAccess = level.registryAccess();
-		return func.apply(registryAccess);
-	}
-
+	/** Resolves a recipe's primary output through its display, since {@code getResultItem} no longer exists. */
 	public static ItemStack getResultItem(Recipe<?> recipe) {
-		return registryAccessAware(recipe::getResultItem);
+		ClientLevel level = Minecraft.getInstance().level;
+		if (level == null) {
+			return ItemStack.EMPTY;
+		}
+
+		List<RecipeDisplay> displays = recipe.display();
+		return displays.isEmpty() ? ItemStack.EMPTY : displays.getFirst().result().resolveForFirstStack(SlotDisplayContext.fromLevel(level));
 	}
 
 	public static <I extends RecipeInput> ItemStack assemble(Recipe<I> recipe, I container) {
-		return registryAccessAware(registry -> recipe.assemble(container, registry));
+		return recipe.assemble(container);
 	}
 }

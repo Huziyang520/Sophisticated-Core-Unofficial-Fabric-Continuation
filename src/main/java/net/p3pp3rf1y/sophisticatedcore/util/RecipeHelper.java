@@ -1,5 +1,9 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
+import net.minecraft.world.item.crafting.display.SlotDisplayContext;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.RecipeManager;
+import net.minecraft.server.MinecraftServer;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -30,6 +34,26 @@ public class RecipeHelper {
 	private static RecipeCache serverCache;
 
 	private RecipeHelper() {
+	}
+
+	/**
+	 * 26.3 removed {@code Level.getRecipeManager} and the client only keeps synced recipe displays, so recipe lookup is
+	 * server side only. Callers treat a null manager as "no recipes available".
+	 */
+	@Nullable
+	private static RecipeManager getRecipeManager(Level level) {
+		MinecraftServer server = level.getServer();
+		return server == null ? null : server.getRecipeManager();
+	}
+
+	/** Resolves the primary output of a recipe through its display, since {@code getResultItem} is gone. */
+	public static ItemStack getResultItem(Recipe<?> recipe, Level level) {
+		List<RecipeDisplay> displays = recipe.display();
+		if (displays.isEmpty()) {
+			return ItemStack.EMPTY;
+		}
+
+		return displays.getFirst().result().resolveForFirstStack(SlotDisplayContext.fromLevel(level));
 	}
 
 	public static void setLevel(Level l) {
@@ -178,7 +202,7 @@ public class RecipeHelper {
 
 	private static List<ItemStack> getUncompactResultItems(Level w, ItemStack itemToUncompact) {
 		CraftingContainer craftingInventory = getFilledCraftingInventory(itemToUncompact, 1, 1);
-		return safeGetRecipesFor(RecipeType.CRAFTING, craftingInventory.asCraftInput(), w).stream().map(r -> r.value().assemble(craftingInventory.asCraftInput(), w.registryAccess())).toList();
+		return safeGetRecipesFor(RecipeType.CRAFTING, craftingInventory.asCraftInput(), w).stream().map(r -> r.value().assemble(craftingInventory.asCraftInput())).toList();
 	}
 
 	public static CompactingResult getCompactingResult(ItemStack stack, CompactingShape shape) {
@@ -218,7 +242,7 @@ public class RecipeHelper {
 
 		for (RecipeHolder<CraftingRecipe> recipeHolder : compactingRecipes) {
 			CraftingRecipe recipe = recipeHolder.value();
-			ItemStack result = recipe.assemble(craftingInventory.asCraftInput(), level.registryAccess());
+			ItemStack result = recipe.assemble(craftingInventory.asCraftInput());
 			if (uncompactMatchesItem(result, level, stack, width * height)) {
 				return cacheAndGetCompactingResult(compactedItem, recipe, craftingInventory, result);
 			}
@@ -229,7 +253,7 @@ public class RecipeHelper {
 
 	private static CompactingResult cacheAndGetCompactingResult(CompactedItem compactedItem, CraftingRecipe recipe, CraftingContainer craftingInventory) {
 		return getLevel().map(level ->
-				cacheAndGetCompactingResult(compactedItem, recipe, craftingInventory, recipe.assemble(craftingInventory.asCraftInput(), level.registryAccess()))
+				cacheAndGetCompactingResult(compactedItem, recipe, craftingInventory, recipe.assemble(craftingInventory.asCraftInput()))
 		).orElse(CompactingResult.EMPTY);
 	}
 
@@ -277,7 +301,10 @@ public class RecipeHelper {
 	}
 
 	public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> getRecipesOfType(RecipeType<T> recipeType, I inventory) {
-		return getLevel().map(w -> w.getRecipeManager().getRecipesFor(recipeType, inventory, w)).orElse(Collections.emptyList());
+		return getLevel().map(w -> {
+			RecipeManager manager = getRecipeManager(w);
+			return manager == null ? List.<RecipeHolder<T>>of() : manager.getRecipesFor(recipeType, inventory, w);
+		}).orElse(Collections.emptyList());
 	}
 
 	public static <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> safeGetRecipeFor(RecipeType<T> recipeType, I inventory, @Nullable Identifier recipeId) {
@@ -286,7 +313,8 @@ public class RecipeHelper {
 
 	public static <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> safeGetRecipeFor(RecipeType<T> recipeType, I inventory, Level level, @Nullable Identifier recipeId) {
 		try {
-			return level.getRecipeManager().getRecipeFor(recipeType, inventory, level, recipeId);
+			RecipeManager manager = getRecipeManager(level);
+			return manager == null ? Optional.empty() : manager.getRecipeFor(recipeType, inventory, level, recipeId);
 		} catch (Exception e) {
 			SophisticatedCore.LOGGER.error("Error while getting recipe ", e);
 			return Optional.empty();
@@ -295,7 +323,8 @@ public class RecipeHelper {
 
 	public static <I extends CraftingInput, T extends Recipe<I>> List<RecipeHolder<T>> safeGetRecipesFor(RecipeType<T> recipeType, I inventory, Level level) {
 		try {
-			return level.getRecipeManager().getRecipesFor(recipeType, inventory, level);
+			RecipeManager manager = getRecipeManager(level);
+			return manager == null ? List.of() : manager.getRecipesFor(recipeType, inventory, level);
 		} catch (Exception e) {
 			SophisticatedCore.LOGGER.error("Error while getting recipe ", e);
 			return Collections.emptyList();
