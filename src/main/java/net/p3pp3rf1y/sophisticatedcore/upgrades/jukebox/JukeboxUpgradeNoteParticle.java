@@ -26,9 +26,9 @@ public class JukeboxUpgradeNoteParticle extends SingleQuadParticle {
 		yd += 0.01D;
 		double color = level.getRandom().nextDouble();
 		setColor(
-				Math.max(0.0F, Mth.sin(((float) color + 0.0F) * ((float) Math.PI * 2F)) * 0.65F + 0.35F),
-				Math.max(0.0F, Mth.sin(((float) color + 0.33333334F) * ((float) Math.PI * 2F)) * 0.65F + 0.35F),
-				Math.max(0.0F, Mth.sin(((float) color + 0.6666667F) * ((float) Math.PI * 2F)) * 0.65F + 0.35F)
+				Math.max(0.0F, Mth.sin((color + 0.0F) * ((float) Math.PI * 2F)) * 0.65F + 0.35F),
+				Math.max(0.0F, Mth.sin((color + 0.33333334F) * ((float) Math.PI * 2F)) * 0.65F + 0.35F),
+				Math.max(0.0F, Mth.sin((color + 0.6666667F) * ((float) Math.PI * 2F)) * 0.65F + 0.35F)
 		);
 		scale(BASE_QUAD_SIZE);
 		setLifetime(20);

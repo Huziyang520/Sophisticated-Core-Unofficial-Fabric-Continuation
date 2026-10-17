@@ -169,7 +169,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 			ServerPlayer serverplayerentity = (ServerPlayer) player;
 			ItemStack itemstack = ItemStack.EMPTY;
 			if (lastRecipe != null && lastRecipe.value().matches(inventory.asCraftInput(), level)) {
-				itemstack = lastRecipe.value().assemble(inventory.asCraftInput(), level.registryAccess());
+				itemstack = lastRecipe.value().assemble(inventory.asCraftInput());
 			} else {
 				List<RecipeHolder<CraftingRecipe>> recipes = RecipeHelper.safeGetRecipesFor(RecipeType.CRAFTING, inventory.asCraftInput(), level);
 				if (!recipes.isEmpty()) {
@@ -177,15 +177,15 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 					matchedCraftingResults.clear();
 					selectedCraftingResultIndex = 0;
 					RecipeHolder<CraftingRecipe> craftingRecipe = matchedCraftingRecipes.get(0);
-					if (inventoryResult.setRecipeUsed(level, serverplayerentity, craftingRecipe)) {
+					if (inventoryResult.setRecipeUsed(serverplayerentity, craftingRecipe)) {
 						lastRecipe = craftingRecipe;
-						itemstack = lastRecipe.value().assemble(inventory.asCraftInput(), level.registryAccess());
+						itemstack = lastRecipe.value().assemble(inventory.asCraftInput());
 						matchedCraftingResults.add(itemstack.copy());
 					} else {
 						lastRecipe = null;
 					}
 					for (int i = 1; i < matchedCraftingRecipes.size(); i++) {
-						matchedCraftingResults.add(matchedCraftingRecipes.get(i).value().assemble(inventory.asCraftInput(), level.registryAccess()));
+						matchedCraftingResults.add(matchedCraftingRecipes.get(i).value().assemble(inventory.asCraftInput()));
 					}
 				}
 			}
@@ -220,7 +220,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 			ItemStack result = matchedCraftingResults.get(resultIndex).copy();
 			craftingResultSlot.set(result);
 			//noinspection DataFlowIssue - lastRecipe can't be null here as there's always a recipe in list for the result
-			craftResult.setRecipeUsed(player.level(), serverPlayer, lastRecipe);
+			craftResult.setRecipeUsed(serverPlayer, lastRecipe);
 		} else {
 			sendDataToServer(() -> NBTHelper.putInt(new CompoundTag(), DATA_SELECT_RESULT, resultIndex));
 		}
@@ -239,7 +239,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 	public ItemStack getSlotStackToTransfer(Slot slot) {
 		if (slot == craftingResultSlot) {
 			ItemStack slotStack = slot.getItem();
-			slotStack.getItem().onCraftedBy(slotStack, player.level(), player);
+			slotStack.getItem().onCraftedBy(slotStack, player);
 			return slotStack;
 		}
 		return super.getSlotStackToTransfer(slot);
@@ -260,7 +260,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 		if (lastRecipe != null && lastRecipe.id().equals(recipeId)) {
 			return;
 		}
-		player.level().getRecipeManager().byKey(recipeId).filter(r -> r.value().getType() == RecipeType.CRAFTING).map(r -> (RecipeHolder<CraftingRecipe>) r)
+		RecipeHelper.getRecipeByKey(player.level(), recipeId).filter(r -> r.value().getType() == RecipeType.CRAFTING).map(r -> (RecipeHolder<CraftingRecipe>) r)
 				.ifPresent(recipe -> {
 					lastRecipe = recipe;
 					for (int i = 0; i < matchedCraftingRecipes.size(); i++) {

@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.cooking;
 
+import net.minecraft.world.item.ItemStackTemplate;
 import net.p3pp3rf1y.sophisticatedcore.util.FuelHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -145,13 +146,13 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		if (isCooking() && finishedCooking(level)) {
 			smelt(cookingRecipe, level);
 			if (canSmelt(cookingRecipe, level)) {
-				setCookTime(level, (int) (cookingRecipe.getCookingTime() * (1 / cookingSpeedMultiplier)));
+				setCookTime(level, (int) (cookingRecipe.cookingTime * (1 / cookingSpeedMultiplier)));
 			} else {
 				setIsCooking(false);
 			}
 		} else if (!isCooking()) {
 			setIsCooking(true);
-			setCookTime(level, (int) (cookingRecipe.getCookingTime() * (1 / cookingSpeedMultiplier)));
+			setCookTime(level, (int) (cookingRecipe.cookingTime * (1 / cookingSpeedMultiplier)));
 		}
 	}
 
@@ -169,7 +170,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		}
 
 		ItemStack input = getCookInput();
-		ItemStack recipeOutput = recipe.getResultItem(level.registryAccess());
+		ItemStack recipeOutput = RecipeHelper.getResultItem(recipe, level);
 		ItemStack output = getCookOutput();
 		if (output.isEmpty()) {
 			setCookOutput(recipeOutput.copy());
@@ -218,13 +219,13 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 			}
 			setBurnTime(level, (int) (getBurnTime(fuel, burnTimeModifier) * fuelEfficiencyMultiplier / cookingSpeedMultiplier));
 			if (isBurning(level)) {
-				if (fuel.getItem().hasCraftingRemainingItem()) {
-					setFuelWithoutValidation(fuel.getRecipeRemainder());
+				if (fuel.getCraftingRemainder() != null) {
+					setFuelWithoutValidation(remainderOf(fuel));
 				} else if (!fuel.isEmpty()) {
 					fuel.shrink(1);
 					setFuel(fuel);
 					if (fuel.isEmpty()) {
-						setFuel(fuel.getRecipeRemainder());
+						setFuel(remainderOf(fuel));
 					}
 				}
 			}
@@ -240,7 +241,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		if (getCookInput().isEmpty()) {
 			return false;
 		}
-		ItemStack recipeOutput = cookingRecipe.getResultItem(level.registryAccess());
+		ItemStack recipeOutput = RecipeHelper.getResultItem(cookingRecipe, level);
 		if (recipeOutput.isEmpty()) {
 			return false;
 		} else {
@@ -367,5 +368,10 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 				updateContents(contents, stack, slot);
 			}
 		}
+	}
+
+	private static ItemStack remainderOf(ItemStack stack) {
+		ItemStackTemplate template = stack.getCraftingRemainder();
+		return template == null ? ItemStack.EMPTY : template.create();
 	}
 }

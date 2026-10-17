@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
+import net.minecraft.world.inventory.RemoteSlot;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.client.renderer.texture.TextureAtlas;
@@ -52,7 +53,7 @@ import java.util.function.Supplier;
 public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extends AbstractContainerMenu implements IAdditionalSlotInfoMenu {
 	public static final int NUMBER_OF_PLAYER_SLOTS = 36;
 	public static final Identifier EMPTY_UPGRADE_SLOT_BACKGROUND = Identifier.fromNamespaceAndPath(SophisticatedCore.MOD_ID, "item/empty_upgrade_slot");
-	public static final Pair<Identifier, Identifier> INACCESSIBLE_SLOT_BACKGROUND = new Pair<>(TextureAtlas.LOCATION_BLOCKS, SophisticatedCore.getRL("item/inaccessible_slot"));
+	public static final Identifier INACCESSIBLE_SLOT_BACKGROUND = SophisticatedCore.getRL("item/inaccessible_slot");
 	protected static final String UPGRADE_ENABLED_TAG = "upgradeEnabled";
 	protected static final String UPGRADE_SLOT_TAG = "upgradeSlot";
 	protected static final String ACTION_TAG = "action";
@@ -83,7 +84,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	private final Map<Integer, Integer> slotLimitOverrides = new HashMap<>();
 	private final Set<Integer> infiniteSlots = new HashSet<>();
 	private final Map<Integer, ItemStack> slotFilterItems = new HashMap<>();
-	private final Map<Integer, Pair<Identifier, Identifier>> emptySlotIcons = new HashMap<>();
+	private final Map<Integer, Identifier> emptySlotIcons = new HashMap<>();
 
 	private boolean slotsChangedSinceStartOfClick = false;
 	private boolean tryingToMergeUpgrade = false;
@@ -193,7 +194,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		slot.index = getInventorySlotsSize();
 		slots.add(slot);
 		lastSlots.add(ItemStack.EMPTY);
-		remoteSlots.add(ItemStack.EMPTY);
+		remoteSlots.add(synchronizer == null ? RemoteSlot.PLACEHOLDER : synchronizer.createSlot());
 		realInventorySlots.add(slot);
 		lastRealSlots.add(ItemStack.EMPTY);
 		remoteRealSlots.add(ItemStack.EMPTY);
@@ -232,7 +233,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 				@Nullable
 				@Override
-				public Pair<Identifier, Identifier> getNoItemIcon() {
+				public Identifier getNoItemIcon() {
 					return inaccessibleSlots.contains(finalSlotIndex) ? INACCESSIBLE_SLOT_BACKGROUND : emptySlotIcons.getOrDefault(finalSlotIndex, null);
 				}
 
@@ -409,7 +410,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			return;
 		}
 
-		super.clicked(slotId, dragType, clickType, player);
+		doClickInternal(slotId, dragType, clickType, player);
 	}
 
 	@Override
@@ -858,10 +859,10 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		allRemoteSlots.addAll(remoteRealSlots);
 		allRemoteSlots.addAll(remoteUpgradeSlots);
 
-		remoteCarried = getCarried().copy();
+		ItemStack carriedStack = getCarried().copy();
 
 		if (synchronizer != null) {
-			synchronizer.sendInitialData(this, allRemoteSlots, remoteCarried, new int[]{});
+			synchronizer.sendInitialData(this, allRemoteSlots, carriedStack, new int[]{});
 		}
 
 		sendEmptySlotIcons();
@@ -994,8 +995,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	//copy of Container's doClick with the replacement of inventorySlots.get to getSlot, call to onswapcraft as that's protected in vanilla and an addition of upgradeSlots to pickup all
 	@SuppressWarnings("java:S3776")
 	//complexity here is brutal, but it's something that's in vanilla and need to keep this as close to it as possible for easier ports
-	@Override
-	protected void doClick(int slotId, int dragType, ContainerInput clickType, Player player) {
+	private void doClickInternal(int slotId, int dragType, ContainerInput clickType, Player player) {
 		if (slotId >= getTotalSlotsNumber()) {
 			return;
 		}
@@ -1066,10 +1066,10 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			if (slotId == -999) {
 				if (!getCarried().isEmpty()) {
 					if (clickaction == ClickAction.PRIMARY) {
-						player.drop(getCarried(), true);
+						player.drop(getCarried(), true, ItemStack.Prediction.PREDICTED);
 						setCarried(ItemStack.EMPTY);
 					} else {
-						player.drop(getCarried().split(1), true);
+						player.drop(getCarried().split(1), true, ItemStack.Prediction.PREDICTED);
 					}
 				}
 			} else if (clickType == ContainerInput.QUICK_MOVE) {
@@ -1644,7 +1644,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	@Override
 	public void updateEmptySlotIcons(Map<Identifier, Set<Integer>> emptySlotIcons) {
 		this.emptySlotIcons.clear();
-		emptySlotIcons.forEach((textureName, slots) -> slots.forEach(slot -> this.emptySlotIcons.put(slot, new Pair<>(TextureAtlas.LOCATION_BLOCKS, textureName))));
+		emptySlotIcons.forEach((textureName, slots) -> slots.forEach(slot -> this.emptySlotIcons.put(slot, textureName)));
 	}
 
 	public ItemStack getSlotFilterItem(int slot) {
@@ -1763,8 +1763,8 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 		@Nullable
 		@Override
-		public Pair<Identifier, Identifier> getNoItemIcon() {
-			return new Pair<>(TextureAtlas.LOCATION_BLOCKS, StorageContainerMenuBase.EMPTY_UPGRADE_SLOT_BACKGROUND);
+		public Identifier getNoItemIcon() {
+			return StorageContainerMenuBase.EMPTY_UPGRADE_SLOT_BACKGROUND;
 		}
 	}
 }

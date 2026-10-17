@@ -130,7 +130,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	protected abstract StorageSettingsTabControlBase initializeTabControl();
 
 	@Override
-	protected void extractContents(GuiGraphicsExtractor guiGraphics, float partialTicks, int mouseX, int mouseY) {
+	protected void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		int x = (width - imageWidth) / 2;
 		int y = (height - imageHeight) / 2;
 		StorageGuiHelper.renderStorageBackground(new Position(x, y), guiGraphics, storageBackgroundProperties.getTextureName(), imageWidth, getStorageInventoryHeight(getNumberOfVisibleRows()));
@@ -165,14 +165,6 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		extractTooltip(guiGraphics, mouseX, mouseY);
 	}
 
-	@Override
-	public void renderTransparentBackground(GuiGraphicsExtractor guiGraphics) {
-		Matrix3x2fStack pose = guiGraphics.pose();
-		pose.pushMatrix();
-		pose.translate(0, 0);
-		super.extractTransparentBackground(guiGraphics);
-		pose.popMatrix();
-	}
 
 	@Override
 	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {

@@ -72,7 +72,7 @@ public abstract class RenderInfo {
 		CompoundTag renderInfo = getRenderInfoTag().orElse(new CompoundTag());
 		ListTag upgradeItemsTag = new ListTag();
 		for (ItemStack upgradeItem : upgradeItems) {
-			upgradeItemsTag.add(RegistryHelper.getRegistryAccess().map(upgradeItem::saveOptional).orElse(new CompoundTag()));
+			upgradeItemsTag.add(NBTHelper.itemStackToTag(upgradeItem));
 		}
 		renderInfo.put(UPGRADE_ITEMS_TAG, upgradeItemsTag);
 		serializeRenderInfo(renderInfo);
@@ -137,11 +137,11 @@ public abstract class RenderInfo {
 	}
 
 	private void deserializeUpgradeItems(CompoundTag renderInfoTag) {
-		ListTag upgradeItemsTag = renderInfoTag.getList(UPGRADE_ITEMS_TAG, Tag.TAG_COMPOUND);
+		ListTag upgradeItemsTag = renderInfoTag.getListOrEmpty(UPGRADE_ITEMS_TAG);
 		upgradeItems.clear();
 		RegistryHelper.getRegistryAccess().ifPresent(registryAccess -> {
 			for (int i = 0; i < upgradeItemsTag.size(); i++) {
-				upgradeItems.add(ItemStack.parseOptional(registryAccess, upgradeItemsTag.getCompoundOrEmpty(i)));
+				upgradeItems.add(NBTHelper.itemStackFromTag(upgradeItemsTag.getCompoundOrEmpty(i)));
 			}
 		});
 	}
@@ -201,7 +201,7 @@ public abstract class RenderInfo {
 	}
 
 	private void deserializeTanks(CompoundTag renderInfoTag) {
-		ListTag tanks = renderInfoTag.getList(TANKS_TAG, Tag.TAG_COMPOUND);
+		ListTag tanks = renderInfoTag.getListOrEmpty(TANKS_TAG);
 		for (int i = 0; i < tanks.size(); i++) {
 			CompoundTag tank = tanks.getCompoundOrEmpty(i);
 			tankRenderInfos.put(TankPosition.valueOf(tank.getStringOr(TANK_POSITION_TAG, "").toUpperCase(Locale.ENGLISH)), IRenderedTankUpgrade.TankRenderInfo.deserialize(tank.getCompoundOrEmpty(TANK_INFO_TAG)));
@@ -216,7 +216,7 @@ public abstract class RenderInfo {
 		CompoundTag tankInfo = tankRenderInfo.serialize();
 
 		CompoundTag renderInfo = getRenderInfoTag().orElse(new CompoundTag());
-		ListTag tanks = renderInfo.getList(TANKS_TAG, Tag.TAG_COMPOUND);
+		ListTag tanks = renderInfo.getListOrEmpty(TANKS_TAG);
 
 		boolean infoSet = false;
 		for (int i = 0; i < tanks.size(); i++) {
@@ -366,7 +366,7 @@ public abstract class RenderInfo {
 		}
 
 		private CompoundTag serialize(CompoundTag tag) {
-			tag.put(ITEM_TAG, RegistryHelper.getRegistryAccess().map(item::saveOptional).orElse(new CompoundTag()));
+			tag.put(ITEM_TAG, NBTHelper.itemStackToTag(item));
 			tag.putInt(ROTATION_TAG, rotation);
 			tag.putInt(SLOT_INDEX_TAG, slotIndex);
 			tag.putString(DISPLAY_SIDE_TAG, displaySide.getSerializedName());
@@ -374,7 +374,7 @@ public abstract class RenderInfo {
 		}
 
 		private static DisplayItem deserialize(CompoundTag tag) {
-			return new DisplayItem(RegistryHelper.getRegistryAccess().map(registryAccess -> ItemStack.parseOptional(registryAccess, tag.getCompoundOrEmpty(ITEM_TAG))).orElse(ItemStack.EMPTY),
+			return new DisplayItem(RegistryHelper.getRegistryAccess().map(registryAccess -> NBTHelper.itemStackFromTag(tag.getCompoundOrEmpty(ITEM_TAG))).orElse(ItemStack.EMPTY),
 					tag.getIntOr(ROTATION_TAG, 0), tag.getIntOr(SLOT_INDEX_TAG, 0), DisplaySide.fromName(tag.getStringOr(DISPLAY_SIDE_TAG, "")));
 		}
 

@@ -212,9 +212,9 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 		int halfHeight = height / 2;
 
 		guiGraphics.blit(GUI_CONTROLS, resultListLeftX, resultListTopY, 85, 24, halfWidth, halfHeight, 256, 256);
-		guiGraphics.blit(GUI_CONTROLS, resultListLeftX + halfWidth, resultListTopY, (float) 117 - halfWidth, 24, halfWidth, halfHeight, 256, 256);
-		guiGraphics.blit(GUI_CONTROLS, resultListLeftX, resultListTopY + halfHeight, 85, (float) 56 - halfHeight, halfWidth, halfHeight, 256, 256);
-		guiGraphics.blit(GUI_CONTROLS, resultListLeftX + halfWidth, resultListTopY + halfHeight, (float) 117 - halfWidth, (float) 56 - halfHeight, halfWidth, halfHeight, 256, 256);
+		guiGraphics.blit(GUI_CONTROLS, resultListLeftX + halfWidth, resultListTopY, 117 - halfWidth, 24, halfWidth, halfHeight, 256, 256);
+		guiGraphics.blit(GUI_CONTROLS, resultListLeftX, resultListTopY + halfHeight, 85, 56 - halfHeight, halfWidth, halfHeight, 256, 256);
+		guiGraphics.blit(GUI_CONTROLS, resultListLeftX + halfWidth, resultListTopY + halfHeight, 117 - halfWidth, 56 - halfHeight, halfWidth, halfHeight, 256, 256);
 
 		GuiHelper.renderSlotsBackground(guiGraphics, resultListLeftX + RESULT_SELECTION_BORDER_WIDTH, resultListTopY + RESULT_SELECTION_BORDER_WIDTH, 3, matchedCraftingResults.size() / 3, matchedCraftingResults.size() % 3);
 	}

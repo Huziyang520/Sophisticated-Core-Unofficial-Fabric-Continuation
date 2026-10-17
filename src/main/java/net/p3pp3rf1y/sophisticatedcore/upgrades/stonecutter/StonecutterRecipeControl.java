@@ -189,7 +189,7 @@ public class StonecutterRecipeControl extends WidgetBase {
 		if (clickedOnScroll && canScroll()) {
 			int listTopY = y + LIST_Y_OFFSET;
 			int listBottomY = listTopY + 54;
-			sliderProgress = ((float) mouseY - listTopY - 7.5F) / ((listBottomY - listTopY) - 15.0F);
+			sliderProgress = (mouseY - listTopY - 7.5F) / ((listBottomY - listTopY) - 15.0F);
 			sliderProgress = Mth.clamp(sliderProgress, 0.0F, 1.0F);
 			recipeIndexOffset = (int) ((sliderProgress * getHiddenRows()) + 0.5D) * 4;
 			return true;

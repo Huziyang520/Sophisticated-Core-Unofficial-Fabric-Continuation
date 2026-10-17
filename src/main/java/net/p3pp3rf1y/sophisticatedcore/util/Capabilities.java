@@ -2,7 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 
 import net.fabricmc.fabric.api.lookup.v1.entity.EntityApiLookup;
 import net.minecraft.core.Direction;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.inventory.IInventoryHandlerHelper;
 import net.p3pp3rf1y.sophisticatedcore.inventory.InventoryStorageWrapper;
@@ -24,16 +24,26 @@ public class Capabilities {
 		public static final EntityApiLookup<IInventoryHandlerHelper, Direction> ENTITY_AUTOMATION = EntityApiLookup.get(SophisticatedCore.getRL("entity_automation_item_storage"), IInventoryHandlerHelper.class, Direction.class);
 
 		static {
+			// 26.3 把带箱子的船拆成每种木头一个实体类型
 			var containerEntities = List.of(
-					EntityType.CHEST_BOAT,
-					EntityType.CHEST_MINECART,
-					EntityType.HOPPER_MINECART);
+					EntityTypes.ACACIA_CHEST_BOAT,
+					EntityTypes.BIRCH_CHEST_BOAT,
+					EntityTypes.CHERRY_CHEST_BOAT,
+					EntityTypes.DARK_OAK_CHEST_BOAT,
+					EntityTypes.JUNGLE_CHEST_BOAT,
+					EntityTypes.MANGROVE_CHEST_BOAT,
+					EntityTypes.OAK_CHEST_BOAT,
+					EntityTypes.PALE_OAK_CHEST_BOAT,
+					EntityTypes.POPLAR_CHEST_BOAT,
+					EntityTypes.SPRUCE_CHEST_BOAT,
+					EntityTypes.CHEST_MINECART,
+					EntityTypes.HOPPER_MINECART);
 			for (var entityType : containerEntities) {
-				ENTITY.registerForType((entity, ctx) -> InventoryStorageWrapper.of(entity), entityType);
-				ENTITY_AUTOMATION.registerForType((entity, direction) -> InventoryStorageWrapper.of(entity), entityType);
+				ENTITY.registerForType((entity, ctx) -> InventoryStorageWrapper.of((net.minecraft.world.entity.player.Player) entity), entityType);
+				ENTITY_AUTOMATION.registerForType((entity, direction) -> InventoryStorageWrapper.of((net.minecraft.world.entity.player.Player) entity), entityType);
 			}
 
-			ENTITY.registerForType((player, ctx) -> InventoryStorageWrapper.of(player), EntityType.PLAYER);
+			ENTITY.registerForType((player, ctx) -> InventoryStorageWrapper.of(player), EntityTypes.PLAYER);
 		}
 	}
 }

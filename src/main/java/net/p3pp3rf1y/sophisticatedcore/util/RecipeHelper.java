@@ -46,6 +46,11 @@ public class RecipeHelper {
 		return server == null ? null : server.getRecipeManager();
 	}
 
+	public static Optional<RecipeHolder<?>> getRecipeByKey(Level level, Identifier id) {
+		RecipeManager manager = getRecipeManager(level);
+		return manager == null ? Optional.empty() : manager.byKey(id);
+	}
+
 	/** Resolves the primary output of a recipe through its display, since {@code getResultItem} is gone. */
 	public static ItemStack getResultItem(Recipe<?> recipe, Level level) {
 		List<RecipeDisplay> displays = recipe.display();
@@ -314,7 +319,7 @@ public class RecipeHelper {
 	public static <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> safeGetRecipeFor(RecipeType<T> recipeType, I inventory, Level level, @Nullable Identifier recipeId) {
 		try {
 			RecipeManager manager = getRecipeManager(level);
-			return manager == null ? Optional.empty() : manager.getRecipeFor(recipeType, inventory, level, recipeId);
+			return manager == null ? Optional.empty() : manager.getRecipeFor(recipeType, inventory, level);
 		} catch (Exception e) {
 			SophisticatedCore.LOGGER.error("Error while getting recipe ", e);
 			return Optional.empty();

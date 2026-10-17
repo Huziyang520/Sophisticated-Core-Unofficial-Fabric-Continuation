@@ -23,6 +23,6 @@ public class StorageGuiHelper {
 		}
 
 		int playerInventoryHeight = 97;
-		guiGraphics.blit(textureName, x, y + yOffset + StorageScreenBase.SLOTS_Y_OFFSET + slotsTopBottomHeight, 0, (float) 256 - (playerInventoryHeight + slotsTopBottomHeight), xSize, playerInventoryHeight + slotsTopBottomHeight, 256, 256);
+		guiGraphics.blit(textureName, x, y + yOffset + StorageScreenBase.SLOTS_Y_OFFSET + slotsTopBottomHeight, 0, 256 - (playerInventoryHeight + slotsTopBottomHeight), xSize, playerInventoryHeight + slotsTopBottomHeight, 256, 256);
 	}
 }

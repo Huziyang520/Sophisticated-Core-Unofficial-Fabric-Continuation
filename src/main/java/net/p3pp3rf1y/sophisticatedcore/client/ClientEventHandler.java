@@ -4,12 +4,9 @@ import org.joml.Matrix3x2fStack;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
-import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
-import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
@@ -35,8 +32,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
-import static net.p3pp3rf1y.sophisticatedcore.init.ModFluids.XP_FLOWING;
-import static net.p3pp3rf1y.sophisticatedcore.init.ModFluids.XP_STILL;
 
 public class ClientEventHandler implements ClientModInitializer {
 	public ClientEventHandler() {
@@ -45,10 +40,9 @@ public class ClientEventHandler implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ModParticles.registerFactories();
-		registerFluidClientExtension();
 
         ServerLevelEvents.UNLOAD.register(StorageSoundHandler::onWorldUnload);
-		ClientTickEvents.END_WORLD_TICK.register(StorageSoundHandler::tick);
+		ClientTickEvents.END_LEVEL_TICK.register(StorageSoundHandler::tick);
 
         ClientPlayConnectionEvents.JOIN.register(ClientEventHandler::onPlayerJoinServer);
 		ClientRecipesUpdated.EVENT.register(RecipeHelper::onRecipesUpdated);
@@ -58,14 +52,13 @@ public class ClientEventHandler implements ClientModInitializer {
                 return;
             }
 
-			ScreenEvents.afterRender(screen).register(ClientEventHandler::onDrawScreen);
+			ScreenEvents.afterExtract(screen).register(ClientEventHandler::onDrawScreen);
 		});
 	}
 
 	private static void onDrawScreen(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float tickDelta) {
 		Minecraft mc = Minecraft.getInstance();
-		Screen gui = mc.screen;
-		if (!(gui instanceof AbstractContainerScreen<?> containerGui) || gui instanceof CreativeModeInventoryScreen || mc.player == null) {
+		if (!(screen instanceof AbstractContainerScreen<?> containerGui) || screen instanceof CreativeModeInventoryScreen || mc.player == null) {
 			return;
 		}
 		AbstractContainerMenu menu = containerGui.getMenu();
@@ -104,7 +97,7 @@ public class ClientEventHandler implements ClientModInitializer {
 		// Trinkets uses 310, so 330 was chosen as 320 was not enough as it cut the plus sign in half
 		poseStack.translate(0, 0);
 
-		int color = stashResult == IStashStorageItem.StashResult.MATCH_AND_SPACE ? ChatFormatting.GREEN.getColor() : 0xFFFF00;
+		int color = stashResult == IStashStorageItem.StashResult.MATCH_AND_SPACE ? 0x55FF55 : 0xFFFF00;
 		if (stack.getItem() instanceof IStashStorageItem) {
 			guiGraphics.text(mc.font, "+", x + 10, y + 8, color);
 		} else {
@@ -150,10 +143,4 @@ public class ClientEventHandler implements ClientModInitializer {
 		RecipeHelper.setLevel(Minecraft.getInstance().level);
 	}
 
-	private static void registerFluidClientExtension() {
-		FluidRenderHandlerRegistry.INSTANCE.register(XP_STILL.get(), XP_FLOWING.get(), new SimpleFluidRenderHandler(
-                SophisticatedCore.getRL("block/xp_still"),
-                SophisticatedCore.getRL("block/xp_flowing")
-        ));
-	}
 }

@@ -38,3 +38,9 @@ mutable field net/minecraft/world/inventory/Slot x I
 mutable field net/minecraft/world/inventory/Slot y I
 
 accessible field net/minecraft/world/item/ItemStack components Lnet/minecraft/core/component/PatchedDataComponentMap;
+
+# 26.3 把这几处收紧了可见性，父类逻辑仍需要直接调用
+accessible method net/minecraft/world/inventory/Slot onSwapCraft (I)V
+accessible method net/minecraft/world/inventory/AbstractContainerMenu createCarriedSlotAccess ()Lnet/minecraft/world/entity/SlotAccess;
+accessible method net/minecraft/world/entity/player/Player closeContainer ()V
+accessible field net/minecraft/world/item/crafting/AbstractCookingRecipe cookingTime I

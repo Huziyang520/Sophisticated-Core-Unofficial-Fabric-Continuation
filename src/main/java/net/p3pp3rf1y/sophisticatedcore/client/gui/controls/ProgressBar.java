@@ -41,7 +41,7 @@ public class ProgressBar extends WidgetBase {
 		} else if (dir == ProgressDirection.LEFT_RIGHT) {
 			width = (int) (width * progress);
 		}
-		guiGraphics.blit(progressTexture.getTextureName(), x, y + yOffset, progressTexture.getU(), (float) progressTexture.getV() + yOffset, width, height, progressTexture.getTextureWidth(), progressTexture.getTextureHeight());
+		guiGraphics.blit(progressTexture.getTextureName(), x, y + yOffset, progressTexture.getU(), progressTexture.getV() + yOffset, width, height, progressTexture.getTextureWidth(), progressTexture.getTextureHeight());
 	}
 
 	@Override

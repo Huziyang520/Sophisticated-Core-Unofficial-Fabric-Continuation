@@ -472,14 +472,6 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		extractTooltip(guiGraphics, mouseX, mouseY);
 	}
 
-	@Override
-	public void renderTransparentBackground(GuiGraphicsExtractor guiGraphics) {
-		Matrix3x2fStack pose = guiGraphics.pose();
-		pose.pushMatrix();
-		pose.translate(0, 0);
-		super.extractTransparentBackground(guiGraphics);
-		pose.popMatrix();
-	}
 
 
 	@Override
@@ -633,7 +625,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		guiGraphics.fillGradient(xPos, yPos, xPos + width, yPos + height, slotColor, slotColor);
 	}
 
-	protected void extractContents(GuiGraphicsExtractor guiGraphics, float partialTicks, int mouseX, int mouseY) {
+	protected void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		int x = (width - imageWidth) / 2;
 		int y = (height - imageHeight) / 2;
 		drawInventoryBg(guiGraphics, x, y, storageBackgroundProperties.getTextureName());
@@ -973,25 +965,6 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		poseStack.popMatrix();
 	}
 
-	@Override
-	protected void recalculateQuickCraftRemaining() {
-		ItemStack carriedStack = getMenu().getCarried();
-		if (!carriedStack.isEmpty() && isQuickCrafting) {
-			if (quickCraftingType == 2) {
-				quickCraftingRemainder = carriedStack.getMaxStackSize();
-			} else {
-				quickCraftingRemainder = carriedStack.getCount();
-
-				for (Slot slot : quickCraftSlots) {
-					ItemStack slotStack = slot.getItem();
-					int slotStackCount = slotStack.isEmpty() ? 0 : slotStack.getCount();
-					int maxStackSize = slot.getMaxStackSize(carriedStack);
-					int quickCraftPlaceCount = Math.min(StorageContainerMenuBase.getQuickCraftPlaceCount(slot, quickCraftSlots.size(), quickCraftingType, carriedStack) + slotStackCount, maxStackSize);
-					quickCraftingRemainder -= quickCraftPlaceCount - slotStackCount;
-				}
-			}
-		}
-	}
 
 	private void renderErrorOverlay(GuiGraphicsExtractor guiGraphics) {
 		menu.getErrorUpgradeSlotChangeResult().ifPresent(upgradeSlotChangeResult -> upgradeSlotChangeResult.getErrorMessage().ifPresent(overlayErrorMessage -> {
