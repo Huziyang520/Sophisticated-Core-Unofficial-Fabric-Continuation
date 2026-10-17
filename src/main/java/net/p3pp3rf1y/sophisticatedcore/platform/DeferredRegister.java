@@ -83,7 +83,14 @@ public class DeferredRegister<R> {
 
 		@Override
 		public void write(Registry<R> registry) {
-			I value = valueSupplier.get();
+			// 26.3 的物品/方块在构造时就要知道自己的注册 id，把 key 发布出去让 ItemBase/BlockBase 取用
+			RegistryIdContext.push(holder.getKey());
+			I value;
+			try {
+				value = valueSupplier.get();
+			} finally {
+				RegistryIdContext.clear();
+			}
 			Registry.register(registry, holder.getId(), value);
 			holder.bind(value);
 		}

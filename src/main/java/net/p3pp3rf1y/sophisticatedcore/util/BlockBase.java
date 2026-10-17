@@ -7,7 +7,7 @@ import java.util.function.Consumer;
 
 public abstract class BlockBase extends Block {
 	public BlockBase(Properties properties) {
-		super(properties);
+		super(net.p3pp3rf1y.sophisticatedcore.platform.RegistryIdContext.applyToBlock(properties));
 	}
 
 	public void addCreativeTabItems(Consumer<ItemStack> itemConsumer) {

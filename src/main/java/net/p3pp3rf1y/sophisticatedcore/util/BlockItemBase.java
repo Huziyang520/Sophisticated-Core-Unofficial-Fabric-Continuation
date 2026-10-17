@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 
 public class BlockItemBase extends BlockItem {
 	public BlockItemBase(Block block, Properties properties) {
-		super(block, properties);
+		super(block, net.p3pp3rf1y.sophisticatedcore.platform.RegistryIdContext.applyToItem(properties));
 	}
 
 	public void addCreativeTabItems(Consumer<ItemStack> itemConsumer) {

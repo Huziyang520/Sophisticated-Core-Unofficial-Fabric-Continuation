@@ -8,7 +8,7 @@ import java.util.function.Consumer;
 
 public class ItemBase extends Item {
 	public ItemBase(Properties properties) {
-		super(properties);
+		super(net.p3pp3rf1y.sophisticatedcore.platform.RegistryIdContext.applyToItem(properties));
 	}
 
 	public void addCreativeTabItems(Consumer<ItemStack> itemConsumer) {
