@@ -12,9 +12,7 @@
   "license": "${mod_license}",
   "icon": "${mod_logo_file}",
   "contact": {
-    "homepage": "${mod_display_url}",
-    "issues": "${mod_issue_tracker_url}",
-    "sources": "${mod_sources_url}"
+    "issues": "${mod_issue_tracker_url}"
   },
   "environment": "*",
   "entrypoints": {
@@ -26,6 +24,9 @@
     ],
     "jei_mod_plugin": [
       "net.p3pp3rf1y.sophisticatedcore.compat.jei.CorePlugin"
+    ],
+    "modmenu": [
+      "net.p3pp3rf1y.sophisticatedcore.client.compat.ModMenuIntegration"
     ]
   },
   "mixins": [
@@ -44,17 +45,9 @@
   },
   "custom": {
     "modmenu": {
-      "links": {
-        "modmenu.feedback": "${mod_issue_tracker_url}"
-      },
       "badges": [
         "library"
-      ],
-      "parent": {
-        "id": "sophisticatedmods",
-        "name": "Sophisticated Mods",
-        "description": "Group of P3pp3rf1y's Sophisticated Mods"
-      }
+      ]
     },
     "loom:injected_interfaces": {
       "net/minecraft/client/gui/screens/inventory/AbstractContainerScreen": [

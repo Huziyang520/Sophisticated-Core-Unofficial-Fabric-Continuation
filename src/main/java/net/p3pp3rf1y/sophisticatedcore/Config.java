@@ -46,16 +46,21 @@ public class Config {
 	}
 
 	public static class Common {
-		private boolean configChanged = false;
+		private volatile boolean configChanged = false;
 		public final EnabledItems enabledItems;
 
 		public void initListeners() {
 			ConfigEvents.reloading(SophisticatedCore.MOD_ID).register(this::onConfigReload);
 		}
 
-		@SuppressWarnings("unused") //need the Event parameter for forge reflection to understand what event this listens to
+		/**
+		 * Rebuilds the enabled-items cache after the config file was read.
+		 * <p>
+		 * The cache is swapped for a fresh map rather than cleared in place: recipe loading runs on parallel worker
+		 * threads, and clearing a map that another thread is populating is how the old code deadlocked.
+		 */
 		public void onConfigReload() {
-			enabledItems.enabledMap.clear();
+			enabledItems.reloadFromConfig();
 		}
 
 		Common(ConfigSpec.Builder builder) {
@@ -72,9 +77,13 @@ public class Config {
 		}
 
 		public static class EnabledItems {
+			private static final String ENABLED_SUFFIX = "|true";
+
 			private final ConfigSpec.ConfigValue<List<String>> itemsEnableList;
 			private final Runnable onConfigChange;
-			private final Map<Identifier, Boolean> enabledMap = new ConcurrentHashMap<>();
+			private final Object lock = new Object();
+			private volatile Map<Identifier, Boolean> enabledMap = new ConcurrentHashMap<>();
+			private boolean initialized;
 
 			EnabledItems(ConfigSpec.Builder builder, Runnable onConfigChange) {
 				itemsEnableList = builder.comment("Disable / enable any items here (disables their recipes)").define("enabledItems", new ArrayList<>());
@@ -85,35 +94,81 @@ public class Config {
 				return RegistryHelper.getRegistryName(BuiltInRegistries.ITEM, item).map(this::isItemEnabled).orElse(false);
 			}
 
+			/**
+			 * @return whether the item is enabled, recording an unknown item as enabled.
+			 * <p>
+			 * Nothing here may touch the config file from inside a map computation: the previous implementation
+			 * persisted the entry from a {@code computeIfAbsent} callback, which re-entered this class through the
+			 * reload event and blocked the loading thread forever. The write is only flagged now and happens on the
+			 * next {@link Common#saveIfChanged()}.
+			 */
 			public boolean isItemEnabled(Identifier itemRegistryName) {
 				if (!COMMON_SPEC.isLoaded()) {
 					return true;
 				}
-				if (enabledMap.isEmpty()) {
-					loadEnabledMap();
+
+				ensureInitialized();
+
+				Boolean known = enabledMap.get(itemRegistryName);
+				if (known != null) {
+					return known;
 				}
-				return enabledMap.computeIfAbsent(itemRegistryName, irn -> {
-					addEnabledItemToConfig(itemRegistryName);
+
+				synchronized (lock) {
+					known = enabledMap.get(itemRegistryName);
+					if (known != null) {
+						return known;
+					}
+
+					enabledMap.put(itemRegistryName, Boolean.TRUE);
+					recordNewItem(itemRegistryName);
 					return true;
-				});
+				}
 			}
 
-			private void addEnabledItemToConfig(Identifier itemRegistryName) {
-				List<String> list = itemsEnableList.get();
-				list.add(itemRegistryName + "|true");
-				itemsEnableList.set(list);
-				onConfigChange.run();
+			private void ensureInitialized() {
+				if (initialized) {
+					return;
+				}
+
+				synchronized (lock) {
+					if (!initialized) {
+						initialized = true;
+						rebuildEnabledMap();
+					}
+				}
 			}
 
-			private void loadEnabledMap() {
+			/** Re-reads the config list into a fresh map, then publishes it. */
+			public void reloadFromConfig() {
+				synchronized (lock) {
+					initialized = true;
+					rebuildEnabledMap();
+				}
+			}
+
+			private void rebuildEnabledMap() {
+				Map<Identifier, Boolean> rebuilt = new ConcurrentHashMap<>();
 				for (String itemEnabled : itemsEnableList.get()) {
 					String[] data = itemEnabled.split("\\|");
 					if (data.length == 2) {
-						enabledMap.put(Identifier.parse(data[0]), Boolean.valueOf(data[1]));
+						try {
+							rebuilt.put(Identifier.parse(data[0]), Boolean.valueOf(data[1]));
+						} catch (RuntimeException e) {
+							SophisticatedCore.LOGGER.error("Wrong registry name in enabledItems - {}", itemEnabled);
+						}
 					} else {
 						SophisticatedCore.LOGGER.error("Wrong data for enabledItems - expected registry name|true/false when {} was provided", itemEnabled);
 					}
 				}
+				enabledMap = rebuilt;
+			}
+
+			private void recordNewItem(Identifier itemRegistryName) {
+				List<String> list = new ArrayList<>(itemsEnableList.get());
+				list.add(itemRegistryName + ENABLED_SUFFIX);
+				itemsEnableList.set(list);
+				onConfigChange.run();
 			}
 		}
 	}

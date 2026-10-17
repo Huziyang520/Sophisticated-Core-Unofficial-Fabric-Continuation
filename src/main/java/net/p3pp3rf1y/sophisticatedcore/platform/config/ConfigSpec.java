@@ -38,6 +38,7 @@ public final class ConfigSpec {
 	private ConfigFile file;
 	private String modId = "";
 	private boolean loaded;
+	private volatile boolean dirty;
 
 	private ConfigSpec() {
 	}
@@ -46,14 +47,30 @@ public final class ConfigSpec {
 		return loaded;
 	}
 
-	/** Persists every value to disk. */
+	/**
+	 * Persists every value to disk.
+	 * <p>
+	 * This deliberately does <b>not</b> fire the reload callbacks: a write is not a reload, and firing them here
+	 * made a plain value write re-enter the very caches the writer was iterating - the enabled-items map cleared
+	 * itself from inside its own {@code computeIfAbsent}, which deadlocks the worker threads that load recipes.
+	 */
 	public void save() {
 		if (file == null) {
 			return;
 		}
+		dirty = false;
 		values.forEach(value -> file.put(value.getPath(), value.toJson()));
 		file.save();
-		ConfigEvents.fireReloaded(modId);
+	}
+
+	/** @return whether a value was written since the last {@link #save()}. */
+	public boolean isDirty() {
+		return dirty;
+	}
+
+	/** Marks the spec as needing a write; the write itself is deferred to {@link #save()}. */
+	void markDirty() {
+		dirty = true;
 	}
 
 	public List<ConfigValue<?>> getValues() {
@@ -252,7 +269,7 @@ public final class ConfigSpec {
 		public void set(T newValue) {
 			this.value = newValue;
 			if (spec != null) {
-				spec.save();
+				spec.markDirty();
 			}
 		}
 

@@ -249,5 +249,6 @@
   "gui.sophisticatedcore.narrate.context_button.usage": "单击以切换上下文",
   "fluid_type.sophisticatedcore.experience": "经验",
   "gui.sophisticatedcore.tooltip.stack_count": "数量：%s",
-  "compat.litematica.gui.label.task.remaining_contents": "Storage contents received: %s/%s"
+  "compat.litematica.gui.label.task.remaining_contents": "Storage contents received: %s/%s",
+  "modmenu.sophisticatedcore.config.title": "精妙核心设置"
 }

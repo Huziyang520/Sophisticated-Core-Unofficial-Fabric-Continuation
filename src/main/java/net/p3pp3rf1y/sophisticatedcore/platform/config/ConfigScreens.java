@@ -26,9 +26,19 @@ public final class ConfigScreens {
 
 	/** @return a ready to display screen for {@code spec}; {@code parent} is shown when the screen closes. */
 	public static Screen create(Component title, ConfigSpec spec, @Nullable Screen parent) {
+		return create(title, parent, List.of(spec));
+	}
+
+	/**
+	 * @return one screen covering every value of {@code specs}, saving all of them when it closes.
+	 * <p>
+	 * A mod usually owns more than one spec (a common one and a client one), and Mod Menu only offers a single
+	 * config entry per mod, so the specs share one screen instead of hiding one behind a second button.
+	 */
+	public static Screen create(Component title, @Nullable Screen parent, List<ConfigSpec> specs) {
 		ConfigBuilder builder = ConfigBuilder.create()
 				.setTitle(title)
-				.setSavingRunnable(spec::save);
+				.setSavingRunnable(() -> specs.forEach(ConfigSpec::save));
 		if (parent != null) {
 			builder.setParentScreen(parent);
 		}
@@ -36,12 +46,14 @@ public final class ConfigScreens {
 		builder.setGlobalizedExpanded(true);
 
 		ConfigEntryBuilder entries = ConfigEntryBuilder.create();
-		Map<String, List<ConfigSpec.ConfigValue<?>>> byCategory = new LinkedHashMap<>();
-		spec.getValues().forEach(value -> byCategory.computeIfAbsent(value.getCategory(), key -> new ArrayList<>()).add(value));
-		byCategory.forEach((category, values) -> {
-			ConfigCategory clothCategory = builder.getOrCreateCategory(categoryTitle(spec, category));
-			values.forEach(value -> clothCategory.addEntry(createEntry(value, entries)));
-		});
+		for (ConfigSpec spec : specs) {
+			Map<String, List<ConfigSpec.ConfigValue<?>>> byCategory = new LinkedHashMap<>();
+			spec.getValues().forEach(value -> byCategory.computeIfAbsent(value.getCategory(), key -> new ArrayList<>()).add(value));
+			byCategory.forEach((category, values) -> {
+				ConfigCategory clothCategory = builder.getOrCreateCategory(categoryTitle(spec, category));
+				values.forEach(value -> clothCategory.addEntry(createEntry(value, entries)));
+			});
+		}
 
 		return builder.build();
 	}
