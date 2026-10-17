@@ -1,5 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import com.google.common.base.Suppliers;
 import com.mojang.datafixers.util.Pair;
 import net.fabricmc.loader.api.FabricLoader;
@@ -256,7 +258,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 	}
 
 	@Override
-	public void clicked(int slotId, int dragType, ClickAction clickTypeIn, Player player) {
+	public void clicked(int slotId, int dragType, ContainerInput clickTypeIn, Player player) {
 		//noop
 	}
 
@@ -372,7 +374,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 	@Override
 	public void updateEmptySlotIcons(Map<Identifier, Set<Integer>> emptySlotIcons) {
 		this.emptySlotIcons.clear();
-		emptySlotIcons.forEach((textureName, slots) -> slots.forEach(slot -> this.emptySlotIcons.put(slot, new Pair<>(InventoryMenu.BLOCK_ATLAS, textureName))));
+		emptySlotIcons.forEach((textureName, slots) -> slots.forEach(slot -> this.emptySlotIcons.put(slot, new Pair<>(TextureAtlas.LOCATION_BLOCKS, textureName))));
 	}
 
 	@Override

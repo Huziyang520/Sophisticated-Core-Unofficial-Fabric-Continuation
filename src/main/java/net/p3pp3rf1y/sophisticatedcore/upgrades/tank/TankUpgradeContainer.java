@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
@@ -28,13 +29,13 @@ public class TankUpgradeContainer extends UpgradeContainerBase<TankUpgradeWrappe
 			public int getMaxStackSize(ItemStack stack) {
 				return 1;
 			}
-		}.sophisticatedCore_setBackground(InventoryMenu.BLOCK_ATLAS, EMPTY_TANK_INPUT_SLOT_BACKGROUND));
+		}.sophisticatedCore_setBackground(TextureAtlas.LOCATION_BLOCKS, EMPTY_TANK_INPUT_SLOT_BACKGROUND));
 		slots.add(new TankIOSlot(() -> this.upgradeWrapper.getInventory(), TankUpgradeWrapper.OUTPUT_SLOT, -100, -100, TranslationHelper.INSTANCE.translUpgradeSlotTooltip("tank_output")) {
 			@Override
 			public int getMaxStackSize(ItemStack stack) {
 				return 1;
 			}
-		}.sophisticatedCore_setBackground(InventoryMenu.BLOCK_ATLAS, EMPTY_TANK_OUTPUT_SLOT_BACKGROUND));
+		}.sophisticatedCore_setBackground(TextureAtlas.LOCATION_BLOCKS, EMPTY_TANK_OUTPUT_SLOT_BACKGROUND));
 	}
 
 	@Override

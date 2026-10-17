@@ -37,11 +37,11 @@ public class JukeboxUpgradeItem extends UpgradeItemBase<JukeboxUpgradeWrapper> {
 	}
 
 	public int getNumberOfSlots() {
-		return numberOfSlots.intValue();
+		return numberOfSlots.getAsInt();
 	}
 
 	public int getSlotsInRow() {
-		return slotsInRow.intValue();
+		return slotsInRow.getAsInt();
 	}
 
 }

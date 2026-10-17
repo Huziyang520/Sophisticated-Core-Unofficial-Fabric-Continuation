@@ -1,13 +1,13 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.pump;
 
+import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
-import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.p3pp3rf1y.sophisticatedcore.platform.FluidStack;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.WidgetBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
@@ -40,10 +40,9 @@ public class FluidFilterControl extends WidgetBase {
 		for (int i = 0; i < container.getNumberOfFluidFilters(); i++) {
 			FluidStack fluid = container.getFluid(i);
 			if (!fluid.isEmpty()) {
-				FluidRenderHandler handler = FluidRenderHandlerRegistry.INSTANCE.get(fluid.getFluid());
-				TextureAtlasSprite[] sprites = handler.getFluidSprites(null, null, fluid.getFluid().defaultFluidState());
-				int tint = handler.getFluidColor(null, null,fluid.getFluid().defaultFluidState());
-				GuiHelper.renderTiledFluidTextureAtlas(guiGraphics, sprites[0], tint, x + i * 18 + 1, y + 1, 16);
+				TextureAtlasSprite still = GuiHelper.getStillFluidSprite(fluid.getFluid());
+				int tint = FluidVariantRendering.getColor(FluidVariant.of(fluid.getFluid()));
+				GuiHelper.renderTiledFluidTextureAtlas(guiGraphics, still, tint, x + i * 18 + 1, y + 1, 16);
 			}
 		}
 	}
@@ -63,7 +62,7 @@ public class FluidFilterControl extends WidgetBase {
 	}
 
 	@Override
-	public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+	public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		getSlotClicked(mouseX, mouseY).ifPresent(slot -> {
 			FluidStack fluid = container.getFluid(slot);
 			if (!fluid.isEmpty()) {

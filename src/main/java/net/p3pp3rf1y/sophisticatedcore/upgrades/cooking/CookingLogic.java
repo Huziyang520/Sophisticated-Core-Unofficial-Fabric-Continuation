@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.cooking;
 
-import net.fabricmc.fabric.api.registry.FuelRegistry;
+import net.p3pp3rf1y.sophisticatedcore.util.FuelHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.ItemContainerContents;
@@ -258,7 +258,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 	}
 
 	private static int getBurnTime(ItemStack fuel, float burnTimeModifier) {
-		return (int) (Objects.requireNonNullElse(FuelRegistry.INSTANCE.get(fuel.getItem()), 0) * burnTimeModifier);
+		return (int) (FuelHelper.getBurnTime(fuel) * burnTimeModifier);
 	}
 
 	public ItemStack getCookOutput() {

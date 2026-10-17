@@ -2,7 +2,6 @@ package net.p3pp3rf1y.sophisticatedcore.client.gui.controls;
 
 import net.minecraft.client.input.MouseButtonEvent;
 import org.joml.Matrix3x2fStack;
-import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -41,12 +40,12 @@ public class InventoryScrollPanel extends ScrollPanel {
 	}
 
 	@Override
-	protected void drawBackground(GuiGraphicsExtractor guiGraphics, Tesselator tess, float partialTick) {
+	protected void drawBackground(GuiGraphicsExtractor guiGraphics, float partialTick) {
 		screen.drawSlotBg(guiGraphics, visibleSlotsCount);
 	}
 
 	@Override
-	protected void drawPanel(GuiGraphicsExtractor guiGraphics, int entryRight, int relativeY, Tesselator tess, int mouseX, int mouseY) {
+	protected void drawPanel(GuiGraphicsExtractor guiGraphics, int entryRight, int relativeY, int mouseX, int mouseY) {
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
 		poseStack.translate(screen.getLeftX(), screen.getTopY(), 0.0D);

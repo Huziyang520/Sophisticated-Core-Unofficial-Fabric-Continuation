@@ -29,10 +29,10 @@ public class MagnetUpgradeItem extends UpgradeItemBase<MagnetUpgradeWrapper> {
 	}
 
 	public int getFilterSlotCount() {
-		return filterSlotCount.intValue();
+		return filterSlotCount.getAsInt();
 	}
 
 	public int getRadius() {
-		return radius.intValue();
+		return radius.getAsInt();
 	}
 }

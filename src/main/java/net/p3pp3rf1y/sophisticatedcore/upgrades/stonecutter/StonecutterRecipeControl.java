@@ -114,8 +114,8 @@ public class StonecutterRecipeControl extends WidgetBase {
 	}
 
 	@Override
-	public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-		super.setTooltipForNextFrame(screen, guiGraphics, mouseX, mouseY);
+	public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.extractTooltip(screen, guiGraphics, mouseX, mouseY);
 		renderHoveredTooltip(guiGraphics, mouseX, mouseY);
 	}
 

@@ -33,6 +33,6 @@ public class CompactingUpgradeItem extends UpgradeItemBase<CompactingUpgradeWrap
 	}
 
 	public int getFilterSlotCount() {
-		return filterSlotCount.intValue();
+		return filterSlotCount.getAsInt();
 	}
 }

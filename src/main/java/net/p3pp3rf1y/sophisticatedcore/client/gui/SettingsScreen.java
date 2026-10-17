@@ -13,7 +13,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.InventoryScrollPanel;
@@ -147,7 +147,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		// Fix for Blur+
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
-		poseStack.translate(0, 0, -20);
+		poseStack.translate(0, 0);
 		renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 		poseStack.popMatrix();
 
@@ -163,7 +163,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	public void renderTransparentBackground(GuiGraphicsExtractor guiGraphics) {
 		Matrix3x2fStack pose = guiGraphics.pose();
 		pose.pushMatrix();
-		pose.translate(0, 0, -12);
+		pose.translate(0, 0);
 		super.renderTransparentBackground(guiGraphics);
 		pose.popMatrix();
 	}
@@ -199,9 +199,9 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
-		poseStack.translate(0, 0, 100);
+		poseStack.translate(0, 0);
 		//noinspection ConstantConditions - by this point minecraft isn't null
-		if (!settingsTabControl.renderGuiItem(guiGraphics, minecraft.getItemRenderer(), itemstack, slot, isTemplateLoadHovered())) {
+		if (!settingsTabControl.renderGuiItem(guiGraphics, itemstack, slot, isTemplateLoadHovered())) {
 			if (!getMenu().getSlotFilterItem(slot.index).isEmpty()) {
 				guiGraphics.item(getMenu().getSlotFilterItem(slot.index), slot.x, slot.y);
 			} else {
@@ -223,7 +223,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 	@SuppressWarnings("java:S2589") // slot can actually be null despite being marked non null
 	@Override
-	protected void slotClicked(Slot slot, int slotId, int mouseButton, ClickAction type) {
+	protected void slotClicked(Slot slot, int slotId, int mouseButton, ContainerInput type) {
 		//noinspection ConstantConditions
 		if (slot != null) {
 			settingsTabControl.handleSlotClick(slot, mouseButton);

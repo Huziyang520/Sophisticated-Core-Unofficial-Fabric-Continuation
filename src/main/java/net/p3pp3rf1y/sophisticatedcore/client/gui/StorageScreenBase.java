@@ -1,8 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui;
 
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.client.input.MouseButtonEvent;
 import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.ByteBufferBuilder;
 import org.joml.Matrix3x2fStack;
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
@@ -14,7 +14,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -23,7 +22,7 @@ import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -39,7 +38,6 @@ import net.p3pp3rf1y.sophisticatedcore.network.TransferFullSlotPayload;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeItemBase;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.crafting.ICraftingUIPart;
 import net.p3pp3rf1y.sophisticatedcore.util.CountAbbreviator;
-import org.joml.Matrix4f;
 
 import org.jetbrains.annotations.Nullable;
 import java.text.NumberFormat;
@@ -82,6 +80,15 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	private static ISlotDecorationRenderer slotDecorationRenderer = (guiGraphics, slot) -> {
 	};
 
+	/**
+	 * 26.3 made {@code AbstractContainerScreen.imageWidth/imageHeight} final, so a screen with a variable size can no
+	 * longer assign them. These shadow the parent fields: the mod draws and lays out against this size and fixes the
+	 * centring in {@link #repositionElements()}.
+	 */
+	protected int imageWidth;
+	protected int imageHeight;
+	private int inventoryLabelX;
+	private int inventoryLabelY;
 	protected StorageBackgroundProperties storageBackgroundProperties;
 	@Nullable
 	private Button transferToStorageButton;
@@ -116,6 +123,15 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	public void resize(Minecraft minecraft, int width, int height) {
 		updateDimensionsAndSlotPositions(height);
 		super.resize(minecraft, width, height);
+		repositionElements();
+	}
+
+	/** The parent centres using its own fixed size; this screen is sized from the menu, so it re-centres here. */
+	@Override
+	protected void repositionElements() {
+		super.repositionElements();
+		leftPos = (width - imageWidth) / 2;
+		topPos = (height - imageHeight) / 2;
 	}
 
 	private void updateDimensionsAndSlotPositions(int height) {
@@ -435,7 +451,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		}
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
-		poseStack.translate(0, 0, -20);
+		poseStack.translate(0, 0);
 		renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
 		poseStack.popMatrix();
 
@@ -457,7 +473,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	public void renderTransparentBackground(GuiGraphicsExtractor guiGraphics) {
 		Matrix3x2fStack pose = guiGraphics.pose();
 		pose.pushMatrix();
-		pose.translate(0, 0, -20);
+		pose.translate(0, 0);
 		super.renderTransparentBackground(guiGraphics);
 		pose.popMatrix();
 	}
@@ -547,7 +563,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		}
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
-		poseStack.translate(0, 0, 100);
+		poseStack.translate(0, 0);
 		if (stackToRender.isEmpty() && slot.isActive()) {
 			renderSlotBackground(guiGraphics, slot, i, j);
 		} else if (!rightClickDragging) {
@@ -790,22 +806,22 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 				if (slotItem.getCount() > slotItem.getMaxStackSize()) {
 					PacketDistributor.sendToServer(new TransferFullSlotPayload(slot2.index));
 				} else {
-					slotClicked(slot2, slot2.index, button, ClickAction.QUICK_MOVE);
+					slotClicked(slot2, slot2.index, button, ContainerInput.QUICK_MOVE);
 				}
 			}
 		}
 	}
 
 	@Override
-	protected void slotClicked(Slot slot, int slotNumber, int mouseButton, ClickAction type) {
-		if (type == ClickAction.PICKUP_ALL && !menu.getSlotUpgradeContainer(slot).map(c -> c.allowsPickupAll(slot)).orElse(true)) {
-			type = ClickAction.PICKUP;
+	protected void slotClicked(Slot slot, int slotNumber, int mouseButton, ContainerInput type) {
+		if (type == ContainerInput.PICKUP_ALL && !menu.getSlotUpgradeContainer(slot).map(c -> c.allowsPickupAll(slot)).orElse(true)) {
+			type = ContainerInput.PICKUP;
 		}
 
 		handleInventoryMouseClick(slotNumber, mouseButton, type);
 	}
 
-	private void handleInventoryMouseClick(int slotNumber, int mouseButton, ClickAction type) {
+	private void handleInventoryMouseClick(int slotNumber, int mouseButton, ContainerInput type) {
 		StorageContainerMenuBase<?> menu = getMenu();
 		List<ItemStack> realInventoryItems = new ArrayList<>(menu.realInventorySlots.size());
 		menu.realInventorySlots.forEach(slot -> realInventoryItems.add(slot.getItem().copy()));
@@ -933,7 +949,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	private void renderStackCount(GuiGraphicsExtractor guiGraphics, String count, int x, int y) {
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
-		poseStack.translate(0.0D, 0.0D, 200.0F);
+		poseStack.translate(0.0D, 0.0D);
 		float scale = Math.min(1f, (float) 16 / font.width(count));
 		if (scale < 1f) {
 			poseStack.scale(scale, scale, 1.0F);
@@ -994,7 +1010,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	private void renderErrorMessage(GuiGraphicsExtractor guiGraphics, Matrix3x2fStack matrixStack, Component overlayErrorMessage) {
 		matrixStack.pushMatrix();
-		matrixStack.translate((float) width / 2, (double) topPos + inventoryLabelY + 4, 300F);
+		matrixStack.translate((float) width / 2, (float) ((double) topPos + inventoryLabelY + 4));
 		Font fontrenderer = Minecraft.getInstance().font;
 
 		int tooltipWidth = font.width(overlayErrorMessage);
@@ -1022,14 +1038,10 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			tooltipHeight += 2 + (wrappedTextLines.size() - 1) * 10;
 		}
 
-		Matrix4f matrix4f = matrixStack.last().pose();
 		float leftX = (float) -tooltipWidth / 2;
 
-		GuiHelper.renderTooltipBackground(matrix4f, tooltipWidth, (int) leftX, 0, tooltipHeight, StorageScreenBase.ERROR_BACKGROUND_COLOR, StorageScreenBase.ERROR_BORDER_COLOR, StorageScreenBase.ERROR_BORDER_COLOR);
-		MultiBufferSource.BufferSource renderTypeBuffer = MultiBufferSource.immediate(new ByteBufferBuilder(1536));
-		matrixStack.translate(0.0D, 0.0D, 400.0D);
-		GuiHelper.writeTooltipLines(guiGraphics, wrappedTextLines, fontrenderer, leftX, 0, matrix4f, renderTypeBuffer, ERROR_TEXT_COLOR);
-		renderTypeBuffer.endBatch();
+		GuiHelper.renderTooltipBackground(guiGraphics, tooltipWidth, (int) leftX, 0, tooltipHeight, StorageScreenBase.ERROR_BACKGROUND_COLOR, StorageScreenBase.ERROR_BORDER_COLOR, StorageScreenBase.ERROR_BORDER_COLOR);
+		GuiHelper.writeTooltipLines(guiGraphics, wrappedTextLines, fontrenderer, leftX, 0, ERROR_TEXT_COLOR);
 		matrixStack.popMatrix();
 	}
 

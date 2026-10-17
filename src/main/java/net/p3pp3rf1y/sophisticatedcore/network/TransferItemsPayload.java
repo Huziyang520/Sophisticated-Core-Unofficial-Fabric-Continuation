@@ -291,7 +291,7 @@ public record TransferItemsPayload(boolean transferToInventory,
 		private final ContainerStorageImpl inventoryStorage;
 
 		public RangedWrapper(Inventory inv, int start, int end) {
-			this.inventoryStorage = (ContainerStorageImpl) InventoryStorage.of(inv, null);
+			this.inventoryStorage = (ContainerStorageImpl) ContainerStorage.of(inv, null);
 			this.inventoryStorage.parts = Collections.unmodifiableList(inventoryStorage.parts.subList(start, end));
 		}
 

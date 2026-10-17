@@ -127,7 +127,7 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 		long fill = contents.getAmount();
 		int displayLevel = (int) ((height - 2) * ((float) fill / capacity));
 		FluidVariant fluidVariant = FluidVariant.of(fluid);
-		TextureAtlasSprite still = FluidVariantRendering.getSprite(fluidVariant);
+		TextureAtlasSprite still = GuiHelper.getStillFluidSprite(fluid);
 		GuiHelper.renderTiledFluidTextureAtlas(guiGraphics, still, FluidVariantRendering.getColor(fluidVariant), pos.x() + 10, pos.y() + 1 + height - 2 - displayLevel, displayLevel);
 	}
 

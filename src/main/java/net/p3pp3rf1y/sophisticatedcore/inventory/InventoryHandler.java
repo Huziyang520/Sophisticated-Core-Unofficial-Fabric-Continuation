@@ -149,7 +149,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		ListTag tagList = nbt.getListOrEmpty("Items");
 		RegistryHelper.getRegistryAccess().ifPresent(registryAccess -> {
 			for (int i = 0; i < tagList.size(); i++) {
-				CompoundTag itemTag = tagList.getCompound(i);
+				CompoundTag itemTag = tagList.getCompoundOrEmpty(i);
 				int slot = itemTag.getIntOr("Slot", 0);
 				if (slot >= 0 && slot < getSlotCount()) {
 					// Changed to call onStackChange in the load function

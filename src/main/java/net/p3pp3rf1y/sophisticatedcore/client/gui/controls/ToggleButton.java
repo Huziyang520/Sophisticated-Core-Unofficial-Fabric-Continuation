@@ -33,7 +33,7 @@ public class ToggleButton<T extends Comparable<T>> extends Button {
 	}
 
 	@Override
-	public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+	public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		if (isMouseOver(mouseX, mouseY)) {
 			StateData data = stateData.get(getState.get());
 			GuiHelper.setTooltip(screen, guiGraphics, getTooltip(data), mouseX, mouseY);

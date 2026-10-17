@@ -22,11 +22,11 @@ public class InventoryStorageWrapper implements SlottedStackStorage, IInventoryH
 		return new InventoryStorageWrapper(container);
 	}
 
-	private final InventoryStorage wrapped;
+	private final ContainerStorage wrapped;
 	private final Container wrappedInventory;
 
 	private InventoryStorageWrapper(Container inventory) {
-		this.wrapped = InventoryStorage.of(inventory, null);
+		this.wrapped = ContainerStorage.of(inventory, null);
 		this.wrappedInventory = inventory;
 	}
 

@@ -81,7 +81,7 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 			}
 		}) {
 			@Override
-			public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+			public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 				if (visible && isMouseOver(mouseX, mouseY)) {
 					guiGraphics.setTooltipForNextFrame(minecraft.font, getTooltip().stream().map(Component::getVisualOrderText).toList(), LEFT_SIDE_TOOLTIP_POSITIONER, mouseX, mouseY);
 				}
@@ -274,8 +274,8 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 	}
 
 	@Override
-	public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-		super.setTooltipForNextFrame(screen, guiGraphics, mouseX, mouseY);
+	public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.extractTooltip(screen, guiGraphics, mouseX, mouseY);
 		guiGraphics.pose().pushMatrix();
 		guiGraphics.pose().translate(0, 0, 410);
 		getResultChoiceHovered(mouseX, mouseY).ifPresent(i -> {

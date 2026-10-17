@@ -1,5 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.common.gui;
 
+import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.ContainerInput;
+import net.minecraft.client.renderer.texture.TextureAtlas;
 import com.google.common.base.Suppliers;
 import com.google.common.collect.Lists;
 import com.mojang.datafixers.util.Pair;
@@ -41,7 +44,6 @@ import net.p3pp3rf1y.sophisticatedcore.util.DummySlot;
 import net.p3pp3rf1y.sophisticatedcore.util.NoopStorageWrapper;
 import org.jetbrains.annotations.NotNull;
 
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
@@ -50,7 +52,7 @@ import java.util.function.Supplier;
 public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extends AbstractContainerMenu implements IAdditionalSlotInfoMenu {
 	public static final int NUMBER_OF_PLAYER_SLOTS = 36;
 	public static final Identifier EMPTY_UPGRADE_SLOT_BACKGROUND = Identifier.fromNamespaceAndPath(SophisticatedCore.MOD_ID, "item/empty_upgrade_slot");
-	public static final Pair<Identifier, Identifier> INACCESSIBLE_SLOT_BACKGROUND = new Pair<>(InventoryMenu.BLOCK_ATLAS, SophisticatedCore.getRL("item/inaccessible_slot"));
+	public static final Pair<Identifier, Identifier> INACCESSIBLE_SLOT_BACKGROUND = new Pair<>(TextureAtlas.LOCATION_BLOCKS, SophisticatedCore.getRL("item/inaccessible_slot"));
 	protected static final String UPGRADE_ENABLED_TAG = "upgradeEnabled";
 	protected static final String UPGRADE_SLOT_TAG = "upgradeSlot";
 	protected static final String ACTION_TAG = "action";
@@ -349,7 +351,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	}
 
 	@Override
-	public void clicked(int slotId, int dragType, ClickAction clickType, Player player) {
+	public void clicked(int slotId, int dragType, ContainerInput clickType, Player player) {
 		if (isUpgradeSettingsSlot(slotId) && getSlot(slotId) instanceof IFilterSlot && getSlot(slotId).mayPlace(getCarried())) {
 			Slot slot = getSlot(slotId);
 			ItemStack cursorStack = getCarried().copy();
@@ -393,7 +395,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 				int k2 = dragType == 0 ? Math.min(slotStack.getCount(), slotStack.getMaxStackSize()) : Math.min(slotStack.getMaxStackSize() + 1, slotStack.getCount() + 1) / 2;
 				IUpgradeItem<?> upgradeItem = (IUpgradeItem<?>) slotStack.getItem();
 				int columnsTaken = upgradeItem.getInventoryColumnsTaken();
-				if (clickType == ClickAction.QUICK_MOVE) {
+				if (clickType == ContainerInput.QUICK_MOVE) {
 					quickMoveStack(player, slotId);
 				} else {
 					setCarried(upgradeItem.getCleanedUpgradeStack(slot.remove(k2)));
@@ -415,11 +417,11 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		return slotIndex == -1 || slotIndex == -999 || slotIndex < getTotalSlotsNumber();
 	}
 
-	private boolean handleOverflow(int slotId, ClickAction clickType, int dragType, Player player) {
-		ItemStack cursorStack = clickType == ClickAction.SWAP ? player.getInventory().getItem(dragType) : getCarried();
-		Consumer<ItemStack> updateCursorStack = clickType == ClickAction.SWAP ? s -> player.getInventory().setItem(dragType, s) : this::setCarried;
+	private boolean handleOverflow(int slotId, ContainerInput clickType, int dragType, Player player) {
+		ItemStack cursorStack = clickType == ContainerInput.SWAP ? player.getInventory().getItem(dragType) : getCarried();
+		Consumer<ItemStack> updateCursorStack = clickType == ContainerInput.SWAP ? s -> player.getInventory().setItem(dragType, s) : this::setCarried;
 		Slot slot = getSlot(slotId);
-		if ((clickType != ClickAction.SWAP && cursorStack.isEmpty()) || !slot.mayPlace(cursorStack)) {
+		if ((clickType != ContainerInput.SWAP && cursorStack.isEmpty()) || !slot.mayPlace(cursorStack)) {
 			return false;
 		}
 		ItemStack slotStack = slot.getItem();
@@ -475,8 +477,8 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		return false;
 	}
 
-	private boolean isOverflowLogicSlotAndAction(int slotId, ClickAction clickType) {
-		return isStorageInventorySlot(slotId) && (clickType == ClickAction.SWAP || clickType == ClickAction.PICKUP);
+	private boolean isOverflowLogicSlotAndAction(int slotId, ContainerInput clickType) {
+		return isStorageInventorySlot(slotId) && (clickType == ContainerInput.SWAP || clickType == ContainerInput.PICKUP);
 	}
 
 	protected void updateColumnsTaken(int columnsChange) {
@@ -993,13 +995,13 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	@SuppressWarnings("java:S3776")
 	//complexity here is brutal, but it's something that's in vanilla and need to keep this as close to it as possible for easier ports
 	@Override
-	protected void doClick(int slotId, int dragType, ClickAction clickType, Player player) {
+	protected void doClick(int slotId, int dragType, ContainerInput clickType, Player player) {
 		if (slotId >= getTotalSlotsNumber()) {
 			return;
 		}
 		slotsChangedSinceStartOfClick = false;
 		Inventory inventory = player.getInventory();
-		if (clickType == ClickAction.QUICK_CRAFT) {
+		if (clickType == ContainerInput.QUICK_CRAFT) {
 			int i = quickcraftStatus;
 			quickcraftStatus = getQuickcraftHeader(dragType);
 			if ((i != 1 || quickcraftStatus != 2) && i != quickcraftStatus) {
@@ -1025,7 +1027,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 					if (quickcraftSlots.size() == 1) {
 						int l = (quickcraftSlots.iterator().next()).index;
 						resetQuickCraft();
-						clicked(l, quickcraftType, ClickAction.PICKUP, player);
+						clicked(l, quickcraftType, ContainerInput.PICKUP, player);
 						return;
 					}
 
@@ -1059,7 +1061,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			}
 		} else if (quickcraftStatus != 0) {
 			resetQuickCraft();
-		} else if ((clickType == ClickAction.PICKUP || clickType == ClickAction.QUICK_MOVE) && (dragType == 0 || dragType == 1)) {
+		} else if ((clickType == ContainerInput.PICKUP || clickType == ContainerInput.QUICK_MOVE) && (dragType == 0 || dragType == 1)) {
 			ClickAction clickaction = dragType == 0 ? ClickAction.PRIMARY : ClickAction.SECONDARY;
 			if (slotId == -999) {
 				if (!getCarried().isEmpty()) {
@@ -1070,7 +1072,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 						player.drop(getCarried().split(1), true);
 					}
 				}
-			} else if (clickType == ClickAction.QUICK_MOVE) {
+			} else if (clickType == ContainerInput.QUICK_MOVE) {
 				if (slotId < 0) {
 					return;
 				}
@@ -1135,7 +1137,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 				slot7.setChanged();
 			}
-		} else if (clickType == ClickAction.SWAP) {
+		} else if (clickType == ContainerInput.SWAP) {
 			Slot slot2 = getSlot(slotId);
 			ItemStack itemstack4 = inventory.getItem(dragType);
 			ItemStack slotStack = slot2.getItem();
@@ -1177,19 +1179,19 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 					}
 				}
 			}
-		} else if (clickType == ClickAction.CLONE && player.getAbilities().instabuild && getCarried().isEmpty() && slotId >= 0) {
+		} else if (clickType == ContainerInput.CLONE && player.getAbilities().instabuild && getCarried().isEmpty() && slotId >= 0) {
 			Slot slot5 = getSlot(slotId);
 			if (slot5.hasItem()) {
 				ItemStack itemstack6 = slot5.getItem().copy();
 				itemstack6.setCount(itemstack6.getMaxStackSize());
 				setCarried(itemstack6);
 			}
-		} else if (clickType == ClickAction.THROW && getCarried().isEmpty() && slotId >= 0) {
+		} else if (clickType == ContainerInput.THROW && getCarried().isEmpty() && slotId >= 0) {
 			Slot slot4 = getSlot(slotId);
 			int i1 = dragType == 0 ? 1 : slot4.getItem().getCount();
 			ItemStack itemstack8 = slot4.safeTake(i1, slot4.getItem().getMaxStackSize(), player);
 			player.drop(itemstack8, true, Prediction.PREDICTED);
-		} else if (clickType == ClickAction.PICKUP_ALL && slotId >= 0) {
+		} else if (clickType == ContainerInput.PICKUP_ALL && slotId >= 0) {
 			Slot slot3 = getSlot(slotId);
 			ItemStack carriedStack = getCarried();
 			if (!carriedStack.isEmpty() && (!slot3.hasItem() || !slot3.mayPickup(player))) {
@@ -1642,7 +1644,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	@Override
 	public void updateEmptySlotIcons(Map<Identifier, Set<Integer>> emptySlotIcons) {
 		this.emptySlotIcons.clear();
-		emptySlotIcons.forEach((textureName, slots) -> slots.forEach(slot -> this.emptySlotIcons.put(slot, new Pair<>(InventoryMenu.BLOCK_ATLAS, textureName))));
+		emptySlotIcons.forEach((textureName, slots) -> slots.forEach(slot -> this.emptySlotIcons.put(slot, new Pair<>(TextureAtlas.LOCATION_BLOCKS, textureName))));
 	}
 
 	public ItemStack getSlotFilterItem(int slot) {
@@ -1762,7 +1764,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		@Nullable
 		@Override
 		public Pair<Identifier, Identifier> getNoItemIcon() {
-			return new Pair<>(InventoryMenu.BLOCK_ATLAS, StorageContainerMenuBase.EMPTY_UPGRADE_SLOT_BACKGROUND);
+			return new Pair<>(TextureAtlas.LOCATION_BLOCKS, StorageContainerMenuBase.EMPTY_UPGRADE_SLOT_BACKGROUND);
 		}
 	}
 }

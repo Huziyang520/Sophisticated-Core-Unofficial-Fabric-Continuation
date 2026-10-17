@@ -237,9 +237,9 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 	private int renderTooltipLine(GuiGraphicsExtractor guiGraphics, int leftX, int topY, Font font, Component tooltip) {
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
-		poseStack.translate(0.0D, 0.0D, 200.0F);
+		poseStack.translate(0.0D, 0.0D);
 		guiGraphics.text(font, tooltip, leftX, topY, 16777215);
-		poseStack.translate(0.0D, 0.0D, -200.0F);
+		poseStack.translate(0.0D, 0.0D);
 		poseStack.popMatrix();
 		return topY + 10;
 	}

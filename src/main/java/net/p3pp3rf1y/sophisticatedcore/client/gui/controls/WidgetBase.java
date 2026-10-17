@@ -44,7 +44,7 @@ public abstract class WidgetBase implements Renderable, GuiEventListener, Narrat
 		}
 
 		isHovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
-		renderBg(guiGraphics, minecraft, mouseX, mouseY);
+		extractContents(guiGraphics, minecraft, mouseX, mouseY);
 		renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 
@@ -92,7 +92,7 @@ public abstract class WidgetBase implements Renderable, GuiEventListener, Narrat
 		return (getWidth() - elementWidth) / 2;
 	}
 
-	public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+	public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		//noop
 	}
 

@@ -10,7 +10,6 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
-import org.lwjgl.glfw.GLFW;
 
 import org.jetbrains.annotations.Nullable;
 import java.util.function.Consumer;
@@ -34,7 +33,7 @@ public class TextBox extends WidgetBase {
 	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
-		poseStack.translate(0, 0, 100);
+		poseStack.translate(0, 0);
 		editBox.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		if (editBox.getValue().isEmpty() && unfocusedEmptyHint != null && !editBox.isFocused()) {
 			int x = editBox.getX() + editBox.getWidth() / 2 + 2/* editBox.isBordered() ? editBox.getX() + 4 : editBox.getX()*/;

@@ -107,7 +107,7 @@ public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMe
 		// we run the original here and cancel it in its own mixin after all other mixins have been processed
 		original.call(instance, guiGraphics, mouseX, mouseY, partialTick);
 		if (sophisticatedCore$isStorageScreen || sophisticatedCore$isSettingsScreen) {
-			renderBg(guiGraphics, partialTick, mouseX, mouseY);
+			extractContents(guiGraphics, partialTick, mouseX, mouseY);
 		}
 	}
 

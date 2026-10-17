@@ -52,7 +52,7 @@ public abstract class SettingsTabControl<C extends AbstractContainerScreen<?>, T
 	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		Matrix3x2fStack pose = guiGraphics.pose();
 		pose.pushMatrix();
-		pose.translate(0,0, -11);
+		pose.translate(0, 0);
 		children.forEach(child -> {
 			if (child != openTab) {
 				child.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
@@ -87,7 +87,7 @@ public abstract class SettingsTabControl<C extends AbstractContainerScreen<?>, T
 	}
 
 	@Override
-	public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+	public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		children.forEach(tab -> tab.setTooltipForNextFrame(screen, guiGraphics, mouseX, mouseY));
 	}
 

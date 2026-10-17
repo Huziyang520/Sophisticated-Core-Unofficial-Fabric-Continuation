@@ -19,19 +19,19 @@ public class NBTHelper {
 	private NBTHelper() {}
 
 	public static Optional<Integer> getInt(CompoundTag tag, String key) {
-		return getTagValue(tag, key, CompoundTag::getInt);
+		return getTagValue(tag, key, (t, k) -> t.getIntOr(k, 0));
 	}
 
 	public static Optional<int[]> getIntArray(CompoundTag tag, String key) {
-		return getTagValue(tag, key, CompoundTag::getIntArray);
+		return getTagValue(tag, key, (t, k) -> t.getIntArray(k).orElse(new int[0]));
 	}
 
 	public static Optional<Boolean> getBoolean(CompoundTag tag, String key) {
-		return getTagValue(tag, key, CompoundTag::getBoolean);
+		return getTagValue(tag, key, (t, k) -> t.getBooleanOr(k, false));
 	}
 
 	public static Optional<CompoundTag> getCompound(CompoundTag tag, String key) {
-		return getTagValue(tag, key, CompoundTag::getCompound);
+		return getTagValue(tag, key, (t, k) -> t.getCompoundOrEmpty(k));
 	}
 
 	public static <T> Optional<T> getTagValue(CompoundTag tag, String key, BiFunction<CompoundTag, String, T> getValue) {
@@ -91,7 +91,7 @@ public class NBTHelper {
 	}
 
 	public static <K, V> Optional<Map<K, V>> getMap(CompoundTag tag, String key, Function<String, K> getKey, BiFunction<String, Tag, Optional<V>> getValue, Supplier<Map<K, V>> initMap) {
-		CompoundTag mapNbt = tag.getCompound(key);
+		CompoundTag mapNbt = tag.getCompoundOrEmpty(key);
 
 		Map<K, V> map = initMap.get();
 

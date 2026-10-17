@@ -56,8 +56,8 @@ public abstract class Tab extends CompositeWidgetBase<WidgetBase> {
 	}
 
 	@Override
-	public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-		super.setTooltipForNextFrame(screen, guiGraphics, mouseX, mouseY);
+	public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.extractTooltip(screen, guiGraphics, mouseX, mouseY);
 		if (shouldRender.getAsBoolean() && isClosedTooltipVisible(mouseX, mouseY)) {
 			guiGraphics.setTooltipForNextFrame(screen.font, tooltip, Optional.empty(), mouseX, mouseY);
 		}

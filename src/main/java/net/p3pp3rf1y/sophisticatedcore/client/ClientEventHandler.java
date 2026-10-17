@@ -102,7 +102,7 @@ public class ClientEventHandler implements ClientModInitializer {
 		poseStack.pushMatrix();
 		// Because of trinkets we need to increase this from the original 300
 		// Trinkets uses 310, so 330 was chosen as 320 was not enough as it cut the plus sign in half
-		poseStack.translate(0, 0, 330);
+		poseStack.translate(0, 0);
 
 		int color = stashResult == IStashStorageItem.StashResult.MATCH_AND_SPACE ? ChatFormatting.GREEN.getColor() : 0xFFFF00;
 		if (stack.getItem() instanceof IStashStorageItem) {
@@ -116,7 +116,7 @@ public class ClientEventHandler implements ClientModInitializer {
     private static void renderSpecialTooltip(Minecraft mc, GuiGraphicsExtractor guiGraphics, int x, int y, StashResultAndTooltip stashResultAndTooltip) {
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
-		poseStack.translate(0, 0, 100);
+		poseStack.translate(0, 0);
 		guiGraphics.setTooltipForNextFrame(mc.font, Collections.singletonList(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip("storage") + ".right_click_to_add_to_storage")), stashResultAndTooltip.tooltip(), x, y);
 		poseStack.popMatrix();
 	}

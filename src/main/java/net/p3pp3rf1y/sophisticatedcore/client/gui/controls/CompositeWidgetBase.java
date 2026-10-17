@@ -91,8 +91,8 @@ public abstract class CompositeWidgetBase<T extends WidgetBase> extends WidgetBa
 	}
 
 	@Override
-	public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-		super.setTooltipForNextFrame(screen, guiGraphics, mouseX, mouseY);
+	public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		super.extractTooltip(screen, guiGraphics, mouseX, mouseY);
 		children.forEach(c -> c.setTooltipForNextFrame(screen, guiGraphics, mouseX, mouseY));
 	}
 }

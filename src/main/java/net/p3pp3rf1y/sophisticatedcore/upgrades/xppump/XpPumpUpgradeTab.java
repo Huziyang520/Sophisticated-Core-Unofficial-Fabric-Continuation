@@ -139,8 +139,8 @@ public class XpPumpUpgradeTab extends UpgradeSettingsTab<XpPumpUpgradeContainer>
 		}
 
 		@Override
-		public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-			super.setTooltipForNextFrame(screen, guiGraphics, mouseX, mouseY);
+		public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+			super.extractTooltip(screen, guiGraphics, mouseX, mouseY);
 			if (isMouseOver(mouseX, mouseY)) {
 				guiGraphics.setTooltipForNextFrame(screen.font, TOOLTIP, Optional.empty(), mouseX, mouseY);
 			}

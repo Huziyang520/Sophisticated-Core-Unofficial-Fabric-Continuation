@@ -65,7 +65,7 @@ public class TemplatePersistanceControl extends CompositeWidgetBase<WidgetBase> 
 			}
 
 			@Override
-			public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+			public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 				boolean mouseOver = isMouseOver(mouseX, mouseY);
 				boolean showTextBox = container.showsTextbox() && mouseOver;
 				if (mouseOver) {
@@ -92,7 +92,7 @@ public class TemplatePersistanceControl extends CompositeWidgetBase<WidgetBase> 
 			}
 
 			@Override
-			public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+			public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 				boolean mouseOver = isMouseOver(mouseX, mouseY);
 				if (mouseOver) {
 					guiGraphics.setTooltipForNextFrame(screen.font, getTooltip(), Optional.empty(), loadTemplateButton.getX() + 10, loadTemplateButton.getY() + 6);
@@ -113,7 +113,7 @@ public class TemplatePersistanceControl extends CompositeWidgetBase<WidgetBase> 
 		addChild(exportInput);
 		exportTemplateButton = new Button(new Position(x, y + 2 * (18 + BUTTON_GAP)), EXPORT_TEMPLATE, button -> container.exportTemplate(exportInput.getValue())) {
 			@Override
-			public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+			public void extractTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 				boolean mouseOver = isMouseOver(mouseX, mouseY);
 				if (mouseOver) {
 					guiGraphics.setTooltipForNextFrame(screen.font, getTooltip(), Optional.empty(), exportTemplateButton.getX() + 10, exportTemplateButton.getY() - 13);

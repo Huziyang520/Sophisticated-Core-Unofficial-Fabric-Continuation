@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.renderdata;
 
+import net.minecraft.nbt.IntArrayTag;
 import net.minecraft.nbt.*;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IRenderedBatteryUpgrade;
@@ -140,7 +141,7 @@ public abstract class RenderInfo {
 		upgradeItems.clear();
 		RegistryHelper.getRegistryAccess().ifPresent(registryAccess -> {
 			for (int i = 0; i < upgradeItemsTag.size(); i++) {
-				upgradeItems.add(ItemStack.parseOptional(registryAccess, upgradeItemsTag.getCompound(i)));
+				upgradeItems.add(ItemStack.parseOptional(registryAccess, upgradeItemsTag.getCompoundOrEmpty(i)));
 			}
 		});
 	}
@@ -166,7 +167,7 @@ public abstract class RenderInfo {
 		upgrades.keySet().forEach(key -> {
 			if (RENDER_DATA_TYPES.containsKey(key)) {
 				UpgradeRenderDataType<?> upgradeRenderDataType = RENDER_DATA_TYPES.get(key);
-				upgradeData.put(upgradeRenderDataType, upgradeRenderDataType.deserialize(upgrades.getCompound(key)));
+				upgradeData.put(upgradeRenderDataType, upgradeRenderDataType.deserialize(upgrades.getCompoundOrEmpty(key)));
 			}
 		});
 	}
@@ -202,7 +203,7 @@ public abstract class RenderInfo {
 	private void deserializeTanks(CompoundTag renderInfoTag) {
 		ListTag tanks = renderInfoTag.getList(TANKS_TAG, Tag.TAG_COMPOUND);
 		for (int i = 0; i < tanks.size(); i++) {
-			CompoundTag tank = tanks.getCompound(i);
+			CompoundTag tank = tanks.getCompoundOrEmpty(i);
 			tankRenderInfos.put(TankPosition.valueOf(tank.getStringOr(TANK_POSITION_TAG, "").toUpperCase(Locale.ENGLISH)), IRenderedTankUpgrade.TankRenderInfo.deserialize(tank.getCompoundOrEmpty(TANK_INFO_TAG)));
 		}
 	}
@@ -219,7 +220,7 @@ public abstract class RenderInfo {
 
 		boolean infoSet = false;
 		for (int i = 0; i < tanks.size(); i++) {
-			CompoundTag tank = tanks.getCompound(i);
+			CompoundTag tank = tanks.getCompoundOrEmpty(i);
 			if (tank.getStringOr(TANK_POSITION_TAG, "").equals(tankPosition.getSerializedName())) {
 				tank.put(TANK_INFO_TAG, tankInfo);
 				infoSet = true;
@@ -305,13 +306,13 @@ public abstract class RenderInfo {
 
 		public static ItemDisplayRenderInfo deserialize(CompoundTag tag) {
 			List<Integer> inaccessibleSlots;
-			if (tag.getTagType(INACCESSIBLE_SLOTS_TAG) == Tag.TAG_INT_ARRAY) {
-				inaccessibleSlots = Arrays.stream(tag.getIntArray(INACCESSIBLE_SLOTS_TAG.orElse(new int[0]))).boxed().collect(Collectors.toCollection(ArrayList::new));
+			if (tag.get(INACCESSIBLE_SLOTS_TAG) instanceof IntArrayTag) {
+				inaccessibleSlots = Arrays.stream(tag.getIntArray(INACCESSIBLE_SLOTS_TAG).orElse(new int[0])).boxed().collect(Collectors.toCollection(ArrayList::new));
 			} else {
 				inaccessibleSlots = NBTHelper.getCollection(tag, INACCESSIBLE_SLOTS_TAG, Tag.TAG_INT, t -> Optional.of(((IntTag) t).intValue()), ArrayList::new).orElseGet(ArrayList::new); //TODO remove this legacy support in the future
 			}
-			List<Integer> infiniteSlots = Arrays.stream(tag.getIntArray(INFINITE_SLOTS_TAG.orElse(new int[0]))).boxed().collect(Collectors.toCollection(ArrayList::new));
-			List<Integer> slotCounts = Arrays.stream(tag.getIntArray(SLOT_COUNTS_TAG.orElse(new int[0]))).boxed().collect(Collectors.toCollection(ArrayList::new));
+			List<Integer> infiniteSlots = Arrays.stream(tag.getIntArray(INFINITE_SLOTS_TAG).orElse(new int[0])).boxed().collect(Collectors.toCollection(ArrayList::new));
+			List<Integer> slotCounts = Arrays.stream(tag.getIntArray(SLOT_COUNTS_TAG).orElse(new int[0])).boxed().collect(Collectors.toCollection(ArrayList::new));
 			List<Float> slotFillRatios = NBTHelper.getCollection(tag, SLOT_FILL_RATIOS_TAG, Tag.TAG_FLOAT, t -> Optional.of(((FloatTag) t).getAsFloat()), ArrayList::new).orElseGet(ArrayList::new);
 			if (tag.contains(DisplayItem.ITEM_TAG)) {
 				return new ItemDisplayRenderInfo(DisplayItem.deserialize(tag), inaccessibleSlots, infiniteSlots, slotCounts, slotFillRatios);
