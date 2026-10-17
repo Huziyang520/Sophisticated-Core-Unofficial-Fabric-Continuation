@@ -15,8 +15,9 @@ base {
 
 // 产物名固定为 <mod_id>-<version>-<loader>-<MC>（见 AGENTS.md §5）。
 // 用 matching 而不是直接 named()，任务不存在时不至于让配置阶段失败。
+// 26.3 的 Fabric 线官方名即运行时名，不需要 remap，jar 就是最终产物
 tasks.matching { it.name == 'jar' }.configureEach {
-    archiveFileName.set("${mod_id}-${mod_version}-fabric-${mc_range_label}-dev.jar")
+    archiveFileName.set("${mod_id}-${mod_version}-fabric-${mc_range_label}.jar")
 }
 tasks.matching { it.name == 'remapJar' }.configureEach {
     archiveFileName.set("${mod_id}-${mod_version}-fabric-${mc_range_label}.jar")
@@ -65,6 +66,8 @@ processResources {
             minecraft_version    : project.minecraft_version,
             fabric_minecraft_range: project.fabric_minecraft_range,
             fabric_loader_version: project.fabric_loader_version,
+            cloth_config_version : project.cloth_config_version,
+            modmenu_version      : project.modmenu_version,
             java_version         : project.java_version
     ]
     inputs.properties replaceProperties
