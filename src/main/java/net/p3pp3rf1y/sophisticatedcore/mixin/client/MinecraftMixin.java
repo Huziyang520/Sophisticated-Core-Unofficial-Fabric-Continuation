@@ -1,41 +1,21 @@
 package net.p3pp3rf1y.sophisticatedcore.mixin.client;
 
-import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
-import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.ParticleEngine;
-import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.HitResult;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.injection.At;
 
-import org.jetbrains.annotations.Nullable;
-
+/**
+ * Client side hooks on {@link Minecraft}.
+ * <p>
+ * This mixin used to wrap {@code ParticleEngine.crack(BlockPos, Direction)} to suppress the block breaking particles
+ * of storage blocks. 26.3 removed that method and rebuilt the particle engine around sprites, so the wrap is gone;
+ * the shadowed level stays because the storage screens read it to resolve the current level.
+ */
 @Mixin(Minecraft.class)
 public class MinecraftMixin {
-    @Shadow
-    @Nullable
-    public ClientLevel level;
-
-    @Shadow
+	@Shadow
 	@Nullable
-	public HitResult hitResult;
-
-    @WrapOperation(
-			method = "continueAttack",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/client/particle/ParticleEngine;crack(Lnet/minecraft/core/BlockPos;Lnet/minecraft/core/Direction;)V"
-			)
-	)
-    private void sophisticatedcore$addBlockHitEffects(ParticleEngine instance, BlockPos pos, Direction side, Operation<Void> original) {
-        BlockState state = level.getBlockState(pos);
-        if (!state.sophisticatedCore_addHitEffects(level, this.hitResult, instance)) {
-            original.call(instance, pos, side);
-        }
-    }
+	public ClientLevel level;
 }

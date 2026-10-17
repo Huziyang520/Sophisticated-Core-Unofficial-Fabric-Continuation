@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(Screen.class)
 public class ScreenMixin {
 	@Inject(
-			method = "render",
+			method = "extractRenderState",
 			at = @At("HEAD"),
 			order = 100000, // Make sure this injection runs last
 			cancellable = true

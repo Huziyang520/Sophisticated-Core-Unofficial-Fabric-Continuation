@@ -31,21 +31,6 @@ public class EntityMixin implements SophisticatedEntity {
 	@Unique
 	private Collection<ItemEntity> sophisticatedCore$captureDrops = null;
 
-	@WrapWithCondition(
-			method = "spawnAtLocation(Lnet/minecraft/world/item/ItemStack;F)Lnet/minecraft/world/entity/item/ItemEntity;",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/world/level/Level;addFreshEntity(Lnet/minecraft/world/entity/Entity;)Z"
-			)
-	)
-	public boolean sophisticatedCore$captureDrops(Level level, Entity entity) {
-		if (sophisticatedCaptureDrops() != null && entity instanceof ItemEntity item) {
-			sophisticatedCaptureDrops().add(item);
-			return false;
-		}
-		return true;
-	}
-
 	@Unique
 	@Override
 	public Collection<ItemEntity> sophisticatedCaptureDrops() {
@@ -78,14 +63,14 @@ public class EntityMixin implements SophisticatedEntity {
 		return this.sophisticatedCore$customData;
 	}
 
-	@Inject(method = "saveWithoutId", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;addAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"))
+	@Inject(method = "saveWithoutId", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;addAdditionalSaveData(Lnet/minecraft/world/level/storage/ValueOutput;)V"))
 	public void sophisticatedCore$saveAdditionalData(CompoundTag compound, CallbackInfoReturnable<CompoundTag> cir) {
 		if (this.sophisticatedCore$customData != null && !this.sophisticatedCore$customData.isEmpty()) {
 			compound.put(SOPHISTICATEDCOREDATA_NBT_KEY, this.sophisticatedCore$customData);
 		}
 	}
 
-	@Inject(method = "load", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;readAdditionalSaveData(Lnet/minecraft/nbt/CompoundTag;)V"))
+	@Inject(method = "load", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;readAdditionalSaveData(Lnet/minecraft/world/level/storage/ValueInput;)V"))
 	public void sophisticatedCore$readAdditionalData(CompoundTag compound, CallbackInfo ci) {
 		if (compound.contains(SOPHISTICATEDCOREDATA_NBT_KEY)) {
 			this.sophisticatedCore$customData = compound.getCompoundOrEmpty(SOPHISTICATEDCOREDATA_NBT_KEY);

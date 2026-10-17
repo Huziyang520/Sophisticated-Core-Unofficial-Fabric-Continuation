@@ -27,7 +27,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Mixin(AbstractContainerScreen.class)
 public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMenu> extends Screen implements SophisticatedAbstractContainerScreen {
-	@Shadow protected abstract void extractContents(GuiGraphicsExtractor guiGraphics, float partialTick, int mouseX, int mouseY);
+	@Shadow protected abstract void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick);
 
 	@Shadow
 	@Nullable
@@ -49,7 +49,7 @@ public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMe
 	}
 
 	@Inject(
-			method = "render",
+			method = "extractRenderState",
 			at = @At("HEAD")
 	)
 	private void sophisticatedCore$renderHead(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
@@ -58,7 +58,7 @@ public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMe
 	}
 
 	@Inject(
-			method = "render",
+			method = "extractRenderState",
 			at = @At("TAIL")
 	)
 	private void sophisticatedCore$renderTail(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
@@ -67,7 +67,7 @@ public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMe
 	}
 
 	@WrapOperation(
-			method = "render",
+			method = "extractRenderState",
 			at = @At(
 					value = "INVOKE",
 					target = "Lnet/minecraft/core/NonNullList;size()I"
@@ -81,7 +81,7 @@ public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMe
 	}
 
     @WrapOperation(
-			method = "render",
+			method = "extractRenderState",
 			at = @At(
 					value = "INVOKE",
 					target = "Lnet/minecraft/core/NonNullList;get(I)Ljava/lang/Object;"
@@ -96,41 +96,8 @@ public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMe
 		return original.call(instance, i);
     }
 
-	@WrapOperation(
-			method = "render",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/client/gui/screens/Screen;render(Lnet/minecraft/client/gui/GuiGraphicsExtractor;IIF)V"
-			)
-	)
-	private void sophisticatedCore$wrapRenderCall(AbstractContainerScreen<?> instance, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick, Operation<Void> original) {
-		// we run the original here and cancel it in its own mixin after all other mixins have been processed
-		original.call(instance, guiGraphics, mouseX, mouseY, partialTick);
-		if (sophisticatedCore$isStorageScreen || sophisticatedCore$isSettingsScreen) {
-			extractContents(guiGraphics, partialTick, mouseX, mouseY);
-		}
-	}
-
-	@Inject(
-			method = "render",
-			at = @At(
-					value = "INVOKE",
-					target = "Lcom/mojang/blaze3d/systems/RenderSystem;disableDepthTest()V",
-					shift = At.Shift.AFTER
-			)
-	)
-	private void sophisticatedCore$renderRenderables(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
-		if (sophisticatedCore$isStorageScreen || sophisticatedCore$isSettingsScreen) {
-			hoveredSlot = null;
-
-			for (Renderable widget : renderables) {
-				widget.extractRenderState(guiGraphics, mouseX, mouseY, partialTick);
-			}
-		}
-	}
-
 	@WrapWithCondition(
-			method = "render",
+			method = "extractRenderState",
 			at = @At(
 					value = "FIELD",
 					target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;hoveredSlot:Lnet/minecraft/world/inventory/Slot;",
