@@ -64,16 +64,14 @@ public class EntityMixin implements SophisticatedEntity {
 	}
 
 	@Inject(method = "saveWithoutId", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;addAdditionalSaveData(Lnet/minecraft/world/level/storage/ValueOutput;)V"))
-	public void sophisticatedCore$saveAdditionalData(CompoundTag compound, CallbackInfoReturnable<CompoundTag> cir) {
+	public void sophisticatedCore$saveAdditionalData(net.minecraft.world.level.storage.ValueOutput output, CallbackInfo ci) {
 		if (this.sophisticatedCore$customData != null && !this.sophisticatedCore$customData.isEmpty()) {
-			compound.put(SOPHISTICATEDCOREDATA_NBT_KEY, this.sophisticatedCore$customData);
+			output.store(SOPHISTICATEDCOREDATA_NBT_KEY, CompoundTag.CODEC, this.sophisticatedCore$customData);
 		}
 	}
 
 	@Inject(method = "load", at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/Entity;readAdditionalSaveData(Lnet/minecraft/world/level/storage/ValueInput;)V"))
-	public void sophisticatedCore$readAdditionalData(CompoundTag compound, CallbackInfo ci) {
-		if (compound.contains(SOPHISTICATEDCOREDATA_NBT_KEY)) {
-			this.sophisticatedCore$customData = compound.getCompoundOrEmpty(SOPHISTICATEDCOREDATA_NBT_KEY);
-		}
+	public void sophisticatedCore$readAdditionalData(net.minecraft.world.level.storage.ValueInput input, CallbackInfo ci) {
+		input.read(SOPHISTICATEDCOREDATA_NBT_KEY, CompoundTag.CODEC).ifPresent(tag -> this.sophisticatedCore$customData = tag);
 	}
 }

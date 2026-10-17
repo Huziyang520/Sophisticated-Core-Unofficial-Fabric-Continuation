@@ -66,38 +66,8 @@ public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMe
 		sophisticatedCore$isSettingsScreen = false;
 	}
 
-	@WrapOperation(
-			method = "extractRenderState",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/core/NonNullList;size()I"
-			)
-	)
-    private int sophisticatedCore$MenuSlotSize(NonNullList<Slot> instance, Operation<Integer> original) {
-		if (sophisticatedCore$isStorageScreen) {
-			return StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS;
-		}
-		return original.call(instance);
-	}
-
-    @WrapOperation(
-			method = "extractRenderState",
-			at = @At(
-					value = "INVOKE",
-					target = "Lnet/minecraft/core/NonNullList;get(I)Ljava/lang/Object;"
-			)
-	)
-    private Object sophisticatedCore$MenuSlotGet(NonNullList<Slot> instance, int i, Operation<Slot> original) {
-		if (sophisticatedCore$isStorageScreen) {
-			StorageContainerMenuBase<?> menu = MixinHelper.<StorageScreenBase<? extends StorageContainerMenuBase<?>>>cast(this).getMenu();
-			return menu.getSlot(menu.getInventorySlotsSize() - StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS + i);
-		}
-
-		return original.call(instance, i);
-    }
-
-	@WrapWithCondition(
-			method = "extractRenderState",
+	    	@WrapWithCondition(
+			method = "extractContents",
 			at = @At(
 					value = "FIELD",
 					target = "Lnet/minecraft/client/gui/screens/inventory/AbstractContainerScreen;hoveredSlot:Lnet/minecraft/world/inventory/Slot;",
