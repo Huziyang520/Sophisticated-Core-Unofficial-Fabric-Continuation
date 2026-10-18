@@ -9,7 +9,9 @@ import java.util.function.Consumer;
 
 public class BlockItemBase extends BlockItem {
 	public BlockItemBase(Block block, Properties properties) {
-		super(block, net.p3pp3rf1y.sophisticatedcore.platform.RegistryIdContext.applyToItem(properties));
+		// 26.3 删掉了 BlockItem.getDescriptionId() 的 block.* 前缀，改由 Properties.useBlockDescriptionPrefix() 承担；
+		// 不写会导致方块物品名字回落成 item.<ns>.<id> 原始键（lang 里只有 block.* 键）
+		super(block, net.p3pp3rf1y.sophisticatedcore.platform.RegistryIdContext.applyToItem(properties.useBlockDescriptionPrefix()));
 	}
 
 	public void addCreativeTabItems(Consumer<ItemStack> itemConsumer) {
