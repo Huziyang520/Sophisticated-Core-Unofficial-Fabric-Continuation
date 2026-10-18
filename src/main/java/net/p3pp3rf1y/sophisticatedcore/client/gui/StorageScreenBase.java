@@ -633,6 +633,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			drawSlotOverlays(guiGraphics);
 		}
 		drawUpgradeBackground(guiGraphics);
+		// 26.3：槽位里的物品与标签由父类 extractContents → extractSlots → extractSlot 负责画。
+		// 覆盖了 extractContents 却不调 super 就会「界面有槽位但一个物品都不显示」。
+		super.extractContents(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 
 	protected void drawSlotBg(GuiGraphicsExtractor guiGraphics, int x, int y, int visibleSlotsCount) {
