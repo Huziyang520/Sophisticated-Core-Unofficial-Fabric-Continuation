@@ -11,6 +11,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
+import net.fabricmc.fabric.api.client.rendering.v1.ClientTooltipComponentCallback;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientTooltipComponent;
 import net.minecraft.client.gui.screens.inventory.tooltip.DefaultTooltipPositioner;
 import net.minecraft.client.renderer.Rect2i;
@@ -279,9 +280,21 @@ public class GuiHelper {
 		return elements.stream()
 				.flatMap(either -> either.map(
 						text -> font.split(text, tooltipTextWidthF).stream().map(ClientTooltipComponent::create),
-						component -> Stream.of(ClientTooltipComponent.create(component))
+						component -> Stream.of(createClientComponent(component))
 				))
 				.toList();
+	}
+
+	/**
+	 * Resolves a tooltip component the way the game does, but through Fabric's callback first.
+	 * <p>
+	 * {@code ClientTooltipComponent.create} knows only the vanilla components and throws
+	 * {@code IllegalArgumentException: Unknown TooltipComponent} for ours, which is what killed the client whenever a
+	 * storage tooltip was drawn with shift held.
+	 */
+	public static ClientTooltipComponent createClientComponent(TooltipComponent component) {
+		ClientTooltipComponent fromMod = ClientTooltipComponentCallback.EVENT.invoker().getClientComponent(component);
+		return fromMod != null ? fromMod : ClientTooltipComponent.create(component);
 	}
 
 	public static Optional<Rect2i> getPositiveRectangle(int x, int y, int width, int height) {
