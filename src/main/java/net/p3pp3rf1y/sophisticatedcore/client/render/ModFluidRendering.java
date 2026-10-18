@@ -1,8 +1,12 @@
 package net.p3pp3rf1y.sophisticatedcore.client.render;
 
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderingRegistry;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributeHandler;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.resources.model.sprite.Material;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.material.Fluid;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
@@ -21,7 +25,24 @@ import java.util.Optional;
  * here so that GUI tank rendering can look up the same sprite.
  */
 public final class ModFluidRendering {
+	/**
+	 * Display name key for the fluid.
+	 * <p>
+	 * 26.3 has no {@code FluidType}, so a fluid's name comes from Fabric's
+	 * {@code FluidVariantAttributeHandler#getName(FluidVariant)}. Its default implementation falls back to
+	 * {@code Util.makeDescriptionId("block", <fluid id>)} - i.e. {@code block.sophisticatedcore.xp_still} - which is
+	 * why the tank tooltip showed a raw id. Registering a handler gives the fluid a single, stable key.
+	 */
+	public static final String EXPERIENCE_NAME_KEY = "fluid.sophisticatedcore.experience";
+
 	private static final Map<Fluid, Identifier> STILL_SPRITES = new IdentityHashMap<>();
+	private static final FluidVariantAttributeHandler EXPERIENCE_NAME = new FluidVariantAttributeHandler() {
+		@Override
+		public Component getName(FluidVariant fluidVariant) {
+			return Component.translatable(EXPERIENCE_NAME_KEY);
+		}
+	};
+
 
 	private ModFluidRendering() {
 	}
@@ -36,6 +57,8 @@ public final class ModFluidRendering {
 		Identifier flowingSprite = Identifier.fromNamespaceAndPath(SophisticatedCore.MOD_ID, flowingTexture);
 		//no overlay material, no tint source: the supplied textures are already coloured, matching the pre 26.3 setup
 		FluidRenderingRegistry.register(still, flowing, new FluidModel.Unbaked(new Material(stillSprite), new Material(flowingSprite), null, null));
+		FluidVariantAttributes.register(still, EXPERIENCE_NAME);
+		FluidVariantAttributes.register(flowing, EXPERIENCE_NAME);
 		STILL_SPRITES.put(still, stillSprite);
 		STILL_SPRITES.put(flowing, stillSprite);
 	}
