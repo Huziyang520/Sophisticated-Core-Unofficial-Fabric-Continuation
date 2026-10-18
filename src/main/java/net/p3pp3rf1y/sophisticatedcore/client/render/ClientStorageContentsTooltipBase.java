@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.client.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
 import org.joml.Matrix3x2fStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -28,6 +27,15 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * Storage contents tooltip shared by storage items (backpacks, chests, barrels, shulker boxes).
+ * <p>
+ * Since 26.x a tooltip is rendered in two passes over all of its components: {@code extractText} draws the text of
+ * every component first, then {@code extractImage} draws every component's images on top. Drawing text from the
+ * image pass therefore buried it under the images of the components that follow, and the component reported no
+ * height to the positioner, so the tooltip came out as an empty box. This class lays the contents out once into
+ * text and item entries and replays the matching subset in each pass.
+ */
 public abstract class ClientStorageContentsTooltipBase implements ClientTooltipComponent {
 	private static final int REFRESH_INTERVAL = 20;
 	private static final String STORAGE_ITEM = "storage";
@@ -37,15 +45,30 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 	private static List<IUpgradeWrapper> upgrades = new ArrayList<>();
 	private static List<ItemStack> sortedContents = new ArrayList<>();
 	private static final List<Component> tooltipLines = new ArrayList<>();
+	private static final List<TextEntry> textEntries = new ArrayList<>();
+	private static final List<ItemEntry> itemEntries = new ArrayList<>();
+	private static final List<UpgradeToggle> toggles = new ArrayList<>();
 	private static int height = 0;
 	private static int width = 0;
 	private static boolean shouldRefreshContents = true;
+
+	private record TextEntry(Component text, int y) {
+	}
+
+	private record ItemEntry(ItemStack stack, int x, int y, boolean withCount) {
+	}
+
+	private record UpgradeToggle(int x, int y, boolean enabled) {
+	}
 
 	public static void refreshContents() {
 		shouldRefreshContents = true;
 	}
 
-	private void initContents(LocalPlayer player, IStorageWrapper wrapper) {
+	protected abstract IStorageWrapper getStorageWrapper();
+
+	private void initContents(LocalPlayer player) {
+		IStorageWrapper wrapper = getStorageWrapper();
 		UUID newUuid = wrapper.getContentsUuid().orElse(null);
 		if (storageUuid == null && newUuid != null || storageUuid != null && !storageUuid.equals(newUuid)) {
 			setLastRequestTime(0);
@@ -92,10 +115,55 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 			if (upgrades.isEmpty() && sortedContents.isEmpty()) {
 				tooltipLines.add(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + ".empty").withStyle(ChatFormatting.YELLOW));
 			}
-
-			calculateHeight();
+			layout();
 			calculateWidth();
 		}
+	}
+
+	/**
+	 * Turns the current contents into fixed positions that both render passes can replay.
+	 */
+	private void layout() {
+		textEntries.clear();
+		itemEntries.clear();
+		toggles.clear();
+		int y = 0;
+		for (Component line : tooltipLines) {
+			textEntries.add(new TextEntry(line, y));
+			y += 10;
+		}
+		if (!upgrades.isEmpty()) {
+			textEntries.add(new TextEntry(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + ".upgrades").withStyle(ChatFormatting.YELLOW), y));
+			y += 10;
+			int x = 0;
+			for (IUpgradeWrapper upgradeWrapper : upgrades) {
+				if (upgradeWrapper.canBeDisabled()) {
+					toggles.add(new UpgradeToggle(x, y + 3, upgradeWrapper.isEnabled()));
+					x += 4;
+				}
+				itemEntries.add(new ItemEntry(upgradeWrapper.getUpgradeStack(), x, y, false));
+				x += DEFAULT_STACK_WIDTH;
+			}
+			y += 20;
+		}
+		if (!sortedContents.isEmpty()) {
+			textEntries.add(new TextEntry(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + ".inventory").withStyle(ChatFormatting.YELLOW), y));
+			y += 10;
+			int startY = y;
+			int x = 0;
+			for (int i = 0; i < sortedContents.size(); i++) {
+				if (i > 0 && i % MAX_STACKS_ON_LINE == 0) {
+					x = 0;
+					y += 20;
+				}
+				ItemStack stack = sortedContents.get(i);
+				int stackWidth = Math.max(getStackCountWidth(Minecraft.getInstance().font, stack), DEFAULT_STACK_WIDTH);
+				itemEntries.add(new ItemEntry(stack, x + stackWidth - DEFAULT_STACK_WIDTH, y, true));
+				x += stackWidth;
+			}
+			y += 20;
+		}
+		height = y > 0 ? y : 12;
 	}
 
 	@SuppressWarnings("java:S2696")
@@ -111,8 +179,7 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 		int upgradesWidth = calculateUpgradesWidth();
 		int contentsWidth = calculateContentsWidth();
 		int tooltipContentsWidth = calculateTooltipLinesWidth();
-		int stacksWidth = Math.max(upgradesWidth, contentsWidth);
-		width = Math.max(stacksWidth, tooltipContentsWidth);
+		width = Math.max(Math.max(upgradesWidth, contentsWidth), tooltipContentsWidth) + 2;
 	}
 
 	private int calculateTooltipLinesWidth() {
@@ -131,10 +198,8 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 		Font fontRenderer = Minecraft.getInstance().font;
 		int contentsWidth = 0;
 		for (int i = 0; i < sortedContents.size() && i < MAX_STACKS_ON_LINE; i++) {
-			int countWidth = getStackCountWidth(fontRenderer, sortedContents.get(i));
-			contentsWidth += Math.max(countWidth, DEFAULT_STACK_WIDTH);
+			contentsWidth += Math.max(getStackCountWidth(fontRenderer, sortedContents.get(i)), DEFAULT_STACK_WIDTH);
 		}
-
 		return contentsWidth;
 	}
 
@@ -150,13 +215,11 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 		double multiplier = wrapper.getInventoryHandler().getStackSizeMultiplier();
 		if (multiplier > 1) {
 			DecimalFormat df = new DecimalFormat("0.###");
-
 			tooltipLines.add(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + ".stack_multiplier",
 					Component.literal(df.format(multiplier)).withStyle(ChatFormatting.WHITE)
 			).withStyle(ChatFormatting.GREEN));
 		}
 	}
-
 
 	private void addFluidTooltip(IStorageWrapper wrapper) {
 		wrapper.getFluidHandler().ifPresent(fluidHandler -> {
@@ -166,8 +229,7 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 				} else {
 					tooltipLines.add(Component.translatable(getFluidTooltipTranslation(),
 							Component.literal(CountAbbreviator.abbreviate(FluidUtil.toBuckets(view.getAmount()))).withStyle(ChatFormatting.WHITE),
-							((MutableComponent)FluidVariantAttributes.getName(view.getResource())).withStyle(ChatFormatting.BLUE)
-
+							((MutableComponent) FluidVariantAttributes.getName(view.getResource())).withStyle(ChatFormatting.BLUE)
 					));
 				}
 			}
@@ -182,13 +244,6 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 		return TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + ".fluid_empty";
 	}
 
-	private void calculateHeight() {
-		int upgradesHeight = upgrades.isEmpty() ? 0 : 32;
-		int inventoryHeight = sortedContents.isEmpty() ? 0 : 12 + (1 + (sortedContents.size() - 1) / MAX_STACKS_ON_LINE) * 20;
-		int totalHeight = upgradesHeight + inventoryHeight + tooltipLines.size() * 10;
-		height = totalHeight > 0 ? totalHeight : 12;
-	}
-
 	private static final TextureBlitData UPGRADE_ON = new TextureBlitData(GuiHelper.ICONS, Dimension.SQUARE_256, new UV(4, 128), Dimension.RECTANGLE_4_10);
 	private static final TextureBlitData UPGRADE_OFF = new TextureBlitData(GuiHelper.ICONS, Dimension.SQUARE_256, new UV(0, 128), Dimension.RECTANGLE_4_10);
 	private static final int MAX_STACKS_ON_LINE = 9;
@@ -200,76 +255,48 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 		return width;
 	}
 
-	public int getHeight() {
+	@Override
+	public int getHeight(Font font) {
 		return height;
 	}
 
-	protected void renderTooltip(IStorageWrapper wrapper, Font font, int leftX, int topY, GuiGraphicsExtractor guiGraphics) {
+	@Override
+	public void extractText(GuiGraphicsExtractor guiGraphics, Font font, int leftX, int topY) {
+		refreshIfNeeded();
+		for (TextEntry entry : textEntries) {
+			guiGraphics.text(font, entry.text(), leftX, topY + entry.y(), 16777215);
+		}
+	}
+
+	@Override
+	public void extractImage(Font font, int leftX, int topY, int width, int height, GuiGraphicsExtractor guiGraphics) {
+		refreshIfNeeded();
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
+		for (UpgradeToggle toggle : toggles) {
+			GuiHelper.blit(guiGraphics, leftX + toggle.x(), topY + toggle.y(), toggle.enabled() ? UPGRADE_ON : UPGRADE_OFF);
+		}
+		for (ItemEntry entry : itemEntries) {
+			int x = leftX + entry.x();
+			int y = topY + entry.y();
+			guiGraphics.item(entry.stack(), x, y);
+			if (entry.withCount() && entry.stack().getCount() > 1) {
+				guiGraphics.itemDecorations(font, entry.stack(), x, y, CountAbbreviator.abbreviate(entry.stack().getCount()));
+			}
+		}
+		poseStack.popMatrix();
+	}
+
+	/**
+	 * Both passes are invoked once per frame, so the contents are only fetched once per refresh flag rather than in
+	 * each pass.
+	 */
+	private void refreshIfNeeded() {
 		Minecraft minecraft = Minecraft.getInstance();
 		LocalPlayer player = minecraft.player;
 		if (player == null) {
 			return;
 		}
-
-		initContents(player, wrapper);
-		renderComponent(font, leftX, topY, guiGraphics, minecraft);
-	}
-
-	private void renderComponent(Font font, int leftX, int topY, GuiGraphicsExtractor guiGraphics, Minecraft minecraft) {
-		for (Component tooltipLine : tooltipLines) {
-			topY = renderTooltipLine(guiGraphics, leftX, topY, font, tooltipLine);
-		}
-		renderContentsTooltip(minecraft, font, leftX, topY, guiGraphics);
-	}
-
-	private void renderContentsTooltip(Minecraft minecraft, Font font, int leftX, int topY, GuiGraphicsExtractor guiGraphics) {
-		if (!upgrades.isEmpty()) {
-			topY = renderTooltipLine(guiGraphics, leftX, topY, font, Component.translatable(TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + ".upgrades").withStyle(ChatFormatting.YELLOW));
-			topY = renderUpgrades(guiGraphics, leftX, topY);
-		}
-		if (!sortedContents.isEmpty()) {
-			topY = renderTooltipLine(guiGraphics, leftX, topY, font, Component.translatable(TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + ".inventory").withStyle(ChatFormatting.YELLOW));
-			renderContents(minecraft, leftX, topY, guiGraphics, font);
-		}
-	}
-
-	private int renderTooltipLine(GuiGraphicsExtractor guiGraphics, int leftX, int topY, Font font, Component tooltip) {
-		Matrix3x2fStack poseStack = guiGraphics.pose();
-		poseStack.pushMatrix();
-		poseStack.translate(0.0F, 0.0F);
-		guiGraphics.text(font, tooltip, leftX, topY, 16777215);
-		poseStack.translate(0.0F, 0.0F);
-		poseStack.popMatrix();
-		return topY + 10;
-	}
-
-	private int renderUpgrades(GuiGraphicsExtractor guiGraphics, int leftX, int topY) {
-		int x = leftX;
-		for (IUpgradeWrapper upgradeWrapper : upgrades) {
-			if (upgradeWrapper.canBeDisabled()) {
-				GuiHelper.blit(guiGraphics, x, topY + 3, upgradeWrapper.isEnabled() ? UPGRADE_ON : UPGRADE_OFF);
-				x += 4;
-			}
-			guiGraphics.item(upgradeWrapper.getUpgradeStack(), x, topY);
-			x += DEFAULT_STACK_WIDTH;
-		}
-		topY += 20;
-		return topY;
-	}
-
-	private void renderContents(Minecraft minecraft, int leftX, int topY, GuiGraphicsExtractor guiGraphics, Font font) {
-		int x = leftX;
-		for (int i = 0; i < sortedContents.size(); i++) {
-			int y = topY + i / MAX_STACKS_ON_LINE * 20;
-			if (i % MAX_STACKS_ON_LINE == 0) {
-				x = leftX;
-			}
-			ItemStack stack = sortedContents.get(i);
-			int stackWidth = Math.max(getStackCountWidth(minecraft.font, stack), DEFAULT_STACK_WIDTH);
-			int xOffset = stackWidth - DEFAULT_STACK_WIDTH;
-			guiGraphics.item(stack, x + xOffset, y);
-			guiGraphics.itemDecorations(font, stack, x + xOffset, y, CountAbbreviator.abbreviate(stack.getCount()));
-			x += stackWidth;
-		}
+		initContents(player);
 	}
 }
