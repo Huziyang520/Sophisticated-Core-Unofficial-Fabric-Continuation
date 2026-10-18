@@ -22,6 +22,7 @@ import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.api.IStashStorageItem;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModParticles;
+import net.p3pp3rf1y.sophisticatedcore.client.render.ModFluidRendering;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
 import net.p3pp3rf1y.sophisticatedcore.event.client.ClientRecipesUpdated;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.StorageSoundHandler;
@@ -40,6 +41,7 @@ public class ClientEventHandler implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         ModParticles.registerFactories();
+        ModFluidRendering.register();
 
         ServerLevelEvents.UNLOAD.register(StorageSoundHandler::onWorldUnload);
 		ClientTickEvents.END_LEVEL_TICK.register(StorageSoundHandler::tick);

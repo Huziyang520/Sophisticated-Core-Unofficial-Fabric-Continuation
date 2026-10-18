@@ -25,6 +25,7 @@ import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.ToggleButton;
+import net.p3pp3rf1y.sophisticatedcore.client.render.ModFluidRendering;
 
 import org.jetbrains.annotations.Nullable;
 import java.util.*;
@@ -311,11 +312,15 @@ public class GuiHelper {
 
 	/**
 	 * Returns the still sprite of a fluid. 26.3 no longer exposes fluid sprites through {@code FluidRenderHandler}, so
-	 * they are looked up on the block atlas using the vanilla {@code block/<name>_still} convention.
+	 * they are looked up on the block atlas: fluids this mod renders itself declare their sprite through
+	 * {@link ModFluidRendering}, everything else follows the vanilla {@code block/<name>_still} convention (water and
+	 * lava are named exactly like their textures).
 	 */
 	public static TextureAtlasSprite getStillFluidSprite(Fluid fluid) {
-		Identifier fluidId = BuiltInRegistries.FLUID.getKey(fluid);
-		Identifier texture = Identifier.fromNamespaceAndPath(fluidId.getNamespace(), "block/" + fluidId.getPath() + "_still");
+		Identifier texture = ModFluidRendering.getStillSprite(fluid).orElseGet(() -> {
+			Identifier fluidId = BuiltInRegistries.FLUID.getKey(fluid);
+			return Identifier.fromNamespaceAndPath(fluidId.getNamespace(), "block/" + fluidId.getPath() + "_still");
+		});
 		return Minecraft.getInstance().getAtlasManager().get(new SpriteId(TextureAtlas.LOCATION_BLOCKS, texture));
 	}
 

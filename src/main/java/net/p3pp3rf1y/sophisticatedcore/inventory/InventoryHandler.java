@@ -100,6 +100,9 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	@Override
 	public void onContentsChanged(int slot) {
 		super.onContentsChanged(slot);
+		if (isConstructingSlots()) {
+			return;
+		}
 		if (persistent && updateSlotNbt(slot)) {
 			saveInventory();
 			triggerOnChangeListeners(slot);

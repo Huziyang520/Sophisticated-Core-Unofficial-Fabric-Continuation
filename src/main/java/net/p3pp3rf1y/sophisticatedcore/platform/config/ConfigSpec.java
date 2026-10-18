@@ -87,6 +87,11 @@ public final class ConfigSpec {
 		return List.copyOf(categories);
 	}
 
+	/** @return the mod id this spec belongs to, used to build translation keys. */
+	public String getModId() {
+		return modId;
+	}
+
 	/** Binds this spec to a mod id; used for the reload event. */
 	void setModId(String modId) {
 		this.modId = modId;
@@ -98,8 +103,28 @@ public final class ConfigSpec {
 		file.load();
 		values.forEach(value -> value.load(file));
 		loaded = true;
+		dumpPathsIfRequested();
 		ConfigEvents.fireReloaded(modId);
 	}
+
+	/**
+	 * Development helper: writes every config path, its comment and its current default to the file named by
+	 * {@code -Dsophisticated.debugConfigDump=<path>}. Used to generate the config screen language files; inert
+	 * unless that system property is set.
+	 */
+	private void dumpPathsIfRequested() {
+		String target = System.getProperty("sophisticated.debugConfigDump");
+		if (target == null) {
+			return;
+		}
+		try (java.io.PrintWriter writer = new java.io.PrintWriter(new java.io.FileWriter(target, true))) {
+			values.forEach(value -> writer.println(modId + "|" + String.join(".", value.getPath()) + "|"
+					+ value.getComment().replace('\n', ' ')));
+		} catch (java.io.IOException e) {
+			LOGGER.error("Could not dump config paths", e);
+		}
+	}
+
 
 	private void recordCategory(List<String> path, String comment) {
 		String key = String.join(".", path);

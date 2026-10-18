@@ -42,8 +42,8 @@ public final class ConfigScreens {
 		if (parent != null) {
 			builder.setParentScreen(parent);
 		}
-		builder.setGlobalized(true);
-		builder.setGlobalizedExpanded(true);
+		// 顶栏标签页：配置节动辄二十多个，左侧树状栏会挤成一列难以阅读的滚动列表
+		builder.setAlwaysShowTabs(true);
 
 		ConfigEntryBuilder entries = ConfigEntryBuilder.create();
 		for (ConfigSpec spec : specs) {
@@ -51,7 +51,7 @@ public final class ConfigScreens {
 			spec.getValues().forEach(value -> byCategory.computeIfAbsent(value.getCategory(), key -> new ArrayList<>()).add(value));
 			byCategory.forEach((category, values) -> {
 				ConfigCategory clothCategory = builder.getOrCreateCategory(categoryTitle(spec, category));
-				values.forEach(value -> clothCategory.addEntry(createEntry(value, entries)));
+				values.forEach(value -> clothCategory.addEntry(createEntry(spec, value, entries)));
 			});
 		}
 
@@ -60,17 +60,42 @@ public final class ConfigScreens {
 
 	private static Component categoryTitle(ConfigSpec spec, String category) {
 		if (category.isEmpty()) {
-			return Component.translatable("sophisticatedcore.config.category.general");
+			return Component.translatable("config." + spec.getModId() + ".general");
 		}
 
-		String comment = spec.getCategoryComment(List.of(category.split("\\.")));
-		return Component.literal(comment.isEmpty() ? category : comment);
+		// The key mirrors the config path; the fallback keeps the screen readable when a language file has no entry,
+		// instead of printing the raw key like the previous version did.
+		return Component.translatableWithFallback("config." + spec.getModId() + "." + category, humanize(lastSegment(category)));
+	}
+
+	/** Turns {@code smeltingSpeedMultiplier} into {@code Smelting Speed Multiplier}. */
+	static String humanize(String camelCase) {
+		StringBuilder out = new StringBuilder();
+		for (int i = 0; i < camelCase.length(); i++) {
+			char c = camelCase.charAt(i);
+			if (i > 0 && Character.isUpperCase(c)) {
+				out.append(' ');
+			}
+			out.append(i == 0 ? Character.toUpperCase(c) : c);
+		}
+		return out.toString();
+	}
+
+	private static String lastSegment(String path) {
+		int dot = path.lastIndexOf('.');
+		return dot < 0 ? path : path.substring(dot + 1);
+	}
+
+	/** @return the translation key of an entry, e.g. {@code config.sophisticatedcore.common.enabledItems}. */
+	static String entryKey(ConfigSpec spec, ConfigSpec.ConfigValue<?> value) {
+		return "config." + spec.getModId() + "." + String.join(".", value.getPath());
 	}
 
 	@SuppressWarnings("unchecked")
-	private static AbstractConfigListEntry<?> createEntry(ConfigSpec.ConfigValue<?> value, ConfigEntryBuilder entries) {
-		Component label = Component.literal(value.getPath().get(value.getPath().size() - 1));
-		Component[] tooltip = value.getComment().isEmpty() ? new Component[0] : new Component[]{Component.literal(value.getComment())};
+	private static AbstractConfigListEntry<?> createEntry(ConfigSpec spec, ConfigSpec.ConfigValue<?> value, ConfigEntryBuilder entries) {
+		Component label = Component.translatableWithFallback(entryKey(spec, value), humanize(value.getPath().get(value.getPath().size() - 1)));
+		Component[] tooltip = value.getComment().isEmpty() ? new Component[0]
+				: new Component[]{Component.translatableWithFallback(entryKey(spec, value) + ".tooltip", value.getComment())};
 		boolean restart = value.requiresRestart();
 
 		if (value instanceof ConfigSpec.BooleanValue boolValue) {

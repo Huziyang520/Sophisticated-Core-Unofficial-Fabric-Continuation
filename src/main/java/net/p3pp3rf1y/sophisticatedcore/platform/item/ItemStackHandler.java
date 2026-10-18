@@ -27,6 +27,7 @@ public class ItemStackHandler implements SlottedStackStorage {
 	private static final int DEFAULT_SLOT_LIMIT = 64;
 
 	protected final List<ItemStackHandlerSlot> slots = new ArrayList<>();
+	private int constructingSlots;
 
 	public ItemStackHandler(int size) {
 		setSize(size);
@@ -43,12 +44,25 @@ public class ItemStackHandler implements SlottedStackStorage {
 			throw new IllegalArgumentException("Slot count must not be negative: " + size);
 		}
 
-		while (slots.size() < size) {
-			slots.add(makeSlot(slots.size(), ItemStack.EMPTY));
+		// A slot reports its contents as soon as it is created, and the handler then looks the slot up by index - so
+		// the list has to be told that it is mid-construction, otherwise the lookup runs against a list that does not
+		// contain the slot yet (IndexOutOfBoundsException, which used to abort joining two chests and resizing storage).
+		constructingSlots++;
+		try {
+			while (slots.size() < size) {
+				slots.add(makeSlot(slots.size(), ItemStack.EMPTY));
+			}
+			while (slots.size() > size) {
+				slots.remove(slots.size() - 1);
+			}
+		} finally {
+			constructingSlots--;
 		}
-		while (slots.size() > size) {
-			slots.remove(slots.size() - 1);
-		}
+	}
+
+	/** @return whether a slot is currently being created; content change callbacks are ignored while it is true. */
+	public boolean isConstructingSlots() {
+		return constructingSlots > 0;
 	}
 
 	@Override
