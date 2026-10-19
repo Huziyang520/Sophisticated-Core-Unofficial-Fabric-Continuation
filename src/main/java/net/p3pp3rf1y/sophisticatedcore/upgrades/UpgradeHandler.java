@@ -93,6 +93,20 @@ public class UpgradeHandler extends ItemStackHandler {
 		super.setSize(getSlotCount());
 	}
 
+	/**
+	 * 真正把 handler 调整到 {@code size}（会补/裁槽位）。
+	 * <p>
+	 * {@link #setSize(int)} 是刻意做成 no-op 的：升级栏槽数只由方块/物品声明，任何外部调用（尤其是旧存档里的
+	 * {@code Size}）都不该改动它。但「repair」路径需要真的能改（方块实体在自己的方块状态就绪前被问到槽数时，
+	 * handler 会以 0 个槽建出来；只要不再重建就永远是 0，界面左侧升级栏整列消失），所以单独给一个不会被
+	 * deserialize 顺带调用的入口。
+	 */
+	public void resizeTo(int size) {
+		if (size >= 0 && size != getSlotCount()) {
+			super.setSize(size);
+		}
+	}
+
 	public void saveInventory() {
 		RegistryHelper.getRegistryAccess().ifPresent(registryAccess -> contentsNbt.put(UPGRADE_INVENTORY_TAG, serializeNBT(registryAccess)));
 	}

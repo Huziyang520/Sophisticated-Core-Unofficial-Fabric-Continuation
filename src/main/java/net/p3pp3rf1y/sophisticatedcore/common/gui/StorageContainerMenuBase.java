@@ -578,7 +578,13 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 	public void sort() {
 		if (isClientSide()) {
-			sendToServer(data -> data.putString(ACTION_TAG, "sort"));
+			// 把排序方式一起带上：排序按钮和“排序方式”是两个独立包，先后顺序在网络层没有保证，
+			// 只发 action 的话服务端可能按上一次的排序方式排（看起来就是“点了没反应”）。
+			SortBy sortBy = storageWrapper.getSortBy();
+			sendToServer(data -> {
+				data.putString(SORT_BY_TAG, sortBy.getSerializedName());
+				data.putString(ACTION_TAG, "sort");
+			});
 			return;
 		}
 
@@ -606,10 +612,12 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	}
 
 	public void setSortBy(SortBy sortBy) {
+		// 先写本地再发包：排序方式按钮的图标和紧接着的 sort() 都读这个值，
+		// 发送失败/被同步盖回都不该让“点了没换”发生在本帧。
+		storageWrapper.setSortBy(sortBy);
 		if (isClientSide()) {
 			sendToServer(data -> data.putString(SORT_BY_TAG, sortBy.getSerializedName()));
 		}
-		storageWrapper.setSortBy(sortBy);
 	}
 
 	public void handlePacket(CompoundTag data) {
@@ -618,13 +626,23 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			if (upgradeContainers.containsKey(containerId)) {
 				upgradeContainers.get(containerId).handlePacket(data);
 			}
-		} else if (data.contains(OPEN_TAB_ID_TAG)) {
-			setOpenTabId(data.getIntOr(OPEN_TAB_ID_TAG, 0));
-		} else if (data.contains(SORT_BY_TAG)) {
+			return;
+		}
+		// 顺序处理而不是 else-if：一个“整理”包里同时带排序方式和 action，两者都要生效。
+		// 之前 else-if 让 SORT_BY_TAG 把 ACTION_TAG 吞掉，带排序方式的整理请求永远只切设置、不排序。
+		if (data.contains(SORT_BY_TAG)) {
 			setSortBy(SortBy.fromName(data.getStringOr(SORT_BY_TAG, "")));
-		} else if (data.contains(SEARCH_PHRASE_TAG)) {
+		}
+		if (data.contains(OPEN_TAB_ID_TAG)) {
+			setOpenTabId(data.getIntOr(OPEN_TAB_ID_TAG, 0));
+		}
+		if (data.contains(SEARCH_PHRASE_TAG)) {
 			setSearchPhrase(data.getStringOr(SEARCH_PHRASE_TAG, ""));
-		} else if (data.contains(ACTION_TAG)) {
+		}
+		if (data.contains(UPGRADE_ENABLED_TAG)) {
+			setUpgradeEnabled(data.getIntOr(UPGRADE_SLOT_TAG, 0), data.getBooleanOr(UPGRADE_ENABLED_TAG, false));
+		}
+		if (data.contains(ACTION_TAG)) {
 			String actionName = data.getStringOr(ACTION_TAG, "");
 			switch (actionName) {
 				case "sort" -> sort();
@@ -633,8 +651,6 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 					//noop
 				}
 			}
-		} else if (data.contains(UPGRADE_ENABLED_TAG)) {
-			setUpgradeEnabled(data.getIntOr(UPGRADE_SLOT_TAG, 0), data.getBooleanOr(UPGRADE_ENABLED_TAG, false));
 		}
 	}
 

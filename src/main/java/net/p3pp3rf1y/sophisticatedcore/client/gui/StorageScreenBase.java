@@ -78,6 +78,13 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	private Button sortButton = null;
 	@Nullable
 	private ToggleButton<SortBy> sortByButton = null;
+	/**
+	 * 排序方式图标不能直接读菜单：菜单里的值要绕一圈（发包 → 服务端 wrapper → 回同步），
+	 * 背包更是把值写进物品组件，客户端那份随时可能被下一次同步盖回去 —— 表现就是“点了图标不变”。
+	 * 这里存一份本地选择，点击后立刻用它画图标，等菜单里的值追上来再清掉。
+	 */
+	@Nullable
+	private SortBy pendingSortBy = null;
 
 	private InventoryScrollPanel inventoryScrollPanel = null;
 	private final Set<ToggleButton<Boolean>> upgradeSwitches = new HashSet<>();
@@ -443,10 +450,22 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		addRenderableWidget(sortButton);
 		sortByButton = new ToggleButton<>(new Position(pos.x() + 12, pos.y()), ButtonDefinitions.SORT_BY, button -> {
 			if (button == 0) {
-				getMenu().setSortBy(getMenu().getSortBy().next());
+				SortBy next = getDisplayedSortBy().next();
+				// 先落本地再发包：按钮图标读的是 getDisplayedSortBy()，点一下就必须换，
+				// 不能等服务端/物品组件那一圈同步回来（背包那条路经常把它盖回去）。
+				pendingSortBy = next;
+				getMenu().setSortBy(next);
 			}
-		}, () -> getMenu().getSortBy());
+		}, this::getDisplayedSortBy);
 		addRenderableWidget(sortByButton);
+	}
+
+	/** 按钮图标与 tooltip 都读这里：本地选择优先，菜单里的值追上来后自动交还。 */
+	private SortBy getDisplayedSortBy() {
+		if (pendingSortBy != null && getMenu().getSortBy() == pendingSortBy) {
+			pendingSortBy = null; // 服务端/物品组件已经确认，之后跟随菜单即可
+		}
+		return pendingSortBy != null ? pendingSortBy : getMenu().getSortBy();
 	}
 
 	private Position getSortButtonsPosition(SortButtonsPosition sortButtonsPosition) {
@@ -945,7 +964,10 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		}
 		GuiEventListener focused = getFocused();
 		if (focused != null && !focused.isMouseOver(mouseX, mouseY) && (focused instanceof WidgetBase widgetBase)) {
+			// 焦点以屏幕持有的那份为准：只清控件自己的标记，屏幕仍然认为搜索框是 focused，
+			// 之后每帧的焦点对齐又会把输入焦点塞回它，点别处也继续吃按键。
 			widgetBase.setFocused(false);
+			setFocused((GuiEventListener) null);
 		}
 
 		return super.mouseClicked(event, isDoubleClick);

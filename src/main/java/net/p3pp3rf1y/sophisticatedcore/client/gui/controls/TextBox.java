@@ -34,6 +34,7 @@ public class TextBox extends WidgetBase {
 
 	@Override
 	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		syncEditBoxFocus();
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
 		poseStack.translate(0, 0);
@@ -65,8 +66,24 @@ public class TextBox extends WidgetBase {
 		super.setFocused(focused);
 	}
 
+	/**
+	 * 让内部 {@link EditBox} 的焦点与包装层保持一致。
+	 * <p>
+	 * EditBox 不是屏幕的子控件，焦点在它自己、TextBox 包装层两处各记一份：只要有一处丢了
+	 * （点一下别处再点回来、父类把焦点转给别的控件），{@code charTyped} 就会在
+	 * {@code EditBox.canConsumeInput()} 上直接返回 false —— 看上去就是“搜索框只能用一次”。
+	 * 每帧渲染与每次按键/字符输入前都对齐一次，比在点击路径上补一个个 setFocused 稳。
+	 */
+	protected void syncEditBoxFocus() {
+		boolean shouldBeFocused = isFocused() && isEditable();
+		if (editBox.isFocused() != shouldBeFocused) {
+			editBox.setFocused(shouldBeFocused);
+		}
+	}
+
 	@Override
 	public boolean keyPressed(KeyEvent event) {
+		syncEditBoxFocus();
 		int keyCode = event.key();
 		int scanCode = event.keycode();
 		int modifiers = event.modifiers();
@@ -90,6 +107,7 @@ public class TextBox extends WidgetBase {
 
 	@Override
 	public boolean charTyped(CharacterEvent event) {
+		syncEditBoxFocus();
 		return editBox.charTyped(event);
 	}
 

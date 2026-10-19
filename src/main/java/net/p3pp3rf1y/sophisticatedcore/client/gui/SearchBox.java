@@ -57,7 +57,10 @@ class SearchBox extends TextBox {
 			if (button == 0) {
 				setFocused(true);
 				screen.setFocused(this);
-				// 点击要真正落到 EditBox 上，否则光标既不移动也不选词；第二次点击看起来就像“点了没反应”
+				// 展开动画还没跑完时内嵌 EditBox 只有几像素宽，光标定位会算到框外（玩家会觉得“点了没反应”）。
+				// 点击时先摆到最大宽度，再把这下点击真正转给它。
+				setPosition(new Position(maximizedX, y));
+				updateDimensions(maximizedWidth, getHeight());
 				forwardClickToEditBox(event, isDoubleClick);
 			} else if (button == 1) {
 				setValue("");
