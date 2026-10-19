@@ -59,10 +59,8 @@ public abstract class SettingsTabControl<C extends AbstractContainerScreen<?>, T
 			}
 		});
 		pose.popMatrix();
-
-		if (openTab != null) {
-			openTab.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
-		}
+		// 展开的页签不在这一段画：它要盖在槽位与物品上面，由 extractForeground 在 extractContents 末尾补画。
+		// 这里再画一次会让展开页签的内容（文字、幽灵槽）叠两遍。
 	}
 
 	private boolean isNotCovered(T open, Tab t, boolean checkFullyCovered) {
@@ -84,6 +82,16 @@ public abstract class SettingsTabControl<C extends AbstractContainerScreen<?>, T
 	@Override
 	protected void extractContents(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
 		//noop
+	}
+
+	/**
+	 * 26.3 的三段式里，展开的页签要盖在槽位与物品之上，所以背景阶段只画收起的页签，
+	 * 展开的那一个由屏幕在 extractContents 末尾（画完槽位之后）单独补画。
+	 */
+	public void extractForeground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		if (openTab != null) {
+			openTab.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
+		}
 	}
 
 	@Override

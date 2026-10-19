@@ -45,6 +45,10 @@ public abstract class WidgetBase implements Renderable, GuiEventListener, Narrat
 
 		isHovered = mouseX >= x && mouseY >= y && mouseX < x + width && mouseY < y + height;
 		extractContents(guiGraphics, minecraft, mouseX, mouseY);
+		// 26.3 里一个控件分「底」和「面」两次画：extractContents 只画底图，图标/文字/子控件在
+		// extractWidgetRenderState 里。之前这里漏掉第二次，页签图标、排序图标、按钮文字就全部不显示，
+		// 看起来像「控件没画出来」，其实只画了个空底。
+		extractWidgetRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 
 	@Override

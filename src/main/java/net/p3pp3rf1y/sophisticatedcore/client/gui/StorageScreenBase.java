@@ -14,6 +14,7 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -68,7 +69,11 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	public static final int HEIGHT_WITHOUT_STORAGE_SLOTS = 114;
 
 	private UpgradeSettingsTabControl settingsTabControl;
-	private final int numberOfUpgradeSlots;
+	/**
+	 * 26.3 客户端菜单的升级槽数量是同步后才到位的，所以这里不能在构造器里定死成 final —— 否则升级栏永远按 0 个槽算，
+	 * 箱子该有 1 个槽、木桶 0~4 个槽都会画不出来。每次刷新尺寸时从菜单重新取。
+	 */
+	private int numberOfUpgradeSlots;
 	@Nullable
 	private Button sortButton = null;
 	@Nullable
@@ -126,10 +131,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	public void resize(int width, int height) {
 		updateDimensionsAndSlotPositions(height);
 		super.resize(width, height);
-		repositionElements();
 	}
 
-	/** The parent centres using its own fixed size; this screen is sized from the menu, so it re-centres here. */
+	/** 26.3 的父类按固定 176x166 居中；本屏幕尺寸随行数变化，重算后仍然只写 leftPos/topPos 这一处。 */
 	@Override
 	protected void repositionElements() {
 		super.repositionElements();
@@ -137,20 +141,36 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		topPos = (height - imageHeight) / 2;
 	}
 
+	/**
+	 * 屏幕尺寸与所有槽位坐标的唯一计算点。
+	 * <p>
+	 * 这里算出的 leftPos/topPos 是之后所有绘制的唯一基准：背景、页签、按钮、槽位坐标写回都用它派生，
+	 * 任何地方都不再重算 (width - imageWidth) / 2 —— 一旦两处算得不一样，背景格子与物品就会整体错位，
+	 * GUI 缩放调得越大错得越明显。
+	 */
 	private void updateDimensionsAndSlotPositions(int height) {
-		int displayableNumberOfRows = Math.min((height - HEIGHT_WITHOUT_STORAGE_SLOTS) / 18, getMenu().getNumberOfRows());
+		numberOfUpgradeSlots = getMenu().getNumberOfUpgradeSlots();
+		int totalRows = getMenu().getNumberOfRows();
+		int rowsThatFit = (height - HEIGHT_WITHOUT_STORAGE_SLOTS) / 18;
+		// 矮窗口兜底：行数被算成 0 时滚动面板高度也是 0，所有槽位都会被布局到 -100，界面看起来一格都没有。
+		// 至少保留一行（放不下就让它超出屏幕中线，仍然能滚动查看），保证「永远有格子」。
+		int displayableNumberOfRows = totalRows <= 0 ? 0 : Math.min(Math.max(1, rowsThatFit), totalRows);
 		int newImageHeight = HEIGHT_WITHOUT_STORAGE_SLOTS + getStorageInventoryHeight(displayableNumberOfRows);
-		storageBackgroundProperties = (getMenu().getNumberOfStorageInventorySlots() + getMenu().getColumnsTaken() * getMenu().getNumberOfRows()) <= 81 ? StorageBackgroundProperties.REGULAR_9_SLOT : StorageBackgroundProperties.REGULAR_12_SLOT;
+		storageBackgroundProperties = (getMenu().getNumberOfStorageInventorySlots() + getMenu().getColumnsTaken() * totalRows) <= 81 ? StorageBackgroundProperties.REGULAR_9_SLOT : StorageBackgroundProperties.REGULAR_12_SLOT;
 
 		imageWidth = storageBackgroundProperties.getSlotsOnLine() * 18 + 14;
 		updateStorageSlotsPositions();
-		if (displayableNumberOfRows < getMenu().getNumberOfRows()) {
+		if (displayableNumberOfRows < totalRows) {
 			storageBackgroundProperties = storageBackgroundProperties == StorageBackgroundProperties.REGULAR_9_SLOT ? StorageBackgroundProperties.WIDER_9_SLOT : StorageBackgroundProperties.WIDER_12_SLOT;
 			imageWidth += 6;
 		}
 		imageHeight = newImageHeight;
 		inventoryLabelY = imageHeight - 94;
 		inventoryLabelX = 8 + storageBackgroundProperties.getPlayerInventoryXOffset();
+		if (width > 0 && height > 0) {
+			leftPos = (width - imageWidth) / 2;
+			topPos = (height - imageHeight) / 2;
+		}
 		updatePlayerSlotsPositions();
 		updateUpgradeSlotsPositions();
 		updateTransferButtonsPositions();
@@ -165,12 +185,18 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		return getMenu().getSlot(slotIndex);
 	}
 
+	/**
+	 * 升级槽在界面内的 Y 偏移。底图、槽位坐标、左侧开关都从这里派生，
+	 * 免得三处各写一遍 6 + i * 16，改一个常量就错位。
+	 */
+	private int getUpgradeSlotY(int slotIndex) {
+		return 6 + slotIndex * UPGRADE_SLOT_HEIGHT;
+	}
+
 	protected void updateUpgradeSlotsPositions() {
-		int yPosition = 6;
 		for (int slotIndex = 0; slotIndex < numberOfUpgradeSlots; slotIndex++) {
 			Slot slot = getMenu().getSlot(getMenu().getFirstUpgradeSlot() + slotIndex);
-			slot.y = yPosition;
-			yPosition += UPGRADE_SLOT_HEIGHT;
+			slot.y = getUpgradeSlotY(slotIndex);
 		}
 	}
 
@@ -232,21 +258,23 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	@Override
 	protected void init() {
 		super.init();
+		// 26.3 的 super.init() 用父类固定尺寸居中，这里必须按真实行数再算一次，
+		// 否则从打开界面起 leftPos/topPos 就是错的（只有窗口尺寸变化后才会被 resize 顺带纠正）。
+		updateDimensionsAndSlotPositions(height);
 		updateInventoryScrollPanel();
 		craftingUIPart.setStorageScreen(this);
 		initUpgradeSettingsControl();
 		initUpgradeInventoryParts();
 		addUpgradeSwitches();
 		getMenu().setUpgradeChangeListener(c -> {
-			updateStorageSlotsPositions();
-			updatePlayerSlotsPositions();
-			updateUpgradeSlotsPositions();
+			updateDimensionsAndSlotPositions(height);
 			updateInventoryScrollPanel();
 			children().remove(settingsTabControl);
 			craftingUIPart.onCraftingSlotsHidden();
 			initUpgradeSettingsControl();
 			initUpgradeInventoryParts();
 			addUpgradeSwitches();
+			updateTransferButtonsPositions();
 		});
 		if (shouldShowSortButtons()) {
 			addSortButtons();
@@ -330,7 +358,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 		int numberOfVisibleRows = getNumberOfVisibleRows();
 		if (numberOfVisibleRows < getMenu().getNumberOfRows()) {
-			inventoryScrollPanel = new InventoryScrollPanel(Minecraft.getInstance(), this, 0, getMenu().getNumberOfStorageInventorySlots(), getSlotsOnLine(), numberOfVisibleRows * 18, sophisticatedCore_getGuiTop() + 17, sophisticatedCore_getGuiLeft() + 7);
+			inventoryScrollPanel = new InventoryScrollPanel(Minecraft.getInstance(), this, 0, getMenu().getNumberOfStorageInventorySlots(), getSlotsOnLine(), numberOfVisibleRows * 18, topPos + SLOTS_Y_OFFSET, leftPos + SLOTS_X_OFFSET);
 			addRenderableWidget(inventoryScrollPanel);
 			inventoryScrollPanel.updateSlotsPosition();
 		} else {
@@ -347,11 +375,13 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	private int getNumberOfVisibleRows() {
-		return Math.min((imageHeight - HEIGHT_WITHOUT_STORAGE_SLOTS) / 18, getMenu().getNumberOfRows());
+		int rows = (imageHeight - HEIGHT_WITHOUT_STORAGE_SLOTS) / 18;
+		return Math.min(Math.max(0, rows), getMenu().getNumberOfRows());
 	}
 
 	public int getSlotsOnLine() {
-		return storageBackgroundProperties.getSlotsOnLine() - getMenu().getColumnsTaken();
+		// 升级占用的列多于背景列数时不能让这个值变成 0/负数，否则槽位布局会除零，整片格子消失
+		return Math.max(1, storageBackgroundProperties.getSlotsOnLine() - getMenu().getColumnsTaken());
 	}
 
 	private void initUpgradeInventoryParts() {
@@ -374,17 +404,20 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	private void addUpgradeSwitches() {
+		// 升级变化时会被再次调用，旧控件必须先摘掉，否则 children 里会越积越多
+		upgradeSwitches.forEach(this::removeWidget);
 		upgradeSwitches.clear();
-		int switchTop = topPos + 8;
 		for (int slot = 0; slot < numberOfUpgradeSlots; slot++) {
 			if (menu.canDisableUpgrade(slot)) {
 				int finalSlot = slot;
-				ToggleButton<Boolean> upgradeSwitch = new ToggleButton<>(new Position(leftPos - 22, switchTop), ButtonDefinitions.UPGRADE_SWITCH,
+				// 开关和对应的升级槽同一行（槽位顶部 +2），不跟随循环变量累加，避免跳槽后错位
+				ToggleButton<Boolean> upgradeSwitch = new ToggleButton<>(new Position(leftPos - 22, topPos + getUpgradeSlotY(slot) + 2), ButtonDefinitions.UPGRADE_SWITCH,
 						button -> getMenu().setUpgradeEnabled(finalSlot, !getMenu().getUpgradeEnabled(finalSlot)), () -> getMenu().getUpgradeEnabled(finalSlot));
-				addWidget(upgradeSwitch);
+				// 26.3 的 addWidget 只把控件加进 children，不会进渲染列表；本屏幕自己遍历 children 绘制，
+				// 但用 addRenderableWidget 才能保证走任何父类渲染路径时也不会漏画
+				addRenderableWidget(upgradeSwitch);
 				upgradeSwitches.add(upgradeSwitch);
 			}
-			switchTop += UPGRADE_SLOT_HEIGHT;
 		}
 	}
 
@@ -403,13 +436,13 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 				Minecraft.getInstance().player.sendOverlayMessage(Component.literal("Sorted"));
 			}
 		});
-		addWidget(sortButton);
+		addRenderableWidget(sortButton);
 		sortByButton = new ToggleButton<>(new Position(pos.x() + 12, pos.y()), ButtonDefinitions.SORT_BY, button -> {
 			if (button == 0) {
 				getMenu().setSortBy(getMenu().getSortBy().next());
 			}
 		}, () -> getMenu().getSortBy());
-		addWidget(sortByButton);
+		addRenderableWidget(sortByButton);
 	}
 
 	private Position getSortButtonsPosition(SortButtonsPosition sortButtonsPosition) {
@@ -444,35 +477,71 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		return GuiHelper.getPositiveRectangle(sortButton.getX(), sortButton.getY(), sortByButton.getX() + sortByButton.getWidth() - sortButton.getX(), sortByButton.getY() + sortByButton.getHeight() - sortButton.getY());
 	}
 
+	/**
+	 * 26.3 的三段式之一：背景。
+	 * <p>
+	 * 父类在 {@code extractRenderStateWithTooltipAndSubtitles} 里先调它，再调 {@code extractContents}。
+	 * 所以存储背景板、格子底纹、升级栏底图、设置页签都必须在这里画，才会落在物品和控件下面。
+	 */
 	@Override
-	public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		if (menu.detectSettingsChangeAndReload()) {
-			updateStorageSlotsPositions();
-			updatePlayerSlotsPositions();
+			updateDimensionsAndSlotPositions(height);
 			updateInventoryScrollPanel();
-			updateTransferButtonsPositions();
 		}
-		Matrix3x2fStack poseStack = guiGraphics.pose();
-		poseStack.pushMatrix();
-		poseStack.translate(0, 0);
-		extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
-		poseStack.popMatrix();
+		super.extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
 
+		extractStorageBackground(guiGraphics);
+
+		// 设置页签是用 addWidget 加进来的（不能走 addRenderableWidget，否则会被父类的渲染列表再画一次），
+		// 26.3 里 addWidget 不进渲染列表，所以整列页签必须在这里手动画，否则侧边按钮一个都不显示。
 		settingsTabControl.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
-
-		super.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
-
-		settingsTabControl.extractTooltip(this, guiGraphics, mouseX, mouseY);
-		if (sortButton != null && sortByButton != null) {
-			sortButton.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
-			sortByButton.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
-		}
-		upgradeSwitches.forEach(us -> us.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks));
-		renderErrorOverlay(guiGraphics);
-		extractTooltip(guiGraphics, mouseX, mouseY);
 	}
 
+	/** 背景板只认 leftPos/topPos，不再重算 (width - imageWidth) / 2。 */
+	private void extractStorageBackground(GuiGraphicsExtractor guiGraphics) {
+		drawInventoryBg(guiGraphics, leftPos, topPos, storageBackgroundProperties.getTextureName());
+		if (inventoryScrollPanel == null) {
+			drawSlotBg(guiGraphics, leftPos, topPos, visibleSlotsCount);
+			drawSlotOverlays(guiGraphics);
+		}
+		drawUpgradeBackground(guiGraphics);
+	}
 
+	/**
+	 * 26.3 的三段式之二：控件 + 槽位 + 物品 + 标签。
+	 * <p>
+	 * 父类的 {@code extractContents} 会先画所有 renderables，再 translate(leftPos, topPos) 调
+	 * {@code extractLabels}，最后把所有 menu.slots 再画一遍。本屏幕的滚动面板、升级槽、玩家背包槽各有自己的绘制入口，
+	 * 照搬父类会重复画，所以这里按上游结构自己走一遍：控件 → 标签/槽位（translate 后）→ 搜索框 → 页签前景。
+	 */
+	@Override
+	public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		// 父类是在自己的 extractContents 里定位 hoveredSlot 的；跳过父类后必须自己来，
+		// 否则槽位高亮和物品 tooltip 没有目标（父类 extractTooltip 也读这个字段）
+		hoveredSlot = findSlot(mouseX, mouseY);
+
+		for (GuiEventListener child : children()) {
+			if (child == settingsTabControl || child == searchBox) {
+				continue; // 页签在背景/前景两段画，搜索框在标签之后画（会盖住标题）
+			}
+			if (child instanceof Renderable renderable) {
+				renderable.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
+			}
+		}
+
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
+		poseStack.translate(leftPos, topPos);
+		extractLabels(guiGraphics, mouseX, mouseY);
+		poseStack.popMatrix();
+
+		if (searchBox != null) {
+			searchBox.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
+		}
+		settingsTabControl.extractForeground(guiGraphics, mouseX, mouseY, partialTicks);
+		renderErrorOverlay(guiGraphics);
+	}
 
 	@Override
 	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
@@ -481,6 +550,25 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		renderUpgradeSlots(guiGraphics, mouseX, mouseY);
 		if (inventoryScrollPanel == null) {
 			renderStorageInventorySlots(guiGraphics, mouseX, mouseY);
+		}
+		renderPlayerInventorySlots(guiGraphics, mouseX, mouseY);
+	}
+
+	/** 玩家背包 36 格。父类原本在 extractContents 里统一画，这里跳过父类后要自己补上。 */
+	private void renderPlayerInventorySlots(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		int firstPlayerSlot = getMenu().getInventorySlotsSize() - StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS;
+		if (firstPlayerSlot < 0) {
+			return;
+		}
+		for (int i = 0; i < StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS; i++) {
+			Slot slot = getMenu().realInventorySlots.get(firstPlayerSlot + i);
+			if (slot.isActive()) {
+				extractSlot(guiGraphics, slot, mouseX, mouseY);
+				if (isHoveringSlot(slot, mouseX, mouseY)) {
+					hoveredSlot = slot;
+					GuiHelper.renderSlotHighlight(guiGraphics, slot.x, slot.y, 0, sophisticatedCore_getSlotColor(slot.index));
+				}
+			}
 		}
 	}
 
@@ -624,22 +712,6 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		guiGraphics.fillGradient(xPos, yPos, xPos + width, yPos + height, slotColor, slotColor);
 	}
 
-	public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		// 统一用 leftPos/topPos 画背景：物品是父类在 translate(leftPos, topPos) 里按 slot.x/slot.y 画的，
-		// 背景若改用 (width-imageWidth)/2 重算，只要两者差一点，物品与格子就会整体错开（GUI 缩放越大越明显）
-		int x = leftPos;
-		int y = topPos;
-		drawInventoryBg(guiGraphics, x, y, storageBackgroundProperties.getTextureName());
-		if (inventoryScrollPanel == null) {
-			drawSlotBg(guiGraphics, x, y, visibleSlotsCount);
-			drawSlotOverlays(guiGraphics);
-		}
-		drawUpgradeBackground(guiGraphics);
-		// 26.3：槽位里的物品与标签由父类 extractContents → extractSlots → extractSlot 负责画。
-		// 覆盖了 extractContents 却不调 super 就会「界面有槽位但一个物品都不显示」。
-		super.extractContents(guiGraphics, mouseX, mouseY, partialTicks);
-	}
-
 	protected void drawSlotBg(GuiGraphicsExtractor guiGraphics, int x, int y, int visibleSlotsCount) {
 		int slotsOnLine = getSlotsOnLine();
 		int slotRows = visibleSlotsCount / slotsOnLine;
@@ -676,6 +748,11 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 				guiGraphics.setComponentTooltipForNextFrame(font, Collections.singletonList(emptySlot.getEmptyTooltip()), x, y);
 			}
 		}
+		if (settingsTabControl != null) {
+			settingsTabControl.extractTooltip(this, guiGraphics, x, y);
+		}
+		// 升级开关是浮在升级栏左侧的独立控件，不画 tooltip 的话看不出开/关状态
+		upgradeSwitches.forEach(us -> us.extractTooltip(this, guiGraphics, x, y));
 		if (sortButton != null) {
 			sortButton.extractTooltip(this, guiGraphics, x, y);
 		}
@@ -1014,7 +1091,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	@Override
 	public void drawSlotBg(GuiGraphicsExtractor guiGraphics, int visibleSlotsCount) {
-		drawSlotBg(guiGraphics, (width - imageWidth) / 2, (height - imageHeight) / 2, visibleSlotsCount);
+		// 滚动面板的 drawBackground 在绝对屏幕坐标里跑（scissor 也是绝对坐标），这里必须用 leftPos/topPos，
+		// 不能再算一次 (width - imageWidth) / 2 —— 那正是之前「物品与格子错位」的来源
+		drawSlotBg(guiGraphics, leftPos, topPos, visibleSlotsCount);
 		drawSlotOverlays(guiGraphics);
 	}
 

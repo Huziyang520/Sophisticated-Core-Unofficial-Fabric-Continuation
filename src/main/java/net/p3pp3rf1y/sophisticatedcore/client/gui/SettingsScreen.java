@@ -10,6 +10,7 @@ import org.joml.Matrix3x2fStack;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.gui.components.Renderable;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -54,19 +55,26 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	}
 
 	private void updateDimensionsAndSlotPositions(int height) {
-		int displayableNumberOfRows = Math.min((height - HEIGHT_WITHOUT_STORAGE_SLOTS) / 18, getMenu().getNumberOfRows());
+		int totalRows = getMenu().getNumberOfRows();
+		int rowsThatFit = (height - HEIGHT_WITHOUT_STORAGE_SLOTS) / 18;
+		// 矮窗口兜底：行数算成 0 会让滚动面板高度为 0，所有槽位被布局到 -100，界面一格都没有
+		int displayableNumberOfRows = totalRows <= 0 ? 0 : Math.min(Math.max(1, rowsThatFit), totalRows);
 		int newImageHeight = HEIGHT_WITHOUT_STORAGE_SLOTS + getStorageInventoryHeight(displayableNumberOfRows);
-		storageBackgroundProperties = (getMenu().getNumberOfStorageInventorySlots() + getMenu().getColumnsTaken() * getMenu().getNumberOfRows()) <= 81 ? StorageBackgroundProperties.REGULAR_9_SLOT : StorageBackgroundProperties.REGULAR_12_SLOT;
+		storageBackgroundProperties = (getMenu().getNumberOfStorageInventorySlots() + getMenu().getColumnsTaken() * totalRows) <= 81 ? StorageBackgroundProperties.REGULAR_9_SLOT : StorageBackgroundProperties.REGULAR_12_SLOT;
 
 		imageWidth = storageBackgroundProperties.getSlotsOnLine() * 18 + 14;
 		updateStorageSlotsPositions();
-		if (displayableNumberOfRows < getMenu().getNumberOfRows()) {
+		if (displayableNumberOfRows < totalRows) {
 			storageBackgroundProperties = storageBackgroundProperties == StorageBackgroundProperties.REGULAR_9_SLOT ? StorageBackgroundProperties.WIDER_9_SLOT : StorageBackgroundProperties.WIDER_12_SLOT;
 			imageWidth += 6;
 		}
 		imageHeight = newImageHeight;
 		inventoryLabelY = imageHeight - 94;
 		inventoryLabelX = 8 + storageBackgroundProperties.getPlayerInventoryXOffset();
+		if (width > 0 && height > 0) {
+			leftPos = (width - imageWidth) / 2;
+			topPos = (height - imageHeight) / 2;
+		}
 	}
 
 	protected int getStorageInventoryHeight(int displayableNumberOfRows) {
@@ -80,7 +88,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 		int numberOfVisibleRows = getNumberOfVisibleRows();
 		if (numberOfVisibleRows < getMenu().getNumberOfRows()) {
-			inventoryScrollPanel = new InventoryScrollPanel(Minecraft.getInstance(), this, 0, getMenu().getNumberOfStorageInventorySlots(), getSlotsOnLine(), numberOfVisibleRows * 18, sophisticatedCore_getGuiTop() + 17, sophisticatedCore_getGuiLeft() + 7);
+			inventoryScrollPanel = new InventoryScrollPanel(Minecraft.getInstance(), this, 0, getMenu().getNumberOfStorageInventorySlots(), getSlotsOnLine(), numberOfVisibleRows * 18, topPos + StorageScreenBase.SLOTS_Y_OFFSET, leftPos + StorageScreenBase.SLOTS_X_OFFSET);
 			addRenderableWidget(inventoryScrollPanel);
 			inventoryScrollPanel.updateSlotsPosition();
 		} else {
@@ -110,12 +118,13 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	}
 
 	public int getSlotsOnLine() {
-		return storageBackgroundProperties.getSlotsOnLine() - getMenu().getColumnsTaken();
+		return Math.max(1, storageBackgroundProperties.getSlotsOnLine() - getMenu().getColumnsTaken());
 	}
 
 	@Override
 	protected void init() {
 		super.init();
+		updateDimensionsAndSlotPositions(height);
 		updateInventoryScrollPanel();
 		settingsTabControl = initializeTabControl();
 		templatePersistanceControl = initializeTemplatePersistanceControl();
@@ -129,14 +138,52 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 	protected abstract StorageSettingsTabControlBase initializeTabControl();
 
+	/**
+	 * 26.3 三段式之一：模糊背景 → 本模组背景板 → 设置页签。
+	 * 页签必须画在背景板之后，否则整块背景会把它盖住（这就是「侧边页签不见了」的另一半原因）。
+	 */
+	@Override
+	public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		menu.detectSettingsChangeAndReload();
+		super.extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
+
+		StorageGuiHelper.renderStorageBackground(new Position(leftPos, topPos), guiGraphics, storageBackgroundProperties.getTextureName(), imageWidth, getStorageInventoryHeight(getNumberOfVisibleRows()));
+		if (inventoryScrollPanel == null) {
+			drawSlotBg(guiGraphics, leftPos, topPos, getMenu().getStorageInventorySlots().size());
+		}
+		settingsTabControl.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
+		templatePersistanceControl.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
+	}
+
 	@Override
 	public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		int x = (width - imageWidth) / 2;
-		int y = (height - imageHeight) / 2;
-		StorageGuiHelper.renderStorageBackground(new Position(x, y), guiGraphics, storageBackgroundProperties.getTextureName(), imageWidth, getStorageInventoryHeight(getNumberOfVisibleRows()));
-		if (inventoryScrollPanel == null) {
-			drawSlotBg(guiGraphics, x, y, getMenu().getStorageInventorySlots().size());
+		hoveredSlot = findSlot(mouseX, mouseY);
+
+		for (GuiEventListener child : children()) {
+			if (child == settingsTabControl || child == templatePersistanceControl) {
+				continue; // 这两个已经在背景阶段画过
+			}
+			if (child instanceof Renderable renderable) {
+				renderable.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
+			}
 		}
+
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
+		poseStack.translate(leftPos, topPos);
+		extractLabels(guiGraphics, mouseX, mouseY);
+		poseStack.popMatrix();
+
+		// 展开的页签要盖在槽位上面
+		settingsTabControl.extractForeground(guiGraphics, mouseX, mouseY, partialTicks);
+	}
+
+	@Override
+	public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		// 父类会依次调 extractBackground / extractContents / 手上物品 / extractTooltip，不要再手动重复调一遍
+		super.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
+		settingsTabControl.extractTooltip(this, guiGraphics, mouseX, mouseY);
+		templatePersistanceControl.extractTooltip(this, guiGraphics, mouseX, mouseY);
 	}
 
 	protected void drawSlotBg(GuiGraphicsExtractor guiGraphics, int x, int y, int visibleSlotsCount) {
@@ -145,26 +192,6 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		int remainingSlots = visibleSlotsCount % slotsOnLine;
 		GuiHelper.renderSlotsBackground(guiGraphics, x + StorageScreenBase.SLOTS_X_OFFSET, y + StorageScreenBase.SLOTS_Y_OFFSET, slotsOnLine, slotRows, remainingSlots);
 	}
-
-	@Override
-	public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		menu.detectSettingsChangeAndReload();
-
-		// Fix for Blur+
-		Matrix3x2fStack poseStack = guiGraphics.pose();
-		poseStack.pushMatrix();
-		poseStack.translate(0, 0);
-		extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
-		poseStack.popMatrix();
-
-		settingsTabControl.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
-		templatePersistanceControl.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
-		super.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
-		settingsTabControl.extractTooltip(this, guiGraphics, mouseX, mouseY);
-		templatePersistanceControl.extractTooltip(this, guiGraphics, mouseX, mouseY);
-		extractTooltip(guiGraphics, mouseX, mouseY);
-	}
-
 
 	@Override
 	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
@@ -298,7 +325,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 	@Override
 	public void drawSlotBg(GuiGraphicsExtractor guiGraphics, int visibleSlotsCount) {
-		drawSlotBg(guiGraphics, (width - imageWidth) / 2, (height - imageHeight) / 2, visibleSlotsCount);
+		drawSlotBg(guiGraphics, leftPos, topPos, visibleSlotsCount);
 	}
 
 	@Override
