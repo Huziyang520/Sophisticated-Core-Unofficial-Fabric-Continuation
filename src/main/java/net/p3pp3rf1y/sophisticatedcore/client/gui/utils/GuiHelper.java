@@ -337,6 +337,19 @@ public class GuiHelper {
 		return Minecraft.getInstance().getAtlasManager().get(new SpriteId(TextureAtlas.LOCATION_BLOCKS, texture));
 	}
 
+	/**
+	 * 画空槽位图标（升级槽、tank / battery、过滤器、染料、工具槽…）。
+	 * <p>
+	 * 移植里这些 id 还是 1.21.1 的 {@code item/<name>} 形式、贴图在 {@code textures/item/} 下，
+	 * 而 26.3 的 {@code AtlasManager.get(SpriteId)} 只认 GUI 图集里的 sprite：查不到时返回的是
+	 * “missing” sprite，画出来就是紫黑格。这里按独立贴图直接 blit（与 gui_controls.png 同一条路径），
+	 * 一处修好所有槽位图标，id 不用改。
+	 */
+	public static void renderSlotIcon(GuiGraphicsExtractor guiGraphics, Identifier icon, int x, int y) {
+		Identifier texture = Identifier.fromNamespaceAndPath(icon.getNamespace(), "textures/" + icon.getPath() + ".png");
+		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, texture, x, y, 0, 0, 16, 16, 16, 16);
+	}
+
 	/** 26.3 取贴图精灵统一走 {@code AtlasManager}，方块图集里包含了物品与 GUI 图标。 */
 	public static TextureAtlasSprite getSprite(Identifier spriteName) {
 		return Minecraft.getInstance().getAtlasManager().get(new SpriteId(TextureAtlas.LOCATION_BLOCKS, spriteName));

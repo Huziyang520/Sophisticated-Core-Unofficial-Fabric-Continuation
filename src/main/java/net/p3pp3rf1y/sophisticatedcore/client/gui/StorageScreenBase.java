@@ -31,6 +31,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.Config;
+import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.*;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
@@ -303,9 +304,14 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		int xEnd = sortButtonsPosition == SortButtonsPosition.TITLE_LINE_RIGHT ? getSortButtonsPosition(sortButtonsPosition).x() - 1 - leftPos : imageWidth - 7;
 		int width = xEnd - x;
 
+		// init()/resize 会重建这个控件：重建时把玩家已经敲进去的词带过来，否则一次窗口尺寸变化（或任何重新 init 的路径）
+		// 就等于把搜索框清空，玩家看到的是“点一下/动一下窗口，字就没了”。
+		String previousPhrase = searchBox == null ? null : searchBox.getValue();
 		searchBox = new SearchBox(new Position(leftPos + x, topPos + 5), new Dimension(width, 10), this);
 		searchBox.setResponder(this::onSearchPhraseChange);
-		if (getMenu().shouldKeepSearchPhrase()) {
+		if (previousPhrase != null) {
+			searchBox.setValue(previousPhrase);
+		} else if (getMenu().shouldKeepSearchPhrase()) {
 			searchBox.setValue(getMenu().getSearchPhrase());
 		}
 		addRenderableWidget(searchBox);
@@ -441,6 +447,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		Position pos = getSortButtonsPosition(sortButtonsPosition);
 
 		sortButton = new Button(new Position(pos.x(), pos.y()), ButtonDefinitions.SORT, button -> {
+			SophisticatedCore.LOGGER.debug("Sort button clicked (button {}, sortBy {})", button, getDisplayedSortBy());
 			if (button == 0) {
 				getMenu().sort();
 				//noinspection ConstantConditions - by this point player can't be null
@@ -707,9 +714,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		}
 		Identifier noItemIcon = slot.getNoItemIcon();
 		if (noItemIcon != null) {
-			//noinspection ConstantConditions - by this point minecraft isn't null
-			TextureAtlasSprite textureatlassprite = minecraft.getAtlasManager().get(new SpriteId(TextureAtlas.LOCATION_BLOCKS, noItemIcon));
-			guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, textureatlassprite, i, j, 16, 16);
+			// 之前按 blocks 图集的 sprite 查：这些 id 指向 textures/item/*.png，图集里没有，
+			// 拿到的是 missing sprite —— 升级槽因此显示成紫黑格。改用独立贴图直绘。
+			GuiHelper.renderSlotIcon(guiGraphics, noItemIcon, i, j);
 		}
 	}
 
@@ -970,7 +977,60 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			setFocused((GuiEventListener) null);
 		}
 
+		// 26.3 的父类找槽位只扫 menu.slots，而升级槽 / no-sort 槽从来没进过那份列表
+		// （它们只在 upgradeSlots / realInventorySlots 里），所以按坐标永远找不到：
+		// 升级放不进去、放进去也拿不下来。这类槽位在这里直接按普通点击语义转发。
+		if (slot != null && !menu.slots.contains(slot)) {
+			clickSlotNotInMenu(slot, event, isDoubleClick);
+			return true;
+		}
+
 		return super.mouseClicked(event, isDoubleClick);
+	}
+
+	/**
+	 * 模拟 26.3 父类的槽位点击语义（左/右键、Shift 快速移动、双击收集），
+	 * 用于父类看不到的那部分槽位。真正的发包仍然走 {@link #slotClicked} 的同一条路。
+	 */
+	private void clickSlotNotInMenu(Slot slot, MouseButtonEvent event, boolean isDoubleClick) {
+		int button = event.button();
+		int containerButton = switch (button) {
+			case 1 -> 0; // 右键
+			case 3 -> 1; // 中键：和父类一致，当成取出一半
+			default -> button;
+		};
+		ContainerInput input;
+		if (button == 0 && event.hasShiftDown()) {
+			input = ContainerInput.QUICK_MOVE;
+		} else if (isDoubleClick && getMenu().getCarried().isEmpty()) {
+			input = ContainerInput.PICKUP_ALL;
+		} else {
+			input = ContainerInput.PICKUP;
+		}
+		SophisticatedCore.LOGGER.debug("Slot {} is not part of menu.slots, forwarding click directly (button {}, input {})", slot.index, containerButton, input);
+		slotClicked(slot, slot.index, containerButton, input);
+	}
+
+	/**
+	 * 26.3 的 {@code ContainerEventHandler.mouseClicked} 只要命中某个子控件就返回 true（哪怕该控件自己
+	 * 返回 false），{@code AbstractContainerScreen} 随即整段跳过槽位处理。滚动面板正好盖住所有存储格，
+	 * 命中它就等于把格子点击全吞掉 —— 行数多到出滚动条的界面（背包最典型）因此“有时完全点不动”。
+	 * 这里在“光标下确实是槽位、且最上层是滚动面板”时让开面板，让父类继续走槽位流程。
+	 */
+	@Override
+	public Optional<GuiEventListener> getChildAt(double mouseX, double mouseY) {
+		List<? extends GuiEventListener> children = children();
+		boolean slotUnderMouse = findSlot(mouseX, mouseY) != null;
+		for (int i = children.size() - 1; i >= 0; i--) {
+			GuiEventListener child = children.get(i);
+			if (slotUnderMouse && child == inventoryScrollPanel) {
+				continue;
+			}
+			if (child.isMouseOver(mouseX, mouseY)) {
+				return Optional.of(child);
+			}
+		}
+		return Optional.empty();
 	}
 
 	@Override

@@ -7,6 +7,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ARGB;
+import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.TextBox;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
@@ -55,8 +56,16 @@ class SearchBox extends TextBox {
 
 		if (isEditable()) {
 			if (button == 0) {
-				setFocused(true);
-				screen.setFocused(this);
+				// 只有“屏幕当前焦点不是本框”时才重设焦点。Screen.setFocused 会先给旧焦点 setFocused(false)
+				// 再给新焦点 setFocused(true)：同框重设一次就等于让内部 EditBox 走一遍失焦→获焦，
+				// 而 26.3 的 EditBox 失焦会 submitPreeditEvent(null)、获焦会 resubmitLastPreeditEvent(...)，
+				// 中文输入法下重放上一次预编辑事件会把已经输入的内容顶掉 —— 玩家看到的就是“点一下框，字没了”。
+				if (screen.getFocused() != this) {
+					setFocused(true);
+					screen.setFocused(this);
+				} else if (!isFocused()) {
+					setFocused(true);
+				}
 				// 展开动画还没跑完时内嵌 EditBox 只有几像素宽，光标定位会算到框外（玩家会觉得“点了没反应”）。
 				// 点击时先摆到最大宽度，再把这下点击真正转给它。
 				setPosition(new Position(maximizedX, y));
@@ -68,6 +77,16 @@ class SearchBox extends TextBox {
 			return true;
 		}
 		return super.mouseClicked(event, isDoubleClick);
+	}
+
+	@Override
+	public void setValue(String value) {
+		String previous = getValue();
+		super.setValue(value);
+		if (!previous.isEmpty() && getValue().isEmpty()) {
+			// 只在不为空→为空时打一条：谁把搜索词清掉的能直接查出来，正常输入不会产生日志
+			SophisticatedCore.LOGGER.debug("Search box value cleared (was '{}')", previous);
+		}
 	}
 
 	/**

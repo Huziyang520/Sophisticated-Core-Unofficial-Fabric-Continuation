@@ -30,7 +30,12 @@ public record SyncContainerClientDataPayload(@Nullable CompoundTag data) impleme
 		}
 
 		if (context.player().containerMenu instanceof ISyncedContainer container) {
+			SophisticatedCore.LOGGER.debug("Received container client data {} for {}", payload.data.keySet(), container.getClass().getSimpleName());
 			container.handlePacket(payload.data);
+		} else {
+			// 打出来是为了区分“包没到”和“到了但当前菜单不是 ISyncedContainer（比如设置界面顶掉了内容界面）”
+			SophisticatedCore.LOGGER.debug("Received container client data {} but open menu {} is not ISyncedContainer",
+					payload.data.keySet(), context.player().containerMenu.getClass().getSimpleName());
 		}
 	}
 }

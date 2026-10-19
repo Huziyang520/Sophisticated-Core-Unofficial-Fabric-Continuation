@@ -23,6 +23,7 @@ import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.*;
 import net.minecraft.world.item.Item;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -412,7 +413,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 				if (clickType == ContainerInput.QUICK_MOVE) {
 					quickMoveStack(player, slotId);
 				} else {
-					setCarried(upgradeItem.getCleanedUpgradeStack(slot.remove(k2)));
+					setCarried(upgradeItem.getCleanedUpgradeStack(slot.takeDisplayed(k2)));
 				}
 				slot.wasEmpty = false; // slot was not empty when this was reached and need to force onTake below to trigger slot position recalculation if slots are refreshed when columns taken changes
 				updateColumnsTaken(-columnsTaken);
@@ -581,6 +582,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			// 把排序方式一起带上：排序按钮和“排序方式”是两个独立包，先后顺序在网络层没有保证，
 			// 只发 action 的话服务端可能按上一次的排序方式排（看起来就是“点了没反应”）。
 			SortBy sortBy = storageWrapper.getSortBy();
+			SophisticatedCore.LOGGER.debug("Sort requested on client (sortBy {}), sending to server", sortBy);
 			sendToServer(data -> {
 				data.putString(SORT_BY_TAG, sortBy.getSerializedName());
 				data.putString(ACTION_TAG, "sort");
@@ -588,7 +590,26 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			return;
 		}
 
+		// 服务端实证日志：确认包真的进来了、wrapper.sort() 真的被调、排序前后顺序确实变了。
+		String before = describeInventoryOrder();
 		storageWrapper.sort();
+		SophisticatedCore.LOGGER.debug("Server sorted storage (sortBy {}, {} slots): before [{}] after [{}]",
+				storageWrapper.getSortBy(), storageWrapper.getInventoryHandler().getSlotCount(), before, describeInventoryOrder());
+	}
+
+	/** 排序日志用的紧凑签名：前 12 个槽位的“物品id x数量”，只为看清顺序有没有变。 */
+	private String describeInventoryOrder() {
+		StringBuilder sb = new StringBuilder();
+		InventoryHandler handler = storageWrapper.getInventoryHandler();
+		int slots = Math.min(handler.getSlotCount(), 12);
+		for (int i = 0; i < slots; i++) {
+			ItemStack stack = handler.getStackInSlot(i);
+			if (i > 0) {
+				sb.append(", ");
+			}
+			sb.append(stack.isEmpty() ? "-" : BuiltInRegistries.ITEM.getKey(stack.getItem()) + " x" + stack.getCount());
+		}
+		return sb.toString();
 	}
 
 	public void setOpenTabId(int tabId) {
@@ -946,25 +967,45 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 	@Override
 	public void setRemoteSlot(int slotIndex, ItemStack stack) {
+		if (slotIndex < 0) {
+			return;
+		}
 		if (slotIndex < getInventorySlotsSize()) {
-			remoteRealSlots.set(slotIndex, stack.copy());
-		} else {
-			// slotIndex is the absolute menu slot id - the upgrade slots start after the inventory slots, so the offset has
-			// to be removed or this writes past the end of the (usually one element long) upgrade slot list.
-			remoteUpgradeSlots.set(slotIndex - getInventorySlotsSize(), stack.copy());
+			if (slotIndex < remoteRealSlots.size()) {
+				remoteRealSlots.set(slotIndex, stack.copy());
+			}
+			return;
+		}
+		// slotIndex is the absolute menu slot id - the upgrade slots start after the inventory slots, so the offset has
+		// to be removed or this writes past the end of the (usually one element long) upgrade slot list.
+		int upgradeSlotIndex = slotIndex - getInventorySlotsSize();
+		// 客户端的升级槽布局可能比服务端晚一拍（刚装上的等级升级、打开/关闭的升级页签、刷新中的槽位），
+		// 越界写入会在包处理线程里抛 IOOBE：之后这张菜单再也收不到槽位更新，玩家看到的就是“界面还在但点不动”。
+		// 服务端推来的多余索引直接忽略，和 26.3 自己 setRemoteSlotUnsafe 的处理方式一致。
+		if (upgradeSlotIndex < remoteUpgradeSlots.size()) {
+			remoteUpgradeSlots.set(upgradeSlotIndex, stack.copy());
 		}
 	}
 
 	public void setRemoteSlotNoCopy(int slotIndex, ItemStack stack) {
+		if (slotIndex < 0) {
+			return;
+		}
 		if (slotIndex < getInventorySlotsSize()) {
+			if (slotIndex >= remoteRealSlots.size()) {
+				return;
+			}
 			ItemStack previous = remoteRealSlots.get(slotIndex);
 			remoteRealSlots.set(slotIndex, stack);
 
 			if (isStorageInventorySlot(slotIndex) && (previous.isEmpty() || stack.isEmpty())) {
 				inventorySlotStackChanged = true;
 			}
-		} else {
-			remoteUpgradeSlots.set(slotIndex - getInventorySlotsSize(), stack);
+			return;
+		}
+		int upgradeSlotIndex = slotIndex - getInventorySlotsSize();
+		if (upgradeSlotIndex < remoteUpgradeSlots.size()) {
+			remoteUpgradeSlots.set(upgradeSlotIndex, stack);
 		}
 	}
 
@@ -1486,11 +1527,16 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 	@Override
 	public Slot getSlot(int slotId) {
+		// 升级槽 / 无排序槽不在 menu.slots 里，客户端又可能因为布局晚一拍而用服务端的索引来查：
+		// 这里任何越界（包含 -1 / -999 这种“点在外面”的索引）都返回 DummySlot，而不是抛 IOOBE 把整次点击炸掉。
+		if (slotId < 0) {
+			return DummySlot.INSTANCE;
+		}
 		if (slotId >= getInventorySlotsSize()) {
 			int upgradeSlotId = slotId - getInventorySlotsSize();
 			return upgradeSlots.size() > upgradeSlotId ? upgradeSlots.get(upgradeSlotId) : DummySlot.INSTANCE;
 		} else {
-			return realInventorySlots.get(slotId);
+			return slotId < realInventorySlots.size() ? realInventorySlots.get(slotId) : DummySlot.INSTANCE;
 		}
 	}
 
@@ -1554,6 +1600,10 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 					synchronizer.sendSlotChange(this, slotIndex + slotIndexOffset, stackCopy);
 				}
 			}
+		} else {
+			// suppressRemoteUpdates 是父类的开关，一旦某条路径 set 了却没 resume，客户端就再也收不到槽位更新
+			// （界面看着还在、点什么都没反应）。这条只在真的被抑制时打印，能直接抓到泄漏发生在哪一帧。
+			SophisticatedCore.LOGGER.debug("Skipping client sync for slot {} of menu {} because remote updates are suppressed", slotIndex + slotIndexOffset, containerId);
 		}
 	}
 
@@ -1731,7 +1781,9 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 		@Override
 		public ItemStack getItem() {
-			ItemStack localStack = super.getItem();
+			// 本地 upgrade handler 的槽数可能还没跟上（客户端布局晚一拍 / 刚换过等级）：这时绝不能用 slotIndex 去读 handler，
+			// getStackInSlot 会直接越界，槽位画不出来、点一下还会把整次交互炸掉。
+			ItemStack localStack = slotIndex < getItemHandler().getSlotCount() ? super.getItem() : ItemStack.EMPTY;
 			// The upgrade stacks are not part of the block entity update tag (they live in the contents nbt, which is only
 			// written to disk), so on the client they can arrive as plain slot updates before the local upgrade handler
 			// knows about them. Falling back to the synchronized copy keeps the slot usable in that window - without it the
@@ -1744,11 +1796,49 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 		@Override
 		public void set(@NotNull ItemStack stack) {
-			super.set(stack);
+			if (slotIndex < getItemHandler().getSlotCount()) {
+				super.set(stack);
+			}
 			if (isClientSide() && slotIndex < remoteUpgradeSlots.size()) {
 				remoteUpgradeSlots.set(slotIndex, stack);
 			}
 			wasEmpty = getItem().isEmpty();
+		}
+
+		/**
+		 * 取出玩家“看得见”的那份升级。客户端 upgrade handler 里可能还没有这份数据（升级槽内容不在方块实体的同步标签里），
+		 * 于是 {@link #getItem()} 走同步副本、{@code Slot.remove} 取本地 handler：本地是空的时候取出来也是空，
+		 * 表现就是“升级放进去以后拿不下来”。本地空时直接清同步副本，让本地预测与玩家看到的画面一致。
+		 */
+		public ItemStack takeDisplayed(int amount) {
+			ItemStack displayed = getItem();
+			ItemStack removed = super.remove(amount);
+			if (!removed.isEmpty() || displayed.isEmpty()) {
+				return removed;
+			}
+			int takenCount = Math.min(amount, displayed.getCount());
+			ItemStack taken = displayed.copyWithCount(takenCount);
+			ItemStack remaining = displayed.getCount() > takenCount ? displayed.copyWithCount(displayed.getCount() - takenCount) : ItemStack.EMPTY;
+			if (slotIndex < remoteUpgradeSlots.size()) {
+				remoteUpgradeSlots.set(slotIndex, remaining);
+			}
+			// 本地 handler 没有这个槽位时不要写它（会越界），只维护同步副本即可
+			if (slotIndex < getItemHandler().getSlotCount()) {
+				super.set(remaining);
+			}
+			wasEmpty = remaining.isEmpty();
+			return taken;
+		}
+
+		@Override
+		public int getMaxStackSize() {
+			// 同 getItem：本地 handler 少了槽位时 getSlotLimit 会越界
+			return slotIndex < getItemHandler().getSlotCount() ? super.getMaxStackSize() : 1;
+		}
+
+		@Override
+		public int getMaxStackSize(ItemStack stack) {
+			return slotIndex < getItemHandler().getSlotCount() ? super.getMaxStackSize(stack) : Math.min(1, stack.getMaxStackSize());
 		}
 
 		protected void onUpgradeChanged() {
@@ -1778,8 +1868,6 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 		@Override
 		public boolean mayPickup(Player player) {
-			// getItem() is the stack the player actually sees (synchronized copy on the client) - checking the local
-			// upgrade handler instead made an upgrade that is visible in the slot impossible to remove.
 			if (getItem().isEmpty()) {
 				return false;
 			}

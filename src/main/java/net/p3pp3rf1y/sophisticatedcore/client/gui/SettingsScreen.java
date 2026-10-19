@@ -28,6 +28,8 @@ import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageBackgroundProperties;
 import net.p3pp3rf1y.sophisticatedcore.settings.StorageSettingsTabControlBase;
 
 import org.jetbrains.annotations.Nullable;
+import java.util.List;
+import java.util.Optional;
 import java.util.function.Predicate;
 
 public abstract class SettingsScreen extends AbstractContainerScreen<SettingsContainerMenu<?>> implements InventoryScrollPanel.IInventoryScreen {
@@ -232,8 +234,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 			} else {
 				Identifier noItemIcon = slot.getNoItemIcon();
 				if (noItemIcon != null) {
-					TextureAtlasSprite textureatlassprite = GuiHelper.getSprite(noItemIcon);
-					guiGraphics.blitSprite(RenderPipelines.GUI_TEXTURED, textureatlassprite, slot.x, slot.y, 16, 16);
+					GuiHelper.renderSlotIcon(guiGraphics, noItemIcon, slot.x, slot.y);
 				}
 			}
 		}
@@ -294,6 +295,22 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 	private boolean hasClickedOutsideOfSettings(double mouseX, double mouseY) {
 		return settingsTabControl.getTabRectangles().stream().noneMatch(r -> r.contains((int) mouseX, (int) mouseY));
+	}
+
+	/**
+	 * 26.3 的父类派发按 children 顺序取“第一个命中”的控件；命中的若是纯装饰（页签标签、面板底图、模板控件）且它返回 false，
+	 * 这次点击就整颗丢掉，后面的设置项永远收不到。改成从后往前（后加的在上面）取最上层命中的控件。
+	 */
+	@Override
+	public Optional<GuiEventListener> getChildAt(double mouseX, double mouseY) {
+		List<? extends GuiEventListener> children = children();
+		for (int i = children.size() - 1; i >= 0; i--) {
+			GuiEventListener child = children.get(i);
+			if (child.isMouseOver(mouseX, mouseY)) {
+				return Optional.of(child);
+			}
+		}
+		return Optional.empty();
 	}
 
 	private void renderSlotOverlay(GuiGraphicsExtractor guiGraphics, int xPos, int yPos, int height, int slotColor) {

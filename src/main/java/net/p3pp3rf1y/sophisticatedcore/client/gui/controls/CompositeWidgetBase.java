@@ -54,16 +54,23 @@ public abstract class CompositeWidgetBase<T extends WidgetBase> extends WidgetBa
 		double mouseX = event.x();
 		double mouseY = event.y();
 		int button = event.button();
-		return getChildAt(mouseX, mouseY).map(l -> {
-			if (l.mouseClicked(event, false)) {
-				setFocused(l);
+		// 26.3 的 getChildAt 只返回“第一个命中”的子控件：命中的若是纯装饰（页签标签 Label、面板底、被展开页签盖住的
+		// 收起页签…）并且它返回 false，这次点击就整颗丢掉，后面真正可点的按钮永远收不到 —— 设置界面里就是
+		// “设置项点了没反应”。这里按层级（后加的在上面）从后往前逐个询问，第一个处理掉的为准。
+		for (int i = children.size() - 1; i >= 0; i--) {
+			T child = children.get(i);
+			if (!child.isMouseOver(mouseX, mouseY)) {
+				continue;
+			}
+			if (child.mouseClicked(event, false)) {
+				setFocused(child);
 				if (button == 0) {
 					setDragging(true);
 				}
 				return true;
 			}
-			return false;
-		}).orElse(false);
+		}
+		return false;
 	}
 
 	@Override
