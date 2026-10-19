@@ -625,8 +625,10 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		int x = (width - imageWidth) / 2;
-		int y = (height - imageHeight) / 2;
+		// 统一用 leftPos/topPos 画背景：物品是父类在 translate(leftPos, topPos) 里按 slot.x/slot.y 画的，
+		// 背景若改用 (width-imageWidth)/2 重算，只要两者差一点，物品与格子就会整体错开（GUI 缩放越大越明显）
+		int x = leftPos;
+		int y = topPos;
 		drawInventoryBg(guiGraphics, x, y, storageBackgroundProperties.getTextureName());
 		if (inventoryScrollPanel == null) {
 			drawSlotBg(guiGraphics, x, y, visibleSlotsCount);
@@ -919,7 +921,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		if (scale < 1f) {
 			poseStack.scale(scale, scale);
 		}
-		guiGraphics.text(font, count, (int)((x + 19 - 2 - (font.width(count) * scale)) / scale), (int)((y + 6 + 3 + (1 / (scale * scale) - 1)) / scale), 16777215, true);
+		guiGraphics.text(font, count, (int)((x + 19 - 2 - (font.width(count) * scale)) / scale), (int)((y + 6 + 3 + (1 / (scale * scale) - 1)) / scale), 0xFFFFFFFF, true);
 		poseStack.popMatrix();
 	}
 

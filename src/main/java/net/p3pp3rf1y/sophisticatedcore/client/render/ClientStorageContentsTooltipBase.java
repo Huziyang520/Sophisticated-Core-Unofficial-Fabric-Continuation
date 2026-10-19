@@ -252,11 +252,13 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 
 	@Override
 	public int getWidth(Font font) {
+		refreshIfNeeded();
 		return width;
 	}
 
 	@Override
 	public int getHeight(Font font) {
+		refreshIfNeeded();
 		return height;
 	}
 
@@ -264,7 +266,9 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 	public void extractText(GuiGraphicsExtractor guiGraphics, Font font, int leftX, int topY) {
 		refreshIfNeeded();
 		for (TextEntry entry : textEntries) {
-			guiGraphics.text(font, entry.text(), leftX, topY + entry.y(), 16777215);
+			// 必须带有不透明的 alpha：0xFFFFFF 是 0x00FFFFFF（全透明），文字会画了看不见，
+			// 只剩 tooltip 的框。原版 ClientTooltipComponent 的文本实现同样用 -1（0xFFFFFFFF）。
+			guiGraphics.text(font, entry.text(), leftX, topY + entry.y(), 0xFFFFFFFF);
 		}
 	}
 

@@ -104,7 +104,7 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 			@Override
 			protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 				super.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
-				guiGraphics.text(font, String.valueOf(getContainer().getMatchedCraftingResults().size()), x + 5, y + 2, 0xFFFFFF, true);
+				guiGraphics.text(font, String.valueOf(getContainer().getMatchedCraftingResults().size()), x + 5, y + 2, 0xFFFFFFFF, true);
 			}
 		};
 		addHideableChild(selectResultButton);
