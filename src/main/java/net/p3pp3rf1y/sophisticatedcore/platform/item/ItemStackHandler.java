@@ -111,7 +111,11 @@ public class ItemStackHandler implements SlottedStackStorage {
 	}
 
 	public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
-		setSize(nbt.contains(SIZE_TAG) ? nbt.getIntOr(SIZE_TAG, getSlotCount()) : getSlotCount());
+		// 存档里缺失的槽数按“当前配置的槽数”处理；为 0 的槽数同样不能采纳：
+		// 26.3 里升级栏与存储栏的槽数都来自这份 Size，一个早先存成 0 的 Size 会把整列槽位永久吃掉
+		// （左侧升级栏整列消失、背包界面一格都没有都是这个原因），而且每次保存都会把 0 再写回去。
+		int savedSize = nbt.contains(SIZE_TAG) ? nbt.getIntOr(SIZE_TAG, getSlotCount()) : getSlotCount();
+		setSize(savedSize > 0 ? savedSize : getSlotCount());
 
 		ListTag items = nbt.getListOrEmpty(ITEMS_TAG);
 		for (int i = 0; i < items.size(); i++) {

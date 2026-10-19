@@ -148,7 +148,11 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	@Override
 	public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt) {
 		slotTracker.clear();
-		setSize(nbt.contains("Size") ? nbt.getIntOr("Size", 0) : getSlotCount());
+		// 存档里的 Size 为 0 时不能采纳：26.3 里存储槽数与升级槽数都从这里恢复，
+		// 一个早先写坏的 0 会让背包/存储界面“一格都没有”、左侧升级栏整列消失，
+		// 而且每次保存都会把 0 再写回去。缺省或非正数时保留构造时算好的槽数。
+		int savedSize = nbt.contains("Size") ? nbt.getIntOr("Size", 0) : getSlotCount();
+		setSize(savedSize > 0 ? savedSize : getSlotCount());
 		ListTag tagList = nbt.getListOrEmpty("Items");
 		RegistryHelper.getRegistryAccess().ifPresent(registryAccess -> {
 			for (int i = 0; i < tagList.size(); i++) {

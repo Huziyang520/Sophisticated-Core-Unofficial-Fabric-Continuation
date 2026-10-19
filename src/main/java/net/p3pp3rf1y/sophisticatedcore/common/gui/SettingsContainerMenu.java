@@ -219,6 +219,19 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 		return ghostSlots.get(slotId);
 	}
 
+	/**
+	 * 26.3 客户端菜单的槽位是按“本地那份 wrapper”建的，而界面数据是从服务端菜单整包发过来的。
+	 * 打开设置界面这一瞬间两边槽数可能不一致（箱子/双箱的 wrapper 在客户端还没同步到实际槽数时就是 27，
+	 * 服务端已经是 54），父类 initializeContents 会按服务端数组长度逐个 getSlot(i)，
+	 * 越界抛 IndexOutOfBoundsException → “Failed to handle packet ClientboundContainerSetContentPacket … disconnecting”
+	 * → 玩家被踢回标题界面。这里把数组裁到本地槽数，槽少的部分留空，绝不让一次同步把玩家踢下线。
+	 */
+	@Override
+	public void initializeContents(int stateId, List<ItemStack> items, ItemStack carried) {
+		List<ItemStack> localItems = items.size() > ghostSlots.size() ? items.subList(0, ghostSlots.size()) : items;
+		super.initializeContents(stateId, localItems, carried);
+	}
+
 	public void onMemorizedStackAdded(int slotNumber) {
 		storageWrapper.getInventoryHandler().onSlotFilterChanged(slotNumber);
 		sendAdditionalSlotInfo();

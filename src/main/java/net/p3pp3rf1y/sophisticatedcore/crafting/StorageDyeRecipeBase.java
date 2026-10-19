@@ -2,6 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.crafting;
 
 import net.fabricmc.fabric.api.tag.convention.v2.ConventionalItemTags;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
@@ -107,11 +108,22 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 	protected abstract void applyColors(ItemStack coloredStorage, List<DyeColor> mainDyes, List<DyeColor> trimDyes);
 
 
-	/** @return the colour of a dye stack, read from the conventional dye tags, or {@code null} when it is not a dye. */
+	/**
+	 * @return the colour of a dye stack or {@code null} when it is not a dye.
+	 * <p>
+	 * 26.3 carries the colour on the dye item as a data component, so that is the primary source. The conventional tag
+	 * lookup is the fallback for dyes that come from other mods - and it has to use the Fabric tag layout
+	 * ({@code c:dyes/<colour>}), which is not the NeoForge {@code c:<colour>_dyes} one the port had copied over: that
+	 * path never matched, so {@code assemble} always bailed out and the dye recipe produced nothing.
+	 */
 	@Nullable
 	public static DyeColor getColorFromStack(ItemStack stack) {
+		DyeColor componentColor = stack.get(DataComponents.DYE);
+		if (componentColor != null) {
+			return componentColor;
+		}
 		for (DyeColor color : DyeColor.values()) {
-			if (stack.is(TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", color.getName() + "_dyes")))) {
+			if (stack.is(TagKey.create(Registries.ITEM, Identifier.fromNamespaceAndPath("c", "dyes/" + color.getName())))) {
 				return color;
 			}
 		}

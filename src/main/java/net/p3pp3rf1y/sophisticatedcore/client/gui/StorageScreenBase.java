@@ -95,8 +95,12 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	 */
 	protected int imageWidth;
 	protected int imageHeight;
-	private int inventoryLabelX;
-	private int inventoryLabelY;
+	/**
+	 * 26.3 的 {@code inventoryLabelX/Y} 是父类的 protected 字段，而父类的 {@code extractLabels} 读的就是父类那两个字段。
+	 * 之前这里又声明了一份同名私有字段，只会盖住自己的名字、盖不住父类的方法：标签永远画在父类构造时算出的 8 / (166-94)，
+	 * 槽位却按本屏幕的行数往下排 —— 行数一多，“物品栏”三个字就离 3×9 格越来越远。
+	 * 所以这里不再声明，直接复用继承来的字段（下方 updateDimensionsAndSlotPositions 里赋值）。
+	 */
 	protected StorageBackgroundProperties storageBackgroundProperties;
 	@Nullable
 	private Button transferToStorageButton;
@@ -927,6 +931,16 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		Slot slot = findSlot(mouseX, mouseY);
 		if (GuiHelper.isShiftDown() && GuiHelper.isControlDown() && slot instanceof StorageInventorySlot && button == 0) {
 			PacketDistributor.sendToServer(new TransferFullSlotPayload(slot.index));
+			return true;
+		}
+		// 整理 / 排序方式两个 12×12 按钮压在标题行最右侧，和搜索框同一条水平线：
+		// 父类的派发是按 children 顺序找“第一个命中”的控件，命中者返回 false 时整次点击就被吞掉，
+		// 不再问后面的控件。只要有任何先加的控件（滚动面板、页签容器、搜索框）在这块区域命中，
+		// 按钮就永远收不到点击。这里直接对这两个按钮做一次命中转发，保证点击落到 onClick。
+		if (sortButton != null && sortButton.mouseClicked(event, isDoubleClick)) {
+			return true;
+		}
+		if (sortByButton != null && sortByButton.mouseClicked(event, isDoubleClick)) {
 			return true;
 		}
 		GuiEventListener focused = getFocused();

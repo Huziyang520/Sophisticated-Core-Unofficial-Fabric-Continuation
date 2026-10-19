@@ -6,6 +6,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.ARGB;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.TextBox;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
@@ -21,7 +22,11 @@ class SearchBox extends TextBox {
 					Component.translatable(TranslationHelper.INSTANCE.translGui("text_box.search_box_detail")).withStyle(ChatFormatting.GRAY)
 	);
 	public static final String MAGNIFYING_GLASS = "\uD83D\uDD0D";
-	public static final int UNFOCUSED_COLOR = 0xBBBBBB;
+	/**
+	 * 这里必须是“不透明”的灰：EditBox 画文字用的是 ARGB，0xBBBBBB 的 alpha 是 0，
+	 * 之前输入的文字（以及放大镜提示）全都是全透明 —— 值确实在，过滤也确实生效，就是看不见。
+	 */
+	public static final int UNFOCUSED_COLOR = ARGB.opaque(0xBBBBBB);
 	private final StorageScreenBase<?> screen;
 	private long lastFocusChangeTime = 0;
 	private final int maximizedX;
@@ -52,12 +57,25 @@ class SearchBox extends TextBox {
 			if (button == 0) {
 				setFocused(true);
 				screen.setFocused(this);
+				// 点击要真正落到 EditBox 上，否则光标既不移动也不选词；第二次点击看起来就像“点了没反应”
+				forwardClickToEditBox(event, isDoubleClick);
 			} else if (button == 1) {
 				setValue("");
 			}
 			return true;
 		}
 		return super.mouseClicked(event, isDoubleClick);
+	}
+
+	/**
+	 * 收起状态下的搜索框只有 10px 宽、还贴在最右端，玩家按“搜索栏那一条”去点会落在它左边而落空，
+	 * 于是焦点被清掉、框再也进不去。命中区按整条最大宽度算（横向不越过整理按钮），点击手感与看到的搜索行一致。
+	 */
+	@Override
+	public boolean isMouseOver(double mouseX, double mouseY) {
+		int left = Math.min(x, maximizedX);
+		int right = Math.max(x + getWidth(), maximizedX + maximizedWidth);
+		return mouseX >= left && mouseX < right && mouseY >= y && mouseY < y + getHeight();
 	}
 
 	@Override

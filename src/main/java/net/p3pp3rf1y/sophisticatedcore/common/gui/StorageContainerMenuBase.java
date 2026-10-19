@@ -50,7 +50,7 @@ import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extends AbstractContainerMenu implements IAdditionalSlotInfoMenu {
+public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extends AbstractContainerMenu implements ISyncedContainer, IAdditionalSlotInfoMenu {
 	public static final int NUMBER_OF_PLAYER_SLOTS = 36;
 	public static final Identifier EMPTY_UPGRADE_SLOT_BACKGROUND = Identifier.fromNamespaceAndPath(SophisticatedCore.MOD_ID, "item/empty_upgrade_slot");
 	public static final Identifier INACCESSIBLE_SLOT_BACKGROUND = SophisticatedCore.getRL("item/inaccessible_slot");
@@ -205,6 +205,26 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		return realInventorySlots.size();
 	}
 
+	/**
+	 * 26.3 的客户端菜单是按本地 wrapper 建槽位的，服务端发来的整包数据长度却取自服务端菜单。
+	 * 两边一旦不一致（双箱/刚升级过的存储最容易出现），父类会按服务端长度 getSlot(i) 越界，
+	 * 客户端处理包失败后直接断连。裁到本地槽数，缺的槽留空。
+	 */
+	@Override
+	public void initializeContents(int stateId, List<ItemStack> items, ItemStack carried) {
+		// the limit has to be the menu's slot count, not the vanilla slots list: the upgrade slots are kept in their own
+		// list and only reachable through getSlot(), so clamping to slots.size() threw their stacks away and the client
+		// opened a storage with empty upgrade slots (which then could not be taken out either)
+		List<ItemStack> localItems = items.size() > getTotalSlotsNumber() ? items.subList(0, getTotalSlotsNumber()) : items;
+		storageWrapper.setPersistent(player.level().isClientSide());
+		isUpdatingFromPacket = true;
+		super.initializeContents(stateId, localItems, carried);
+		isUpdatingFromPacket = false;
+		storageWrapper.setPersistent(true);
+		storageWrapper.getInventoryHandler().saveInventory();
+		storageWrapper.getUpgradeHandler().saveInventory();
+	}
+
 	public int getNumberOfStorageInventorySlots() {
 		return storageWrapper.getInventoryHandler().getSlotCount();
 	}
@@ -328,16 +348,6 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		return parentStorageWrapper == NoopStorageWrapper.INSTANCE;
 	}
 
-	@Override
-	public void initializeContents(int stateId, List<ItemStack> items, ItemStack carried) {
-		storageWrapper.setPersistent(player.level().isClientSide());
-		isUpdatingFromPacket = true;
-		super.initializeContents(stateId, items, carried);
-		isUpdatingFromPacket = false;
-		storageWrapper.setPersistent(true);
-		storageWrapper.getInventoryHandler().saveInventory();
-		storageWrapper.getUpgradeHandler().saveInventory();
-	}
 
 	protected boolean isUpgradeSettingsSlot(int index) {
 		return index >= getNumberOfStorageInventorySlots() + getNumberOfUpgradeSlots() + StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS && index < getTotalSlotsNumber();
@@ -348,7 +358,10 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	}
 
 	protected boolean isUpgradeSlot(int index) {
-		return index >= getFirstUpgradeSlot() && (index - getFirstUpgradeSlot() < getNumberOfUpgradeSlots());
+		// bound by the slots that actually exist instead of by the handler's slot count: the handler can still be resized
+		// while the menu is open (an upgrade that changes the slot layout), and the two disagreeing left the real
+		// upgrade slot outside of the range that clicked()/quickMoveStack() treat as an upgrade slot.
+		return index >= getFirstUpgradeSlot() && index < getTotalSlotsNumber();
 	}
 
 	@Override
@@ -732,7 +745,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 		clearErrorUpgradeSlotChangeResult();
 		tryingToMergeUpgrade = true;
-		boolean result = !upgradeSlots.isEmpty() && moveItemStackTo(sourceSlot, slotStack, getInventorySlotsSize(), getInventorySlotsSize() + getNumberOfUpgradeSlots(), false);
+		boolean result = !upgradeSlots.isEmpty() && moveItemStackTo(sourceSlot, slotStack, getFirstUpgradeSlot(), getTotalSlotsNumber(), false);
 		tryingToMergeUpgrade = false;
 		showUpgradeSlotChangeError();
 		return result;
@@ -920,7 +933,9 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		if (slotIndex < getInventorySlotsSize()) {
 			remoteRealSlots.set(slotIndex, stack.copy());
 		} else {
-			remoteUpgradeSlots.set(slotIndex, stack.copy());
+			// slotIndex is the absolute menu slot id - the upgrade slots start after the inventory slots, so the offset has
+			// to be removed or this writes past the end of the (usually one element long) upgrade slot list.
+			remoteUpgradeSlots.set(slotIndex - getInventorySlotsSize(), stack.copy());
 		}
 	}
 
@@ -1699,8 +1714,24 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		}
 
 		@Override
+		public ItemStack getItem() {
+			ItemStack localStack = super.getItem();
+			// The upgrade stacks are not part of the block entity update tag (they live in the contents nbt, which is only
+			// written to disk), so on the client they can arrive as plain slot updates before the local upgrade handler
+			// knows about them. Falling back to the synchronized copy keeps the slot usable in that window - without it the
+			// slot looks empty and an upgrade that was put in could not be picked back up.
+			if (isClientSide() && localStack.isEmpty() && slotIndex < remoteUpgradeSlots.size()) {
+				return remoteUpgradeSlots.get(slotIndex);
+			}
+			return localStack;
+		}
+
+		@Override
 		public void set(@NotNull ItemStack stack) {
 			super.set(stack);
+			if (isClientSide() && slotIndex < remoteUpgradeSlots.size()) {
+				remoteUpgradeSlots.set(slotIndex, stack);
+			}
 			wasEmpty = getItem().isEmpty();
 		}
 
@@ -1710,7 +1741,10 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 		@Override
 		public boolean mayPlace(ItemStack stack) {
-			if (stack.isEmpty() || !getItemHandler().isItemValid(slotIndex, ItemVariant.of(stack), stack.getCount())) {
+			if (stack.isEmpty() || !(stack.getItem() instanceof IUpgradeItem<?>)) {
+				return false;
+			}
+			if (slotIndex >= getItemHandler().getSlotCount() || !getItemHandler().isItemValid(slotIndex, ItemVariant.of(stack), stack.getCount())) {
 				return false;
 			}
 			UpgradeSlotChangeResult result;
@@ -1728,12 +1762,16 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 		@Override
 		public boolean mayPickup(Player player) {
-			boolean ret = super.mayPickup(player);
-			if (!ret) {
+			// getItem() is the stack the player actually sees (synchronized copy on the client) - checking the local
+			// upgrade handler instead made an upgrade that is visible in the slot impossible to remove.
+			if (getItem().isEmpty()) {
+				return false;
+			}
+			if (!(getItem().getItem() instanceof IUpgradeItem<?> upgradeItem)) {
 				return false;
 			}
 
-			UpgradeSlotChangeResult result = ((IUpgradeItem<?>) getItem().getItem()).canRemoveUpgradeFrom(storageWrapper, player.level().isClientSide(), player);
+			UpgradeSlotChangeResult result = upgradeItem.canRemoveUpgradeFrom(storageWrapper, player.level().isClientSide(), player);
 			updateSlotChangeError(result);
 			return result.successful();
 		}

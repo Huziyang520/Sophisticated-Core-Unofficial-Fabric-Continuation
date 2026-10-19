@@ -3,6 +3,8 @@ package net.p3pp3rf1y.sophisticatedcore.client.gui.controls;
 import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.input.KeyEvent;
 import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.MouseButtonEvent;
+import net.minecraft.util.ARGB;
 import org.joml.Matrix3x2fStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -39,9 +41,20 @@ public class TextBox extends WidgetBase {
 		if (editBox.getValue().isEmpty() && unfocusedEmptyHint != null && !editBox.isFocused()) {
 			int x = editBox.getX() + editBox.getWidth() / 2 + 2/* editBox.isBordered() ? editBox.getX() + 4 : editBox.getX()*/;
 			int y = editBox.isBordered() ? editBox.getY() + (editBox.getHeight() - 8) / 2 : editBox.getY();
-			guiGraphics.text(this.font, unfocusedEmptyHint, x - this.font.width(unfocusedEmptyHint) / 2, y, editBox.textColor);
+			// textColor 由 SearchBox 设成 0xBBBBBB（不带 alpha），直接拿来画提示就是全透明 —— 放大镜图标会“消失”。
+			// 这里统一补满 alpha，颜色语义交给调用方，别把 alpha 和 RGB 混用。
+			guiGraphics.text(this.font, unfocusedEmptyHint, x - this.font.width(unfocusedEmptyHint) / 2, y, ARGB.opaque(editBox.textColor));
 		}
 		poseStack.popMatrix();
+	}
+
+	/**
+	 * 把一次左键点击转给内部的 EditBox：EditBox 不是屏幕的直系子控件，收不到父类派发，
+	 * 不转这一下就只能“第一次点进去有焦点”，之后点文本里任何位置都不会移动光标/选词，
+	 * 玩家会认为搜索框“再点就没反应了”。
+	 */
+	public void forwardClickToEditBox(MouseButtonEvent event, boolean isDoubleClick) {
+		editBox.onClick(event, isDoubleClick);
 	}
 
 	@Override
