@@ -10,6 +10,7 @@
   "item.sophisticatedcore.storage.tooltip.upgrades": "升级",
   "item.sophisticatedcore.storage.tooltip.inventory": "物品",
   "item.sophisticatedcore.storage.tooltip.empty": "未加装升级或物品存储",
+  "item.sophisticatedcore.storage.tooltip.syncing": "内容同步中…",
   "item.sophisticatedcore.storage.tooltip.press_for_contents": "按<%s>查看内容",
   "item.sophisticatedcore.storage.tooltip.shift": "左Shift",
   "upgrade_group.sophisticatedcore.stack_upgrades": "堆叠升级",

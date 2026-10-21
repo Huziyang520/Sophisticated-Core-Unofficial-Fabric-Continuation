@@ -43,6 +43,12 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	protected int imageHeight;
 	private StorageBackgroundProperties storageBackgroundProperties;
 	private boolean mouseDragHandledByOther = false;
+	/**
+	 * 26.3 的 {@code ContainerEventHandler.mouseClicked} 命中任一子控件就返回 true（哪怕控件自己没处理），
+	 * 设置界面里页签、模板控件、装饰图标都会命中，于是设置项/按键的点击全被吞掉。
+	 * 这里自己按「最上层优先、未处理就继续问」派发，交给父类走槽位逻辑时把 getChildAt 关掉。
+	 */
+	private boolean suppressChildHit = false;
 
 	protected SettingsScreen(SettingsContainerMenu<?> screenContainer, Inventory inv, Component titleIn) {
 		super(screenContainer, inv, titleIn);
@@ -132,6 +138,8 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		templatePersistanceControl = initializeTemplatePersistanceControl();
 		addWidget(settingsTabControl);
 		addWidget(templatePersistanceControl);
+		// 从容器界面切进来时把光标拨回切换前的位置（26.3 的 setScreen 会两次 warp 到窗口正中）
+		CursorRestorer.restoreIfPending();
 	}
 
 	private TemplatePersistanceControl initializeTemplatePersistanceControl() {
@@ -303,6 +311,9 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	 */
 	@Override
 	public Optional<GuiEventListener> getChildAt(double mouseX, double mouseY) {
+		if (suppressChildHit) {
+			return Optional.empty();
+		}
 		List<? extends GuiEventListener> children = children();
 		for (int i = children.size() - 1; i >= 0; i--) {
 			GuiEventListener child = children.get(i);
@@ -311,6 +322,41 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 			}
 		}
 		return Optional.empty();
+	}
+
+	/**
+	 * 设置项的点击必须落到真正能处理它的控件上。
+	 * <p>
+	 * 26.3 的父类派发取“第一个命中”的控件，并且只要命中就返回 true（即使控件自己不处理），
+	 * 于是页签/模板控件/幽灵槽图标命中时，后面的设置项按钮永远收不到点击 —— 玩家看到的就是
+	 * “背包设置里的各类按键全都没反应”。这里按最上层优先逐个询问，只有真正处理了才结束；
+	 * 都不处理时再交给父类做槽位逻辑（这一小段里让 getChildAt 返回空，避免又被吞一次）。
+	 */
+	@Override
+	public boolean mouseClicked(MouseButtonEvent event, boolean isDoubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		List<? extends GuiEventListener> children = children();
+		for (int i = children.size() - 1; i >= 0; i--) {
+			GuiEventListener child = children.get(i);
+			if (!child.isMouseOver(mouseX, mouseY)) {
+				continue;
+			}
+			if (child.mouseClicked(event, isDoubleClick)) {
+				setFocused(child);
+				if (event.button() == 0) {
+					setDragging(true);
+				}
+				return true;
+			}
+		}
+
+		suppressChildHit = true;
+		try {
+			return super.mouseClicked(event, isDoubleClick);
+		} finally {
+			suppressChildHit = false;
+		}
 	}
 
 	private void renderSlotOverlay(GuiGraphicsExtractor guiGraphics, int xPos, int yPos, int height, int slotColor) {
@@ -323,6 +369,8 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		int scanCode = event.keycode();
 		int modifiers = event.modifiers();
 		if (keyCode == 256) {
+			// 关设置 → 服务端重开容器界面，同样会走 setScreen(null)+setScreen(新界面) 的两次光标 warp
+			CursorRestorer.remember();
 			sendStorageInventoryScreenOpenMessage();
 			return true;
 		}

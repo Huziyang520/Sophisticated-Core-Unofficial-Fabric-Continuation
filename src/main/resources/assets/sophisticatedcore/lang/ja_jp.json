@@ -10,6 +10,7 @@
   "item.sophisticatedcore.storage.tooltip.upgrades": "アップグレード",
   "item.sophisticatedcore.storage.tooltip.inventory": "インベントリ",
   "item.sophisticatedcore.storage.tooltip.empty": "からっぽ",
+  "item.sophisticatedcore.storage.tooltip.syncing": "Contents Syncing…",
   "item.sophisticatedcore.storage.tooltip.press_for_contents": "<%s>を押すと中身を表示",
   "item.sophisticatedcore.storage.tooltip.shift": "左SHIFTキー",
   "upgrade_group.sophisticatedcore.stack_upgrades": "スタック数増加",

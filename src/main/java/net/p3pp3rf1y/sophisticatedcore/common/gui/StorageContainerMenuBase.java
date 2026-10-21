@@ -158,6 +158,21 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		return storageWrapper.getColumnsTaken();
 	}
 
+	/**
+	 * 客户端的「升级占用列数」要等两侧都到位才算准：升级槽里的物品（决定每个升级要几列）先到，
+	 * wrapper 同步过来的列数后到，中间会有一段对不上的时间。按这段时间的列数去摆升级面板，
+	 * 面板就会压在存储格和标题上（储罐升级那种错乱）。
+	 */
+	public boolean isUpgradeColumnCountSynced() {
+		int columnsTaken = 0;
+		for (Slot upgradeSlot : upgradeSlots) {
+			if (upgradeSlot.getItem().getItem() instanceof IUpgradeItem<?> upgradeItem) {
+				columnsTaken += upgradeItem.getInventoryColumnsTaken();
+			}
+		}
+		return columnsTaken == getColumnsTaken();
+	}
+
 	public Optional<UpgradeSlotChangeResult> getErrorUpgradeSlotChangeResult() {
 		if (errorUpgradeSlotChangeResult != null && player.level().getGameTime() >= errorResultExpirationTime) {
 			clearErrorUpgradeSlotChangeResult();
@@ -367,6 +382,18 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 	@Override
 	public void clicked(int slotId, int dragType, ContainerInput clickType, Player player) {
+		// 菜单失步兜底：客户端槽位表比服务端少（刚换上带面板的升级、页签刷新中、界面晚一拍建好）时，
+		// 越界索引会让 getSlot() 直接抛 IndexOutOfBounds，包处理线程一挂这张菜单就再也点不动 ——
+		// 玩家看到的是“界面还开着，但左键拿不起、shift 也转移不了”。这里先校验一次索引，
+		// 越界就整表重建并放弃本次点击，下一帧恢复正常。
+		if (slotId >= getTotalSlotsNumber()) {
+			SophisticatedCore.LOGGER.debug("Menu {} out of sync: click on slot {} while only {} local slots exist, resyncing",
+					containerId, slotId, getTotalSlotsNumber());
+			if (player.level().isClientSide()) {
+				refreshAllSlots();
+			}
+			return;
+		}
 		if (isUpgradeSettingsSlot(slotId) && getSlot(slotId) instanceof IFilterSlot && getSlot(slotId).mayPlace(getCarried())) {
 			Slot slot = getSlot(slotId);
 			ItemStack cursorStack = getCarried().copy();
@@ -1850,7 +1877,11 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			if (stack.isEmpty() || !(stack.getItem() instanceof IUpgradeItem<?>)) {
 				return false;
 			}
-			if (slotIndex >= getItemHandler().getSlotCount() || !getItemHandler().isItemValid(slotIndex, ItemVariant.of(stack), stack.getCount())) {
+			// 客户端升级 handler 的槽数可能比界面晚一拍（刚换过等级 / 升级页签正在刷新）：
+			// 只有本地确实存在这一格时才去问 handler，否则 handler 会越界判 false，
+			// 表现就是“排在后面的几个槽怎么都装不上升级”。
+			boolean slotKnownLocally = slotIndex < getItemHandler().getSlotCount();
+			if (slotKnownLocally && !getItemHandler().isItemValid(slotIndex, ItemVariant.of(stack), stack.getCount())) {
 				return false;
 			}
 			UpgradeSlotChangeResult result;

@@ -10,6 +10,7 @@
   "item.sophisticatedcore.storage.tooltip.upgrades": "Yükseltmeler",
   "item.sophisticatedcore.storage.tooltip.inventory": "Envanter",
   "item.sophisticatedcore.storage.tooltip.empty": "Yükseltme veya Envanter İçeriği Yok",
+  "item.sophisticatedcore.storage.tooltip.syncing": "Contents Syncing…",
   "item.sophisticatedcore.storage.tooltip.press_for_contents": "İçeriği Görüntülemek için <%s> tuşuna bas",
   "item.sophisticatedcore.storage.tooltip.shift": "Sol Shift",
   "upgrade_group.sophisticatedcore.stack_upgrades": "İstif Yükseltmeleri",

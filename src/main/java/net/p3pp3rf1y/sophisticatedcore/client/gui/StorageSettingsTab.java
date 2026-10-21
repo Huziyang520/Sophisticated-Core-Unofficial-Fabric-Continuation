@@ -19,6 +19,9 @@ public class StorageSettingsTab extends Tab {
 
 	@Override
 	protected void onTabIconClicked(int button) {
+		// 打开设置页是「服务端关闭当前菜单 → 重新开会设置菜单」，客户端会先 setScreen(null) 再 setScreen(设置页)，
+		// 26.3 这两步都会把光标 warp 到窗口正中。这里记下点击时的位置，设置页 init() 结束后拨回去。
+		CursorRestorer.remember();
 		screen.getMenu().openSettings();
 	}
 }

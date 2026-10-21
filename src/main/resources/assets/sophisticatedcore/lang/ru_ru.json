@@ -10,6 +10,7 @@
   "item.sophisticatedcore.storage.tooltip.upgrades": "Улучшения",
   "item.sophisticatedcore.storage.tooltip.inventory": "Инвентарь",
   "item.sophisticatedcore.storage.tooltip.empty": "Не содержит предметы или улучшения",
+  "item.sophisticatedcore.storage.tooltip.syncing": "Contents Syncing…",
   "item.sophisticatedcore.storage.tooltip.press_for_contents": "Зажмите <%s> для просмотра содержимого",
   "item.sophisticatedcore.storage.tooltip.shift": "Левый SHIFT",
   "upgrade_group.sophisticatedcore.stack_upgrades": "Стаковые улучшения",

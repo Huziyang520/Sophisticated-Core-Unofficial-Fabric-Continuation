@@ -119,6 +119,19 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			|| (!stack.isEmpty() && stack.getHoverName().getString().toLowerCase().contains(searchBox.getValue().toLowerCase()));
 	private int visibleSlotsCount;
 	private boolean initializing = true;
+	/**
+	 * 26.3 的 {@code ContainerEventHandler.mouseClicked} 命中任一子控件就返回 true（哪怕该控件自己返回 false），
+	 * 于是「命中的是装饰件/底图」时整次点击被吞掉。本屏幕自己按「最上层优先、命中者未处理就继续问」派发一次，
+	 * 全部子控件都不处理时才把点击交给父类的槽位逻辑；交给父类那一刻必须让父类内部的“命中即吞”失效，
+	 * 否则槽位照样收不到点击（升级槽、背包格就是这条路上丢的）。
+	 */
+	private boolean suppressChildHit = false;
+	/**
+	 * 客户端菜单的「升级占用列数」是同步后才准的：升级槽里的物品先到、wrapper 的列数后到（或反过来），
+	 * 这中间按 {@code getColumnsTaken()} 布局会把升级面板画到格子上、把标签压进物品格（储罐升级的错乱）。
+	 * 这里记住上一帧的同步状态，状态一变就整套重算一次。
+	 */
+	private boolean upgradeColumnCountSynced = false;
 
 	public static void setCraftingUIPart(ICraftingUIPart part) {
 		craftingUIPart = part;
@@ -185,6 +198,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		}
 		updatePlayerSlotsPositions();
 		updateUpgradeSlotsPositions();
+		updateSortButtonsPositions();
 		updateTransferButtonsPositions();
 	}
 
@@ -286,6 +300,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			initUpgradeSettingsControl();
 			initUpgradeInventoryParts();
 			addUpgradeSwitches();
+			// 升级变化后页签列、整理按钮、转移按钮都要按新面板重新摆一次，否则命中区留在旧位置
+			updateSortButtonsPositions();
 			updateTransferButtonsPositions();
 		});
 		if (shouldShowSortButtons()) {
@@ -296,6 +312,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		addSearchBox();
 
 		initializing = false;
+		// 从设置界面（或另一个容器界面）切回来时，把光标拨回切换前的位置，见 CursorRestorer
+		CursorRestorer.restoreIfPending();
 	}
 
 	protected void addSearchBox() {
@@ -403,7 +421,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	private void initUpgradeInventoryParts() {
 		inventoryParts.clear();
-		if (getMenu().getColumnsTaken() == 0) {
+		// 列数没同步好之前不能按它摆升级面板：这时候 slotsOnLine / 面板宽度都还是旧值，
+		// 摆出来的储罐液位条会压在存储格和标题上（图 2 的错乱）。等同步完成后由 extractBackground 重算一次。
+		if (getMenu().getColumnsTaken() == 0 || !getMenu().isUpgradeColumnCountSynced()) {
 			return;
 		}
 
@@ -467,6 +487,21 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		addRenderableWidget(sortByButton);
 	}
 
+	/**
+	 * 整理 / 排序方式两个按钮的位置必须跟着面板走。
+	 * <p>
+	 * 之前只在 init() 里摆一次：装上/卸下升级、窗口尺寸变化、搜索框展开都会让 leftPos/topPos 或 imageWidth 变，
+	 * 按钮却留在旧坐标上 —— 画在旧位置、命中区也在旧位置，看起来就是「点了没反应」。
+	 */
+	private void updateSortButtonsPositions() {
+		if (sortButton == null || sortByButton == null || settingsTabControl == null) {
+			return;
+		}
+		Position pos = getSortButtonsPosition(Config.CLIENT.sortButtonsPosition.get());
+		sortButton.setPosition(new Position(pos.x(), pos.y()));
+		sortByButton.setPosition(new Position(pos.x() + 12, pos.y()));
+	}
+
 	/** 按钮图标与 tooltip 都读这里：本地选择优先，菜单里的值追上来后自动交还。 */
 	private SortBy getDisplayedSortBy() {
 		if (pendingSortBy != null && getMenu().getSortBy() == pendingSortBy) {
@@ -518,6 +553,18 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		if (menu.detectSettingsChangeAndReload()) {
 			updateDimensionsAndSlotPositions(height);
 			updateInventoryScrollPanel();
+		}
+		// 升级占用列数同步状态一变（储罐/电池这类带面板的升级刚装上、刚卸下），整套布局要按新值重算一次：
+		// 否则升级面板按旧列数摆、标签按旧高度算，就会出现「图标/槽位/标题叠在一起」（图 2）。
+		boolean columnsSynced = menu.isUpgradeColumnCountSynced();
+		if (columnsSynced != upgradeColumnCountSynced) {
+			upgradeColumnCountSynced = columnsSynced;
+			updateDimensionsAndSlotPositions(height);
+			updateInventoryScrollPanel();
+			children().remove(settingsTabControl);
+			initUpgradeSettingsControl();
+			initUpgradeInventoryParts();
+			updateSortButtonsPositions();
 		}
 		super.extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
 
@@ -977,6 +1024,12 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			setFocused((GuiEventListener) null);
 		}
 
+		// 先按「最上层优先、未处理就继续问」把点击发给所有子控件。26.3 的 ContainerEventHandler.mouseClicked
+		// 命中即 return true，所以这里不能交给父类去问 —— 转移按钮、升级开关、页签里的按钮全都会因此丢掉点击。
+		if (dispatchToTopmostChild(event, isDoubleClick)) {
+			return true;
+		}
+
 		// 26.3 的父类找槽位只扫 menu.slots，而升级槽 / no-sort 槽从来没进过那份列表
 		// （它们只在 upgradeSlots / realInventorySlots 里），所以按坐标永远找不到：
 		// 升级放不进去、放进去也拿不下来。这类槽位在这里直接按普通点击语义转发。
@@ -985,7 +1038,42 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			return true;
 		}
 
-		return super.mouseClicked(event, isDoubleClick);
+		// 没有子控件处理这次点击 → 走父类的槽位逻辑。父类内部第一件事就是问 getChildAt()，
+		// 那个询问会在“命中的是装饰件”时把点击吞掉，所以这一小段里让 getChildAt 返回空。
+		suppressChildHit = true;
+		try {
+			return super.mouseClicked(event, isDoubleClick);
+		} finally {
+			suppressChildHit = false;
+		}
+	}
+
+	/**
+	 * 从最上层（后加的先问）往下逐个询问子控件，只有真正处理了点击才认为命中。
+	 * 滚动面板在槽位上方时让开，让点击落到格子（和 {@link #getChildAt} 的规则保持一致）。
+	 */
+	private boolean dispatchToTopmostChild(MouseButtonEvent event, boolean isDoubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		List<? extends GuiEventListener> children = children();
+		boolean slotUnderMouse = findSlot(mouseX, mouseY) != null;
+		for (int i = children.size() - 1; i >= 0; i--) {
+			GuiEventListener child = children.get(i);
+			if (slotUnderMouse && child == inventoryScrollPanel) {
+				continue;
+			}
+			if (!child.isMouseOver(mouseX, mouseY)) {
+				continue;
+			}
+			if (child.mouseClicked(event, isDoubleClick)) {
+				setFocused(child);
+				if (event.button() == 0) {
+					setDragging(true);
+				}
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**
@@ -1019,6 +1107,10 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	 */
 	@Override
 	public Optional<GuiEventListener> getChildAt(double mouseX, double mouseY) {
+		if (suppressChildHit) {
+			// 这一小段里父类正要走槽位逻辑，任何“命中即吞”的子控件都不能参与
+			return Optional.empty();
+		}
 		List<? extends GuiEventListener> children = children();
 		boolean slotUnderMouse = findSlot(mouseX, mouseY) != null;
 		for (int i = children.size() - 1; i >= 0; i--) {

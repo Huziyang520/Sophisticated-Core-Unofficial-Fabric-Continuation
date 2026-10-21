@@ -99,13 +99,23 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 
 	protected abstract void sendInventorySyncRequest(UUID uuid);
 
+	/**
+	 * 容器内容此刻是否已经可读：内容跟着物品走（{@code BLOCK_ENTITY_DATA}）时客户端直接能读，
+	 * 放在服务端 uuid 副本里的则需要等一次同步。返回 false 时提示显示「同步中」而不是「空容器」——
+	 * 以前两种情况都显示「未加装升级或物品存储」，玩家以为盒子是空的。
+	 */
+	protected boolean hasContentsData(IStorageWrapper wrapper) {
+		return true;
+	}
+
 	private void refreshContents(IStorageWrapper wrapper) {
 		if (shouldRefreshContents()) {
 			setShouldRefreshContents(false);
 			sortedContents.clear();
 			upgrades.clear();
 			tooltipLines.clear();
-			if (storageUuid != null) {
+			boolean contentsDataKnown = hasContentsData(wrapper);
+			if (contentsDataKnown && (storageUuid != null || !wrapper.getContentsUuid().isEmpty())) {
 				wrapper.onContentsNbtUpdated();
 				sortedContents = InventoryHelper.getCompactedStacksSortedByCount(wrapper.getInventoryHandler());
 				upgrades = new ArrayList<>(wrapper.getUpgradeHandler().getSlotWrappers().values());
@@ -113,7 +123,8 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 				addFluidTooltip(wrapper);
 			}
 			if (upgrades.isEmpty() && sortedContents.isEmpty()) {
-				tooltipLines.add(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + ".empty").withStyle(ChatFormatting.YELLOW));
+				String lineKey = TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + (contentsDataKnown ? ".empty" : ".syncing");
+				tooltipLines.add(Component.translatable(lineKey).withStyle(ChatFormatting.YELLOW));
 			}
 			layout();
 			calculateWidth();

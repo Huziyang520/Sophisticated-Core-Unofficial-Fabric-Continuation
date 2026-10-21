@@ -10,6 +10,7 @@
   "item.sophisticatedcore.storage.tooltip.upgrades": "Mejoras",
   "item.sophisticatedcore.storage.tooltip.inventory": "Inventario",
   "item.sophisticatedcore.storage.tooltip.empty": "Sin mejoras ni contenido en el inventario",
+  "item.sophisticatedcore.storage.tooltip.syncing": "Contents Syncing…",
   "item.sophisticatedcore.storage.tooltip.press_for_contents": "Presiona <%s> para ver el contenido",
   "item.sophisticatedcore.storage.tooltip.shift": "Mayús izquierdo",
   "upgrade_group.sophisticatedcore.stack_upgrades": "Mejoras de Stack",

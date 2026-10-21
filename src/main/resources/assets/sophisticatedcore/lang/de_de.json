@@ -10,6 +10,7 @@
   "item.sophisticatedcore.storage.tooltip.upgrades": "Upgrades",
   "item.sophisticatedcore.storage.tooltip.inventory": "Inventar",
   "item.sophisticatedcore.storage.tooltip.empty": "Keine Upgrades oder Inventarinhalte",
+  "item.sophisticatedcore.storage.tooltip.syncing": "Contents Syncing…",
   "item.sophisticatedcore.storage.tooltip.press_for_contents": "Drücke <%s>, um den Inhalt anzuzeigen",
   "item.sophisticatedcore.storage.tooltip.shift": "Shift-Taste",
   "upgrade_group.sophisticatedcore.stack_upgrades": "Stack Upgrades",

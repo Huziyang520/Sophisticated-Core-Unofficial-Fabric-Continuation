@@ -10,6 +10,7 @@
   "item.sophisticatedcore.storage.tooltip.upgrades": "강화",
   "item.sophisticatedcore.storage.tooltip.inventory": "인벤토리",
   "item.sophisticatedcore.storage.tooltip.empty": "배낭에 아이템이나 강화가 없습니다",
+  "item.sophisticatedcore.storage.tooltip.syncing": "Contents Syncing…",
   "item.sophisticatedcore.storage.tooltip.press_for_contents": "<%s>을(를) 누르면 배낭을 확인할 수 있습니다",
   "item.sophisticatedcore.storage.tooltip.shift": "왼쪽 Shift",
   "upgrade_group.sophisticatedcore.stack_upgrades": "Stack Upgrades",

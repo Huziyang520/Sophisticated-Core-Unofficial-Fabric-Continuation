@@ -10,6 +10,7 @@
   "item.sophisticatedcore.storage.tooltip.upgrades": "Покращення",
   "item.sophisticatedcore.storage.tooltip.inventory": "Інвентар",
   "item.sophisticatedcore.storage.tooltip.empty": "Без оновлень або вмісту інвентарю",
+  "item.sophisticatedcore.storage.tooltip.syncing": "Contents Syncing…",
   "item.sophisticatedcore.storage.tooltip.press_for_contents": "Натисніть <%s>, щоб переглянути вміст",
   "item.sophisticatedcore.storage.tooltip.shift": "Лівий Shift",
   "upgrade_group.sophisticatedcore.stack_upgrades": "Stack Upgrades",
