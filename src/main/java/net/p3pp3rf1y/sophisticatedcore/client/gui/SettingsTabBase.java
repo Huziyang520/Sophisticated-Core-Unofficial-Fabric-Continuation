@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
@@ -38,7 +39,10 @@ public abstract class SettingsTabBase<T extends AbstractContainerScreen<?>> exte
 	}
 
 	private void addLabel(Component tabLabel) {
-		addHideableChild(new Label(new Position(x + 20, y + 8), tabLabel));
+		Label label = addHideableChild(new Label(new Position(x + 20, y + 8), tabLabel));
+		// The title of an open tab has to stay inside the tab: it used to be drawn unclipped and covered the
+		// upgrade slots / items next to it.
+		label.setMaxTextWidth(() -> Math.max(0, getWidth() - 20 - 6));
 	}
 
 	protected SettingsTabBase(Position position, T screen, Component tabLabel, Component tooltip, Function<IntConsumer, ButtonBase> getTabButton) {
@@ -46,6 +50,15 @@ public abstract class SettingsTabBase<T extends AbstractContainerScreen<?>> exte
 		this.screen = screen;
 		addLabel(tabLabel);
 		openTooltip = Collections.emptyList();
+	}
+
+	/**
+	 * Recomputes the open size from the hideable children. 26.3 needs this whenever a tab gains a child after it was
+	 * built (the dimension used to be frozen at construction time).
+	 */
+	protected void refreshOpenTabDimension() {
+		openTabDimension = new Dimension(0, 0);
+		hideableChildren.forEach(this::updateOpenTabDimension);
 	}
 
 	protected <U extends WidgetBase> U addHideableChild(U widget) {
@@ -89,8 +102,10 @@ public abstract class SettingsTabBase<T extends AbstractContainerScreen<?>> exte
 	}
 
 	protected void onTabOpen() {
-		setWidth(openTabDimension.width());
-		setHeight(openTabDimension.height());
+		// An open tab must never be narrower than the closed one: the size used to be taken from the children only,
+		// so a tab without hideable children opened up as a 0x0 strip and clicking it looked like "sound only".
+		setWidth(Math.max(openTabDimension.width(), DEFAULT_WIDTH));
+		setHeight(Math.max(openTabDimension.height(), DEFAULT_HEIGHT));
 
 		hideableChildren.forEach(this::addChild);
 		onOpen.run();
@@ -115,7 +130,7 @@ public abstract class SettingsTabBase<T extends AbstractContainerScreen<?>> exte
 
 	@Override
 	protected void onTabIconClicked(int button) {
-		if (button != 0) {
+		if (button != InputConstants.MOUSE_BUTTON_LEFT) {
 			return;
 		}
 		setOpen(!isOpen);

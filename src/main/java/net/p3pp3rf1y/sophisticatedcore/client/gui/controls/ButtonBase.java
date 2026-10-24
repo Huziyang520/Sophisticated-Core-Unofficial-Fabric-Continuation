@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui.controls;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.resources.sounds.SimpleSoundInstance;
@@ -22,12 +23,19 @@ public abstract class ButtonBase extends WidgetBase {
 		this.onClick = onClick;
 	}
 
+	/**
+	 * Left and right clicks are both meaningful (several toggles walk their state backwards on right click). Middle
+	 * click and the side buttons are reported as unhandled instead of firing the callback with a sound and no effect.
+	 */
 	@Override
 	public boolean mouseClicked(MouseButtonEvent event, boolean isDoubleClick) {
 		double mouseX = event.x();
 		double mouseY = event.y();
 		int button = event.button();
 		if (!isMouseOver(mouseX, mouseY)) {
+			return false;
+		}
+		if (button != InputConstants.MOUSE_BUTTON_LEFT && button != InputConstants.MOUSE_BUTTON_RIGHT) {
 			return false;
 		}
 		onClick.accept(button);

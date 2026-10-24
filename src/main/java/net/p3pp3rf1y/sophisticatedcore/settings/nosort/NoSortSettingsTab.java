@@ -36,7 +36,7 @@ public class NoSortSettingsTab extends SettingsTab<NoSortSettingsContainer> {
 						.add(Component.translatable(TranslationHelper.INSTANCE.translSettingsTooltip(NoSortSettingsCategory.NAME)))
 						.addAll(TranslationHelper.INSTANCE.getTranslatedLines(TranslationHelper.INSTANCE.translSettingsTooltip(NoSortSettingsCategory.NAME) + "_open_detail", null, ChatFormatting.GRAY))
 						.build(),
-				onTabIconClicked -> new ImageButton(new Position(position.x() + 1, position.y() + 4), Dimension.SQUARE_16, ICON, onTabIconClicked));
+				onTabIconClicked -> new ImageButton(new Position(position.x() + 1, position.y() + 3), Dimension.SQUARE_16, ICON, onTabIconClicked));
 		addHideableChild(new Button(new Position(x + 3, y + 24), SELECT_ALL_SLOTS, button -> container.selectAllSlots()));
 		addHideableChild(new Button(new Position(x + 21, y + 24), UNSELECT_ALL_SLOTS, button -> container.unselectAllSlots()));
 		addHideableChild(new ColorToggleButton(new Position(x + 39, y + 24), container::getColor, container::setColor));

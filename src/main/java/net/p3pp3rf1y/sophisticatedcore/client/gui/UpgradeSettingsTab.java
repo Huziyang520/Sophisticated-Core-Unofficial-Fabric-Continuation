@@ -12,7 +12,7 @@ public abstract class UpgradeSettingsTab<C extends UpgradeContainerBase<?, ?>> e
 
 	protected UpgradeSettingsTab(C upgradeContainer, Position position, StorageScreenBase<?> screen, Component tabLabel, Component closedTooltip) {
 		super(position, screen, tabLabel, closedTooltip,
-				onTabIconClicked -> new ItemButton(new Position(position.x() + 1, position.y() + 4), onTabIconClicked, upgradeContainer.getUpgradeStack(), Component.translatable("gui.sophisticatedcore.narrate.tab_button")));
+				onTabIconClicked -> new ItemButton(new Position(position.x() + 1, position.y() + 3), onTabIconClicked, upgradeContainer.getUpgradeStack(), Component.translatable("gui.sophisticatedcore.narrate.tab_button")));
 		this.upgradeContainer = upgradeContainer;
 		moveSlotsOutOfView();
 	}

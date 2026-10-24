@@ -5,6 +5,7 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.KeyEvent;
+import com.mojang.blaze3d.platform.InputConstants;
 import com.mojang.blaze3d.systems.RenderSystem;
 import org.joml.Matrix3x2fStack;
 import com.mojang.datafixers.util.Pair;
@@ -154,6 +155,8 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	 */
 	@Override
 	public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		// Same as the container screen: the warp of Gui.setScreen happens after init(), so restore on the first frame.
+		CursorRestorer.restoreWhenFrameRendered();
 		menu.detectSettingsChangeAndReload();
 		super.extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
 
@@ -344,7 +347,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 			}
 			if (child.mouseClicked(event, isDoubleClick)) {
 				setFocused(child);
-				if (event.button() == 0) {
+				if (event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
 					setDragging(true);
 				}
 				return true;
@@ -368,7 +371,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		int keyCode = event.key();
 		int scanCode = event.keycode();
 		int modifiers = event.modifiers();
-		if (keyCode == 256) {
+		if (keyCode == InputConstants.KEY_ESCAPE) {
 			// 关设置 → 服务端重开容器界面，同样会走 setScreen(null)+setScreen(新界面) 的两次光标 warp
 			CursorRestorer.remember();
 			sendStorageInventoryScreenOpenMessage();

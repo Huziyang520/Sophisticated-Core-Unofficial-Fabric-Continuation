@@ -35,22 +35,28 @@ import java.util.UUID;
  * image pass therefore buried it under the images of the components that follow, and the component reported no
  * height to the positioner, so the tooltip came out as an empty box. This class lays the contents out once into
  * text and item entries and replays the matching subset in each pass.
+ * <p>
+ * All of that state used to be {@code static}, i.e. shared by every item hovering on screen: one component's uuid
+ * decided whether another component refreshed, and the last item to be laid out won the positions. It is per instance
+ * now; the only thing that stays global is the "contents changed, rebuild on next draw" flag, because the content
+ * payloads arrive without a reference to the tooltip instance.
  */
 public abstract class ClientStorageContentsTooltipBase implements ClientTooltipComponent {
 	private static final int REFRESH_INTERVAL = 20;
 	private static final String STORAGE_ITEM = "storage";
-	protected static long lastRequestTime = 0;
+	private static volatile boolean refreshRequested = true;
+
 	@Nullable
-	private static UUID storageUuid = null;
-	private static List<IUpgradeWrapper> upgrades = new ArrayList<>();
-	private static List<ItemStack> sortedContents = new ArrayList<>();
-	private static final List<Component> tooltipLines = new ArrayList<>();
-	private static final List<TextEntry> textEntries = new ArrayList<>();
-	private static final List<ItemEntry> itemEntries = new ArrayList<>();
-	private static final List<UpgradeToggle> toggles = new ArrayList<>();
-	private static int height = 0;
-	private static int width = 0;
-	private static boolean shouldRefreshContents = true;
+	private UUID storageUuid = null;
+	private long lastRequestTime = 0;
+	private List<IUpgradeWrapper> upgrades = new ArrayList<>();
+	private List<ItemStack> sortedContents = new ArrayList<>();
+	private final List<Component> tooltipLines = new ArrayList<>();
+	private final List<TextEntry> textEntries = new ArrayList<>();
+	private final List<ItemEntry> itemEntries = new ArrayList<>();
+	private final List<UpgradeToggle> toggles = new ArrayList<>();
+	private int height = 0;
+	private int width = 0;
 
 	private record TextEntry(Component text, int y) {
 	}
@@ -61,8 +67,9 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 	private record UpgradeToggle(int x, int y, boolean enabled) {
 	}
 
+	/** Asks every contents tooltip to rebuild on its next draw. */
 	public static void refreshContents() {
-		shouldRefreshContents = true;
+		refreshRequested = true;
 	}
 
 	protected abstract IStorageWrapper getStorageWrapper();
@@ -70,24 +77,22 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 	private void initContents(LocalPlayer player) {
 		IStorageWrapper wrapper = getStorageWrapper();
 		UUID newUuid = wrapper.getContentsUuid().orElse(null);
-		if (storageUuid == null && newUuid != null || storageUuid != null && !storageUuid.equals(newUuid)) {
-			setLastRequestTime(0);
+		if (storageUuid == null ? newUuid != null : !storageUuid.equals(newUuid)) {
+			lastRequestTime = 0;
 			storageUuid = newUuid;
-			setShouldRefreshContents(true);
+			refreshRequested = true;
 		}
 		if (storageUuid != null) {
 			requestContents(player, wrapper);
 		}
-		refreshContents(wrapper);
 	}
 
-	@SuppressWarnings("java:S2696")
 	protected void setLastRequestTime(long lastRequestTime) {
-		ClientStorageContentsTooltipBase.lastRequestTime = lastRequestTime;
+		this.lastRequestTime = lastRequestTime;
 	}
 
 	protected long getLastRequestTime() {
-		return ClientStorageContentsTooltipBase.lastRequestTime;
+		return lastRequestTime;
 	}
 
 	private void requestContents(LocalPlayer player, IStorageWrapper wrapper) {
@@ -100,35 +105,32 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 	protected abstract void sendInventorySyncRequest(UUID uuid);
 
 	/**
-	 * 容器内容此刻是否已经可读：内容跟着物品走（{@code BLOCK_ENTITY_DATA}）时客户端直接能读，
-	 * 放在服务端 uuid 副本里的则需要等一次同步。返回 false 时提示显示「同步中」而不是「空容器」——
-	 * 以前两种情况都显示「未加装升级或物品存储」，玩家以为盒子是空的。
+	 * Whether the contents are readable right now. Contents that travel with the item ({@code BLOCK_ENTITY_DATA}) can be
+	 * read immediately; contents kept in a server side copy by uuid need a round trip first. Returning false makes the
+	 * tooltip say "syncing" instead of "empty" - both used to read as "there is nothing in this container".
 	 */
 	protected boolean hasContentsData(IStorageWrapper wrapper) {
 		return true;
 	}
 
 	private void refreshContents(IStorageWrapper wrapper) {
-		if (shouldRefreshContents()) {
-			setShouldRefreshContents(false);
-			sortedContents.clear();
-			upgrades.clear();
-			tooltipLines.clear();
-			boolean contentsDataKnown = hasContentsData(wrapper);
-			if (contentsDataKnown && (storageUuid != null || !wrapper.getContentsUuid().isEmpty())) {
-				wrapper.onContentsNbtUpdated();
-				sortedContents = InventoryHelper.getCompactedStacksSortedByCount(wrapper.getInventoryHandler());
-				upgrades = new ArrayList<>(wrapper.getUpgradeHandler().getSlotWrappers().values());
-				addMultiplierTooltip(wrapper);
-				addFluidTooltip(wrapper);
-			}
-			if (upgrades.isEmpty() && sortedContents.isEmpty()) {
-				String lineKey = TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + (contentsDataKnown ? ".empty" : ".syncing");
-				tooltipLines.add(Component.translatable(lineKey).withStyle(ChatFormatting.YELLOW));
-			}
-			layout();
-			calculateWidth();
+		sortedContents.clear();
+		upgrades.clear();
+		tooltipLines.clear();
+		boolean contentsDataKnown = hasContentsData(wrapper);
+		if (contentsDataKnown) {
+			wrapper.onContentsNbtUpdated();
+			sortedContents = InventoryHelper.getCompactedStacksSortedByCount(wrapper.getInventoryHandler());
+			upgrades = new ArrayList<>(wrapper.getUpgradeHandler().getSlotWrappers().values());
+			addMultiplierTooltip(wrapper);
+			addFluidTooltip(wrapper);
 		}
+		if (upgrades.isEmpty() && sortedContents.isEmpty()) {
+			String lineKey = TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + (contentsDataKnown ? ".empty" : ".syncing");
+			tooltipLines.add(Component.translatable(lineKey).withStyle(ChatFormatting.YELLOW));
+		}
+		layout();
+		calculateWidth();
 	}
 
 	/**
@@ -160,7 +162,6 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 		if (!sortedContents.isEmpty()) {
 			textEntries.add(new TextEntry(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + ".inventory").withStyle(ChatFormatting.YELLOW), y));
 			y += 10;
-			int startY = y;
 			int x = 0;
 			for (int i = 0; i < sortedContents.size(); i++) {
 				if (i > 0 && i % MAX_STACKS_ON_LINE == 0) {
@@ -175,15 +176,6 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 			y += 20;
 		}
 		height = y > 0 ? y : 12;
-	}
-
-	@SuppressWarnings("java:S2696")
-	protected void setShouldRefreshContents(boolean shouldRefreshContents) {
-		ClientStorageContentsTooltipBase.shouldRefreshContents = shouldRefreshContents;
-	}
-
-	protected boolean shouldRefreshContents() {
-		return ClientStorageContentsTooltipBase.shouldRefreshContents;
 	}
 
 	private void calculateWidth() {
@@ -277,8 +269,8 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 	public void extractText(GuiGraphicsExtractor guiGraphics, Font font, int leftX, int topY) {
 		refreshIfNeeded();
 		for (TextEntry entry : textEntries) {
-			// 必须带有不透明的 alpha：0xFFFFFF 是 0x00FFFFFF（全透明），文字会画了看不见，
-			// 只剩 tooltip 的框。原版 ClientTooltipComponent 的文本实现同样用 -1（0xFFFFFFFF）。
+			// The alpha has to be opaque: 0xFFFFFF is 0x00FFFFFF (fully transparent), so the text was drawn but
+			// invisible, leaving only the tooltip frame. Vanilla text components use -1 (0xFFFFFFFF) as well.
 			guiGraphics.text(font, entry.text(), leftX, topY + entry.y(), 0xFFFFFFFF);
 		}
 	}
@@ -313,5 +305,9 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 			return;
 		}
 		initContents(player);
+		if (refreshRequested) {
+			refreshRequested = false;
+			refreshContents(getStorageWrapper());
+		}
 	}
 }

@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -55,7 +56,7 @@ class SearchBox extends TextBox {
 		}
 
 		if (isEditable()) {
-			if (button == 0) {
+			if (button == InputConstants.MOUSE_BUTTON_LEFT) {
 				// 只有“屏幕当前焦点不是本框”时才重设焦点。Screen.setFocused 会先给旧焦点 setFocused(false)
 				// 再给新焦点 setFocused(true)：同框重设一次就等于让内部 EditBox 走一遍失焦→获焦，
 				// 而 26.3 的 EditBox 失焦会 submitPreeditEvent(null)、获焦会 resubmitLastPreeditEvent(...)，
@@ -71,7 +72,7 @@ class SearchBox extends TextBox {
 				setPosition(new Position(maximizedX, y));
 				updateDimensions(maximizedWidth, getHeight());
 				forwardClickToEditBox(event, isDoubleClick);
-			} else if (button == 1) {
+			} else if (button == InputConstants.MOUSE_BUTTON_RIGHT) {
 				setValue("");
 			}
 			return true;

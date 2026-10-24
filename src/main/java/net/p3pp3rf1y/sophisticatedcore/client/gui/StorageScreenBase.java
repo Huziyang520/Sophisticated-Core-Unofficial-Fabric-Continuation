@@ -1,5 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui;
 
+import com.mojang.blaze3d.platform.InputConstants;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.TextBox;
+import net.minecraft.client.input.KeyEvent;
+import net.minecraft.client.resources.sounds.SimpleSoundInstance;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.RenderPipelines;
@@ -173,6 +178,15 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	 * 任何地方都不再重算 (width - imageWidth) / 2 —— 一旦两处算得不一样，背景格子与物品就会整体错位，
 	 * GUI 缩放调得越大错得越明显。
 	 */
+	/**
+	 * Anchor the tab column and the upgrade switches were last placed for. Both are built from absolute coordinates, so
+	 * any change of leftPos/topPos has to rebuild them; otherwise the whole column keeps its old coordinates and looks
+	 * (and hits) one or more pixels off from the background.
+	 */
+	private int layoutAnchorX = Integer.MIN_VALUE;
+	private int layoutAnchorY = Integer.MIN_VALUE;
+	private boolean tabColumnRebuildPending = false;
+
 	private void updateDimensionsAndSlotPositions(int height) {
 		numberOfUpgradeSlots = getMenu().getNumberOfUpgradeSlots();
 		int totalRows = getMenu().getNumberOfRows();
@@ -200,6 +214,11 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		updateUpgradeSlotsPositions();
 		updateSortButtonsPositions();
 		updateTransferButtonsPositions();
+		if (leftPos != layoutAnchorX || topPos != layoutAnchorY) {
+			layoutAnchorX = leftPos;
+			layoutAnchorY = topPos;
+			tabColumnRebuildPending = true;
+		}
 	}
 
 	protected int getStorageInventoryHeight(int displayableNumberOfRows) {
@@ -295,14 +314,11 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		getMenu().setUpgradeChangeListener(c -> {
 			updateDimensionsAndSlotPositions(height);
 			updateInventoryScrollPanel();
-			children().remove(settingsTabControl);
 			craftingUIPart.onCraftingSlotsHidden();
-			initUpgradeSettingsControl();
 			initUpgradeInventoryParts();
-			addUpgradeSwitches();
-			// 升级变化后页签列、整理按钮、转移按钮都要按新面板重新摆一次，否则命中区留在旧位置
-			updateSortButtonsPositions();
-			updateTransferButtonsPositions();
+			// The widget list must not be edited from a sync callback or from the render path: remember that the tab
+			// column is stale and rebuild it once in the next tick.
+			tabColumnRebuildPending = true;
 		});
 		if (shouldShowSortButtons()) {
 			addSortButtons();
@@ -467,16 +483,13 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		Position pos = getSortButtonsPosition(sortButtonsPosition);
 
 		sortButton = new Button(new Position(pos.x(), pos.y()), ButtonDefinitions.SORT, button -> {
-			SophisticatedCore.LOGGER.debug("Sort button clicked (button {}, sortBy {})", button, getDisplayedSortBy());
-			if (button == 0) {
+			if (button == InputConstants.MOUSE_BUTTON_LEFT) {
 				getMenu().sort();
-				//noinspection ConstantConditions - by this point player can't be null
-				Minecraft.getInstance().player.sendOverlayMessage(Component.literal("Sorted"));
 			}
 		});
 		addRenderableWidget(sortButton);
 		sortByButton = new ToggleButton<>(new Position(pos.x() + 12, pos.y()), ButtonDefinitions.SORT_BY, button -> {
-			if (button == 0) {
+			if (button == InputConstants.MOUSE_BUTTON_LEFT) {
 				SortBy next = getDisplayedSortBy().next();
 				// 先落本地再发包：按钮图标读的是 getDisplayedSortBy()，点一下就必须换，
 				// 不能等服务端/物品组件那一圈同步回来（背包那条路经常把它盖回去）。
@@ -550,6 +563,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	 */
 	@Override
 	public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		// Gui.setScreen warps the cursor after init() has run (grabMouse + resyncMousePosition), so the restore
+		// scheduled there can only be applied from the first frame of the new screen.
+		CursorRestorer.restoreWhenFrameRendered();
 		if (menu.detectSettingsChangeAndReload()) {
 			updateDimensionsAndSlotPositions(height);
 			updateInventoryScrollPanel();
@@ -561,10 +577,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			upgradeColumnCountSynced = columnsSynced;
 			updateDimensionsAndSlotPositions(height);
 			updateInventoryScrollPanel();
-			children().remove(settingsTabControl);
-			initUpgradeSettingsControl();
 			initUpgradeInventoryParts();
-			updateSortButtonsPositions();
+			// Rebuilding widgets from the render pass is forbidden (AGENTS §8); containerTick picks this up instead.
+			tabColumnRebuildPending = true;
 		}
 		super.extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
 
@@ -956,7 +971,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	private void handleQuickMoveAll(double mouseX, double mouseY, int button) {
 		Slot slot = findSlot(mouseX, mouseY);
-		if (!getMenu().getCarried().isEmpty() && slot != null && button == 0 && menu.canTakeItemForPickAll(ItemStack.EMPTY, slot) && GuiHelper.isShiftDown() && !lastQuickMoved.isEmpty()) {
+		if (!getMenu().getCarried().isEmpty() && slot != null && button == InputConstants.MOUSE_BUTTON_LEFT && menu.canTakeItemForPickAll(ItemStack.EMPTY, slot) && GuiHelper.isShiftDown() && !lastQuickMoved.isEmpty()) {
 			for (Slot slot2 : menu.realInventorySlots) {
 				tryQuickMoveSlot(button, slot, slot2);
 			}
@@ -1002,7 +1017,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		double mouseY = event.y();
 		int button = event.button();
 		Slot slot = findSlot(mouseX, mouseY);
-		if (GuiHelper.isShiftDown() && GuiHelper.isControlDown() && slot instanceof StorageInventorySlot && button == 0) {
+		if (GuiHelper.isShiftDown() && GuiHelper.isControlDown() && slot instanceof StorageInventorySlot && button == InputConstants.MOUSE_BUTTON_LEFT) {
 			PacketDistributor.sendToServer(new TransferFullSlotPayload(slot.index));
 			return true;
 		}
@@ -1015,6 +1030,20 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		}
 		if (sortByButton != null && sortByButton.mouseClicked(event, isDoubleClick)) {
 			return true;
+		}
+		// Middle click on empty space sorts the storage, on a slot it picks the item. This has to be handled before
+		// the child dispatch: the decorations above the slots (scroll panel background, tab column) used to swallow
+		// the click, so a middle click only ever played the button sound and did nothing.
+		if (button == InputConstants.MOUSE_BUTTON_MIDDLE) {
+			if (slot == null) {
+				getMenu().sort();
+				playButtonSound();
+				return true;
+			}
+			if (getMenu().getCarried().isEmpty()) {
+				handleInventoryMouseClick(slot.index, button, ContainerInput.CLONE);
+				return true;
+			}
 		}
 		GuiEventListener focused = getFocused();
 		if (focused != null && !focused.isMouseOver(mouseX, mouseY) && (focused instanceof WidgetBase widgetBase)) {
@@ -1048,6 +1077,47 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		}
 	}
 
+	private boolean isOverScrollbar(double mouseX, double mouseY) {
+		return inventoryScrollPanel != null && inventoryScrollPanel.isOverScrollbar(mouseX, mouseY);
+	}
+
+	/**
+	 * The scroll panel is no longer reported by {@code getChildAt} (it used to swallow clicks meant for the slots), so
+	 * wheel events have to be forwarded to it explicitly - otherwise a storage screen with more rows than fit would stop
+	 * scrolling.
+	 */
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		if (inventoryScrollPanel != null && inventoryScrollPanel.isMouseOver(mouseX, mouseY)
+				&& inventoryScrollPanel.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) {
+			return true;
+		}
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+	}
+
+	/**
+	 * {@code [} / {@code ]} move the matching items between the storage and the player inventory, the same actions the
+	 * two transfer buttons offer. Typing into the search box must not trigger them, so a focused text field wins.
+	 */
+	@Override
+	public boolean keyPressed(KeyEvent event) {
+		if (getFocused() instanceof TextBox) {
+			return super.keyPressed(event);
+		}
+		int key = event.key();
+		if (key == InputConstants.KEY_LBRACKET) {
+			getMenu().transferItemsToStorage(!GuiHelper.isShiftDown());
+			playButtonSound();
+			return true;
+		}
+		if (key == InputConstants.KEY_RBRACKET) {
+			getMenu().transferItemsToPlayerInventory(!GuiHelper.isShiftDown());
+			playButtonSound();
+			return true;
+		}
+		return super.keyPressed(event);
+	}
+
 	/**
 	 * 从最上层（后加的先问）往下逐个询问子控件，只有真正处理了点击才认为命中。
 	 * 滚动面板在槽位上方时让开，让点击落到格子（和 {@link #getChildAt} 的规则保持一致）。
@@ -1056,10 +1126,11 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		double mouseX = event.x();
 		double mouseY = event.y();
 		List<? extends GuiEventListener> children = children();
-		boolean slotUnderMouse = findSlot(mouseX, mouseY) != null;
 		for (int i = children.size() - 1; i >= 0; i--) {
 			GuiEventListener child = children.get(i);
-			if (slotUnderMouse && child == inventoryScrollPanel) {
+			if (child == inventoryScrollPanel && !isOverScrollbar(mouseX, mouseY)) {
+				// The panel covers every storage slot of a scrollable screen. It only owns the scrollbar itself;
+				// anywhere else the click belongs to the slot underneath.
 				continue;
 			}
 			if (!child.isMouseOver(mouseX, mouseY)) {
@@ -1067,7 +1138,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			}
 			if (child.mouseClicked(event, isDoubleClick)) {
 				setFocused(child);
-				if (event.button() == 0) {
+				if (event.button() == InputConstants.MOUSE_BUTTON_LEFT) {
 					setDragging(true);
 				}
 				return true;
@@ -1082,21 +1153,41 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	 */
 	private void clickSlotNotInMenu(Slot slot, MouseButtonEvent event, boolean isDoubleClick) {
 		int button = event.button();
-		int containerButton = switch (button) {
-			case 1 -> 0; // 右键
-			case 3 -> 1; // 中键：和父类一致，当成取出一半
-			default -> button;
-		};
+		if (button == InputConstants.MOUSE_BUTTON_MIDDLE) {
+			// Pick item. The server only clones for players with infinite materials, which is vanilla behaviour and
+			// matches the upstream mod, so survival middle click is intentionally a no-op here.
+			handleInventoryMouseClick(slot.index, button, ContainerInput.CLONE);
+			return;
+		}
+		int containerButton = getContainerClickButton(button);
 		ContainerInput input;
-		if (button == 0 && event.hasShiftDown()) {
+		if (button == InputConstants.MOUSE_BUTTON_LEFT && event.hasShiftDown()) {
 			input = ContainerInput.QUICK_MOVE;
 		} else if (isDoubleClick && getMenu().getCarried().isEmpty()) {
 			input = ContainerInput.PICKUP_ALL;
 		} else {
 			input = ContainerInput.PICKUP;
 		}
-		SophisticatedCore.LOGGER.debug("Slot {} is not part of menu.slots, forwarding click directly (button {}, input {})", slot.index, containerButton, input);
 		slotClicked(slot, slot.index, containerButton, input);
+	}
+
+	/**
+	 * 26.3 mouse buttons are left=1 / middle=2 / right=3, while {@code AbstractContainerMenu} still expects
+	 * left=0 / right=1. The old mapping was written for the 1.21.1 numbering (0/1/2) and mapped right click to the
+	 * left button, so a right click on an upgrade slot picked up the whole stack instead of one item.
+	 */
+	private static int getContainerClickButton(int mouseButton) {
+		return switch (mouseButton) {
+			case InputConstants.MOUSE_BUTTON_LEFT -> 0;
+			case InputConstants.MOUSE_BUTTON_RIGHT -> 1;
+			default -> mouseButton;
+		};
+	}
+
+	private void playButtonSound() {
+		if (Boolean.TRUE.equals(Config.CLIENT.playButtonSound.get())) {
+			Minecraft.getInstance().getSoundManager().play(SimpleSoundInstance.forUI(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+		}
 	}
 
 	/**
@@ -1112,10 +1203,12 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			return Optional.empty();
 		}
 		List<? extends GuiEventListener> children = children();
-		boolean slotUnderMouse = findSlot(mouseX, mouseY) != null;
 		for (int i = children.size() - 1; i >= 0; i--) {
 			GuiEventListener child = children.get(i);
-			if (slotUnderMouse && child == inventoryScrollPanel) {
+			if (child == inventoryScrollPanel && !isOverScrollbar(mouseX, mouseY)) {
+				// Never report the scroll panel as the hovered child: 26.3's ContainerEventHandler treats "there is a
+				// child here" as handled and skips the slot logic, which made whole areas of the screen unclickable
+				// whenever the panel happened to sit above a slot that findSlot could not resolve.
 				continue;
 			}
 			if (child.isMouseOver(mouseX, mouseY)) {
@@ -1293,7 +1386,25 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	@Override
 	protected void containerTick() {
 		super.containerTick();
+		if (tabColumnRebuildPending) {
+			tabColumnRebuildPending = false;
+			rebuildTabColumn();
+		}
 		settingsTabControl.tick();
+	}
+
+	/**
+	 * Re-creates the tab column and re-places every widget that is positioned from leftPos/topPos. Called from the tick
+	 * loop so no widget list is mutated while a click is being dispatched or a frame is being drawn.
+	 */
+	private void rebuildTabColumn() {
+		if (settingsTabControl != null) {
+			children().remove(settingsTabControl);
+		}
+		initUpgradeSettingsControl();
+		updateSortButtonsPositions();
+		updateTransferButtonsPositions();
+		addUpgradeSwitches();
 	}
 
 	private class TransferButton extends Button {
@@ -1302,7 +1413,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 		public TransferButton(Consumer<Boolean> transferItems, ButtonDefinition shiftDefinition, ButtonDefinition definition) {
 			super(new Position(StorageScreenBase.this.leftPos, StorageScreenBase.this.topPos), definition, button -> {
-				if (button == 0) {
+				if (button == InputConstants.MOUSE_BUTTON_LEFT) {
 					transferItems.accept(!GuiHelper.isShiftDown());
 				}
 			});

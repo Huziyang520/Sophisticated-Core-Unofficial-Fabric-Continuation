@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.settings.itemdisplay;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
@@ -53,11 +54,11 @@ public class ItemDisplaySettingsTab extends SettingsTab<ItemDisplaySettingsConta
 						.add(Component.translatable(TranslationHelper.INSTANCE.translSettingsTooltip(ItemDisplaySettingsCategory.NAME)))
 						.addAll(TranslationHelper.INSTANCE.getTranslatedLines(TranslationHelper.INSTANCE.translSettingsTooltip(ItemDisplaySettingsCategory.NAME) + "_open_detail", null, ChatFormatting.GRAY))
 						.build(),
-				onTabIconClicked -> new ImageButton(new Position(position.x() + 1, position.y() + 4), Dimension.SQUARE_16, ICON, onTabIconClicked));
+				onTabIconClicked -> new ImageButton(new Position(position.x() + 1, position.y() + 3), Dimension.SQUARE_16, ICON, onTabIconClicked));
 		addHideableChild(new Button(new Position(x + 3, y + 24), ROTATE, button -> {
-			if (button == 0) {
+			if (button == InputConstants.MOUSE_BUTTON_LEFT) {
 				container.rotateClockwise(currentSelectedSlot);
-			} else if (button == 1) {
+			} else if (button == InputConstants.MOUSE_BUTTON_RIGHT) {
 				container.rotateCounterClockwise(currentSelectedSlot);
 			}
 		}) {
@@ -69,9 +70,9 @@ public class ItemDisplaySettingsTab extends SettingsTab<ItemDisplaySettingsConta
 		addHideableChild(new ColorToggleButton(new Position(x + 21, y + 24), container::getColor, container::setColor));
 		if (showSideSelection()) {
 			addHideableChild(new ToggleButton<>(new Position(x + 39, y + 24), DISPLAY_SIDE, button -> {
-				if (button == 0) {
+				if (button == InputConstants.MOUSE_BUTTON_LEFT) {
 					container.setDisplaySide(container.getDisplaySide().next());
-				} else if (button == 1) {
+				} else if (button == InputConstants.MOUSE_BUTTON_RIGHT) {
 					container.setDisplaySide(container.getDisplaySide().previous());
 				}
 			}, container::getDisplaySide));

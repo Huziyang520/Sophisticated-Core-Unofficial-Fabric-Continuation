@@ -5,6 +5,7 @@
  */
 package net.p3pp3rf1y.sophisticatedcore.client.gui.controls;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -199,6 +200,15 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 				mouseY >= this.top && mouseY <= this.bottom;
 	}
 
+	/**
+	 * Whether the cursor is on the scrollbar itself. Everything else inside the panel rectangle belongs to whatever is
+	 * drawn underneath (the slots), so the owning screen must not report the panel as the hit child there.
+	 */
+	public boolean isOverScrollbar(double mouseX, double mouseY) {
+		return mouseX >= this.barLeft && mouseX < this.barLeft + this.barWidth
+				&& mouseY >= this.top && mouseY < this.bottom;
+	}
+
 	@Override
 	public boolean mouseClicked(MouseButtonEvent event, boolean isDoubleClick) {
 		double mouseX = event.x();
@@ -207,7 +217,7 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 		if (super.mouseClicked(event, isDoubleClick))
 			return true;
 
-		this.scrolling = button == 0 && mouseX >= barLeft && mouseX < barLeft + barWidth;
+		this.scrolling = button == InputConstants.MOUSE_BUTTON_LEFT && mouseX >= barLeft && mouseX < barLeft + barWidth;
 		if (this.scrolling) {
 			return true;
 		}

@@ -34,7 +34,6 @@ public class TextBox extends WidgetBase {
 
 	@Override
 	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		syncEditBoxFocus();
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
 		poseStack.translate(0, 0);
@@ -67,12 +66,12 @@ public class TextBox extends WidgetBase {
 	}
 
 	/**
-	 * 让内部 {@link EditBox} 的焦点与包装层保持一致。
+	 * Aligns the inner {@link EditBox} focus with the wrapper exactly once per real focus change.
 	 * <p>
-	 * EditBox 不是屏幕的子控件，焦点在它自己、TextBox 包装层两处各记一份：只要有一处丢了
-	 * （点一下别处再点回来、父类把焦点转给别的控件），{@code charTyped} 就会在
-	 * {@code EditBox.canConsumeInput()} 上直接返回 false —— 看上去就是“搜索框只能用一次”。
-	 * 每帧渲染与每次按键/字符输入前都对齐一次，比在点击路径上补一个个 setFocused 稳。
+	 * This used to run from the render path every frame. 26.3 fires an IME submit/resubmit whenever an editable
+	 * {@code EditBox} toggles focus, so treating the focus flag as "derived state to fix up while drawing" replayed
+	 * pre-edit events after every focus mismatch and the player saw the text vanish. Focus is now only pushed when a
+	 * click, key press or character input actually needs it.
 	 */
 	protected void syncEditBoxFocus() {
 		boolean shouldBeFocused = isFocused() && isEditable();

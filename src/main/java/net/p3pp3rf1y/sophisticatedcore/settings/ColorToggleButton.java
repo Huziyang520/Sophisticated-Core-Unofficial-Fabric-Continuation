@@ -1,5 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.settings;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import com.google.common.collect.ImmutableList;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.ChatFormatting;
@@ -45,9 +46,9 @@ public class ColorToggleButton extends ButtonBase {
 	}
 
 	private void toggleColor(int button) {
-		if (button == 0) {
+		if (button == InputConstants.MOUSE_BUTTON_LEFT) {
 			setColor.accept(nextColor(getColor.get()));
-		} else if (button == 1) {
+		} else if (button == InputConstants.MOUSE_BUTTON_RIGHT) {
 			setColor.accept(previousColor(getColor.get()));
 		}
 	}
