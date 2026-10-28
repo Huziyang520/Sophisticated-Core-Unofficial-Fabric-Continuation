@@ -32,9 +32,10 @@
     "client.ClientLevelMixin",
     "client.ClientPacketListenerMixin",
     "client.MinecraftMixin",
+    "client.MouseHandlerMixin",
     "client.ScreenMixin"
   ],
   "injectors": {
-    "defaultRequire": 0
+    "defaultRequire": 1
   }
 }

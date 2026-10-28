@@ -971,7 +971,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	private void handleQuickMoveAll(double mouseX, double mouseY, int button) {
 		Slot slot = findSlot(mouseX, mouseY);
-		if (!getMenu().getCarried().isEmpty() && slot != null && button == InputConstants.MOUSE_BUTTON_LEFT && menu.canTakeItemForPickAll(ItemStack.EMPTY, slot) && GuiHelper.isShiftDown() && !lastQuickMoved.isEmpty()) {
+		// 上游要求双击：单次 shift+点击只走原版 QUICK_MOVE，否则会把同类物品整批搬走
+		if (doubleclick && !getMenu().getCarried().isEmpty() && slot != null && button == InputConstants.MOUSE_BUTTON_LEFT && menu.canTakeItemForPickAll(ItemStack.EMPTY, slot) && GuiHelper.isShiftDown() && !lastQuickMoved.isEmpty()) {
 			for (Slot slot2 : menu.realInventorySlots) {
 				tryQuickMoveSlot(button, slot, slot2);
 			}
@@ -1031,19 +1032,16 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		if (sortByButton != null && sortByButton.mouseClicked(event, isDoubleClick)) {
 			return true;
 		}
-		// Middle click on empty space sorts the storage, on a slot it picks the item. This has to be handled before
-		// the child dispatch: the decorations above the slots (scroll panel background, tab column) used to swallow
-		// the click, so a middle click only ever played the button sound and did nothing.
-		if (button == InputConstants.MOUSE_BUTTON_MIDDLE) {
-			if (slot == null) {
-				getMenu().sort();
-				playButtonSound();
-				return true;
-			}
-			if (getMenu().getCarried().isEmpty()) {
-				handleInventoryMouseClick(slot.index, button, ContainerInput.CLONE);
-				return true;
-			}
+		// 中键语义与上游一致：空白处或容器格整理，玩家背包格留给原版取物（CLONE）。
+		// 必须在子控件派发之前处理：滚动面板与页签列盖住槽位时会先把点击吞掉。
+		if (sortMouseMatcher.test(event) && (slot == null || getMenu().isNotPlayersInventorySlot(slot.index))) {
+			getMenu().sort();
+			playButtonSound();
+			return true;
+		}
+		if (button == InputConstants.MOUSE_BUTTON_MIDDLE && slot != null && getMenu().getCarried().isEmpty()) {
+			handleInventoryMouseClick(slot.index, button, ContainerInput.CLONE);
+			return true;
 		}
 		GuiEventListener focused = getFocused();
 		if (focused != null && !focused.isMouseOver(mouseX, mouseY) && (focused instanceof WidgetBase widgetBase)) {
@@ -1098,11 +1096,17 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	/**
 	 * {@code [} / {@code ]} move the matching items between the storage and the player inventory, the same actions the
 	 * two transfer buttons offer. Typing into the search box must not trigger them, so a focused text field wins.
+	 * 业务模组把自己注册的「整理」键位接到 {@link #setSortKeyMatcher} 上，改键后仍然生效。
 	 */
 	@Override
 	public boolean keyPressed(KeyEvent event) {
 		if (getFocused() instanceof TextBox) {
 			return super.keyPressed(event);
+		}
+		if (sortKeyMatcher.test(event)) {
+			getMenu().sort();
+			playButtonSound();
+			return true;
 		}
 		int key = event.key();
 		if (key == InputConstants.KEY_LBRACKET) {
@@ -1153,9 +1157,13 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	 */
 	private void clickSlotNotInMenu(Slot slot, MouseButtonEvent event, boolean isDoubleClick) {
 		int button = event.button();
+		// 与已进菜单的槽位同一套语义：容器侧的槽位（升级槽 / 不排序槽）整理，玩家背包槽才取物
+		if (sortMouseMatcher.test(event) && getMenu().isNotPlayersInventorySlot(slot.index)) {
+			getMenu().sort();
+			playButtonSound();
+			return;
+		}
 		if (button == InputConstants.MOUSE_BUTTON_MIDDLE) {
-			// Pick item. The server only clones for players with infinite materials, which is vanilla behaviour and
-			// matches the upstream mod, so survival middle click is intentionally a no-op here.
 			handleInventoryMouseClick(slot.index, button, ContainerInput.CLONE);
 			return;
 		}
@@ -1176,12 +1184,25 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	 * left=0 / right=1. The old mapping was written for the 1.21.1 numbering (0/1/2) and mapped right click to the
 	 * left button, so a right click on an upgrade slot picked up the whole stack instead of one item.
 	 */
-	private static int getContainerClickButton(int mouseButton) {
+	public static int getContainerClickButton(int mouseButton) {
 		return switch (mouseButton) {
 			case InputConstants.MOUSE_BUTTON_LEFT -> 0;
 			case InputConstants.MOUSE_BUTTON_RIGHT -> 1;
 			default -> mouseButton;
 		};
+	}
+
+	/** 「整理」的鼠标键由业务模组注册的键位决定，默认中键。 */
+	private static Predicate<MouseButtonEvent> sortMouseMatcher = event -> event.button() == InputConstants.MOUSE_BUTTON_MIDDLE;
+	/** 「整理」的键盘键：业务模组没注册键盘绑定时恒 false。 */
+	private static Predicate<KeyEvent> sortKeyMatcher = event -> false;
+
+	public static void setSortMouseMatcher(Predicate<MouseButtonEvent> matcher) {
+		sortMouseMatcher = matcher;
+	}
+
+	public static void setSortKeyMatcher(Predicate<KeyEvent> matcher) {
+		sortKeyMatcher = matcher;
 	}
 
 	private void playButtonSound() {
@@ -1237,6 +1258,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 					&& menu.canDragTo(slot)
 					&& isAllowedSlotCombination(slot, itemstack)) {
 				quickCraftSlots.add(slot);
+				// 26.3 把余量重算收进了 private 方法，漏掉它光标上那叠会按 0 个绘制
+				recalculateQuickCraftRemaining();
 					}
 			return true;
 		}

@@ -14,6 +14,10 @@ accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScr
 accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen lastQuickMoved Lnet/minecraft/world/item/ItemStack;
 accessible method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen isHovering (Lnet/minecraft/world/inventory/Slot;DD)Z
 
+# 双击判定与拖拽余量重算在 26.3 都是 private：前者决定「整类快速移动」，后者决定光标上那叠画几个
+accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen doubleclick Z
+accessible method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen recalculateQuickCraftRemaining ()V
+
 accessible field net/minecraft/client/gui/screens/Screen renderables Ljava/util/List;
 
 # 菜单同步：远端槽位在 26.3 换成了 RemoteSlot 包装

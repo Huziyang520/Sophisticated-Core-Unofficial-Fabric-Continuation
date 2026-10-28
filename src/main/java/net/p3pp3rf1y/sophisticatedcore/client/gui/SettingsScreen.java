@@ -271,7 +271,8 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		// 26.3 的 MouseButtonEvent 给的是 1/3，而设置页按容器编号 0/1 解释；拖选必须与点击走同一套换算
+		int button = StorageScreenBase.getContainerClickButton(event.button());
 		if (mouseDragHandledByOther) {
 			return false;
 		}

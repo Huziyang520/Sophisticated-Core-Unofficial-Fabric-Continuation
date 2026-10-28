@@ -147,7 +147,8 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 		}
 		if (!upgrades.isEmpty()) {
 			textEntries.add(new TextEntry(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + ".upgrades").withStyle(ChatFormatting.YELLOW), y));
-			y += 10;
+			// 段标题占 12px（上游 32 = 12 + 20 的同一口径），压成 10 会让整块比上游矮 2px
+			y += 12;
 			int x = 0;
 			for (IUpgradeWrapper upgradeWrapper : upgrades) {
 				if (upgradeWrapper.canBeDisabled()) {
@@ -161,7 +162,7 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 		}
 		if (!sortedContents.isEmpty()) {
 			textEntries.add(new TextEntry(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip(STORAGE_ITEM) + ".inventory").withStyle(ChatFormatting.YELLOW), y));
-			y += 10;
+			y += 12;
 			int x = 0;
 			for (int i = 0; i < sortedContents.size(); i++) {
 				if (i > 0 && i % MAX_STACKS_ON_LINE == 0) {
