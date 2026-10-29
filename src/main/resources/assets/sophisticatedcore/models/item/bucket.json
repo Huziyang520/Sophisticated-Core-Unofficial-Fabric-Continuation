@@ -1,7 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": {
-    "layer0": "minecraft:item/bucket",
-    "layer1": "sophisticatedcore:item/mask/bucket_fluid"
-  }
-}
