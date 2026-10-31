@@ -68,11 +68,11 @@ public class REIMoveItemsPayload implements CustomPacketPayload {
 			boolean shift = payload.shiftDown;
 			try {
 				CompoundTag nbt = payload.tag;
-				int version = nbt.getInt("Version");
+				int version = nbt.getIntOr("Version", 0);
 				if (version != 1) throw new IllegalStateException("Server and client REI protocol version mismatch! Server: 1, Client: " + version);
-				List<InputIngredient<ItemStack>> inputs = readInputs(nbt.getList("Inputs", Tag.TAG_COMPOUND));
-				List<SlotAccessor> input = readSlots(container, player, nbt.getList("InputSlots", Tag.TAG_COMPOUND));
-				List<SlotAccessor> inventory = readSlots(container, player, nbt.getList("InventorySlots", Tag.TAG_COMPOUND));
+				List<InputIngredient<ItemStack>> inputs = readInputs(nbt.getListOrEmpty("Inputs"));
+				List<SlotAccessor> input = readSlots(container, player, nbt.getListOrEmpty("InputSlots"));
+				List<SlotAccessor> inventory = readSlots(container, player, nbt.getListOrEmpty("InventorySlots"));
 				NewInputSlotCrafter<AbstractContainerMenu, Container> crafter = new NewInputSlotCrafter<>(container, input, inventory, inputs) {
 					@Override
 					protected void fillInputSlot(SlotAccessor slot, ItemStack toBeTakenStack) {
@@ -165,7 +165,7 @@ public class REIMoveItemsPayload implements CustomPacketPayload {
 		List<InputIngredient<ItemStack>> inputs = new ArrayList<>();
 		for (Tag t : tag) {
 			CompoundTag compoundTag = (CompoundTag) t;
-			InputIngredient<EntryStack<?>> stacks = InputIngredient.of(compoundTag.getInt("Index"), EntryIngredient.read(compoundTag.getList("Ingredient", Tag.TAG_COMPOUND)));
+			InputIngredient<EntryStack<?>> stacks = InputIngredient.of(compoundTag.getIntOr("Index", 0), EntryIngredient.read(compoundTag.getListOrEmpty("Ingredient")));
 			inputs.add(InputIngredient.withType(stacks, VanillaEntryTypes.ITEM));
 		}
 		return inputs;

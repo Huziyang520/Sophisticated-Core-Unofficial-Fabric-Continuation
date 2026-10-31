@@ -17,14 +17,14 @@ public class InventorySorter {
 	private InventorySorter() {
 	}
 
-	public static final Comparator<Map.Entry<ItemStackKey, Integer>> BY_NAME = Comparator.comparing(o -> o.getKey().getStack().getHoverName().getString().toLowerCase());
+	public static final Comparator<Map.Entry<ItemStackKey, Integer>> BY_NAME = Comparator.comparing(o -> o.getKey().getStack().getHoverName().getStringOr(, "").toLowerCase());
 	public static final Comparator<Map.Entry<ItemStackKey, Integer>> BY_MOD =
 			Comparator
 					.<Map.Entry<ItemStackKey, Integer>, String>comparing(o -> {
 						Identifier registryName = BuiltInRegistries.ITEM.getKey(o.getKey().getStack().getItem());
 						return registryName.getNamespace();
 					})
-					.thenComparing(o -> o.getKey().getStack().getHoverName().getString());
+					.thenComparing(o -> o.getKey().getStack().getHoverName().getStringOr(, ""));
 
 
 	public static final Comparator<Map.Entry<ItemStackKey, Integer>> BY_COUNT = (first, second) -> {

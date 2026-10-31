@@ -228,9 +228,9 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 	@Override
 	public void handlePacket(CompoundTag data) {
 		if (data.contains(DATA_SHIFT_CLICK_INTO_STORAGE)) {
-			setShiftClickIntoStorage(data.getBoolean(DATA_SHIFT_CLICK_INTO_STORAGE));
+			setShiftClickIntoStorage(data.getBooleanOr(DATA_SHIFT_CLICK_INTO_STORAGE, false));
 		} else if (data.contains(DATA_SELECT_RESULT)) {
-			selectCraftingResult(data.getInt(DATA_SELECT_RESULT));
+			selectCraftingResult(data.getIntOr(DATA_SELECT_RESULT, 0));
 		}
 	}
 

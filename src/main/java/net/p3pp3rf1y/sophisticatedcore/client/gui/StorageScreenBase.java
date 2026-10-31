@@ -85,7 +85,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	private Button transferToInventoryButton;
 	private TextBox searchBox;
 	private Predicate<ItemStack> stackFilter = stack -> searchBox == null || searchBox.getValue().isEmpty()
-			|| (!stack.isEmpty() && stack.getHoverName().getString().toLowerCase().contains(searchBox.getValue().toLowerCase()));
+			|| (!stack.isEmpty() && stack.getHoverName().getStringOr(, "").toLowerCase().contains(searchBox.getValue().toLowerCase()));
 	private int visibleSlotsCount;
 	private boolean initializing = true;
 
@@ -278,9 +278,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 				filters.add(stack -> modName.isEmpty() || BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().contains(modName));
 			} else if (searchTerm.startsWith("#")) {
 				String tooltipKeyword = searchTerm.substring(1).toLowerCase();
-				filters.add(stack -> getTooltipFromItem(minecraft, stack).stream().anyMatch(line -> line.getString().toLowerCase().contains(tooltipKeyword)));
+				filters.add(stack -> getTooltipFromItem(minecraft, stack).stream().anyMatch(line -> line.getStringOr(, "").toLowerCase().contains(tooltipKeyword)));
 			} else {
-				filters.add(stack -> stack.getHoverName().getString().toLowerCase().contains(searchTerm.toLowerCase()));
+				filters.add(stack -> stack.getHoverName().getStringOr(, "").toLowerCase().contains(searchTerm.toLowerCase()));
 			}
 		}
 

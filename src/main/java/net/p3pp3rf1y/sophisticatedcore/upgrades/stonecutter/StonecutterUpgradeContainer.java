@@ -21,7 +21,7 @@ public class StonecutterUpgradeContainer extends UpgradeContainerBase<Stonecutte
 	@Override
 	public void handlePacket(CompoundTag data) {
 		if (data.contains(DATA_SHIFT_CLICK_INTO_STORAGE)) {
-			setShiftClickIntoStorage(data.getBoolean(DATA_SHIFT_CLICK_INTO_STORAGE));
+			setShiftClickIntoStorage(data.getBooleanOr(DATA_SHIFT_CLICK_INTO_STORAGE, false));
 		} else {
 			recipeContainer.handlePacket(data);
 		}

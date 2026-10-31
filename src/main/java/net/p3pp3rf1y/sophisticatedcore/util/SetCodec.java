@@ -20,7 +20,7 @@ public record SetCodec<E>(Codec<E> elementCodec) implements Codec<Set<E>> {
 
     @Override
     public <T> DataResult<Pair<Set<E>, T>> decode(final DynamicOps<T> ops, final T input) {
-        return ops.getList(input).setLifecycle(Lifecycle.stable()).flatMap(stream -> {
+        return ops.getListOrEmpty(input).setLifecycle(Lifecycle.stable()).flatMap(stream -> {
             final DecoderState<T> decoder = new DecoderState<>(ops);
             stream.accept(decoder::accept);
             return decoder.build();

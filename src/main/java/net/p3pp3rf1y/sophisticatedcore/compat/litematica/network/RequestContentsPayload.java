@@ -88,7 +88,7 @@ public record RequestContentsPayload() implements CustomPacketPayload {
 	public static boolean shulkerBoxHasItems(ItemStack stackShulkerBox) {
 		CustomData data = stackShulkerBox.get(DataComponents.BLOCK_ENTITY_DATA);
 		if (data != null && data.contains("Items")) {
-			return !data.copyTag().getList("Items", Tag.TAG_COMPOUND).isEmpty();
+			return !data.copyTag().getListOrEmpty("Items").isEmpty();
 		}
 
 		return false;

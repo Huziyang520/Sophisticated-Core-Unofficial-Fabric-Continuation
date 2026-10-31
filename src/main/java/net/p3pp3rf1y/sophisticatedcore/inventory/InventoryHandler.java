@@ -70,8 +70,8 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		this.contentsNbt = contentsNbt;
 		this.saveHandler = saveHandler;
 		setBaseSlotLimit(baseSlotLimit);
-		RegistryHelper.getRegistryAccess().ifPresent(registryAccess -> deserializeNBT(registryAccess, contentsNbt.getCompound(INVENTORY_TAG)));
-		inventoryPartitioner = new InventoryPartitioner(contentsNbt.getCompound(PARTITIONER_TAG), this, () -> storageWrapper.getSettingsHandler().getTypeCategory(MemorySettingsCategory.class));
+		RegistryHelper.getRegistryAccess().ifPresent(registryAccess -> deserializeNBT(registryAccess, contentsNbt.getCompoundOrEmpty(INVENTORY_TAG)));
+		inventoryPartitioner = new InventoryPartitioner(contentsNbt.getCompoundOrEmpty(PARTITIONER_TAG), this, () -> storageWrapper.getSettingsHandler().getTypeCategory(MemorySettingsCategory.class));
 		initStackNbts();
 
 		isInitializing = false;
@@ -145,12 +145,12 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	@Override
 	public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt) {
 		slotTracker.clear();
-		setSize(nbt.contains("Size", Tag.TAG_INT) ? nbt.getInt("Size") : getSlotCount());
-		ListTag tagList = nbt.getList("Items", Tag.TAG_COMPOUND);
+		setSize(nbt.contains("Size", Tag.TAG_INT) ? nbt.getIntOr("Size", 0) : getSlotCount());
+		ListTag tagList = nbt.getListOrEmpty("Items");
 		RegistryHelper.getRegistryAccess().ifPresent(registryAccess -> {
 			for (int i = 0; i < tagList.size(); i++) {
-				CompoundTag itemTag = tagList.getCompound(i);
-				int slot = itemTag.getInt("Slot");
+				CompoundTag itemTag = tagList.getCompoundOrEmpty(i);
+				int slot = itemTag.getIntOr("Slot", 0);
 				if (slot >= 0 && slot < getSlotCount()) {
 					// Changed to call onStackChange in the load function
 					this.getSlot(slot).load(registryAccess, itemTag);

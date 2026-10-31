@@ -92,7 +92,7 @@ public abstract class RenderInfo {
 
 	private void serializeUpgradeData(Consumer<CompoundTag> modifyUpgradesTag) {
 		CompoundTag renderInfo = getRenderInfoTag().orElse(new CompoundTag());
-		CompoundTag upgrades = renderInfo.getCompound(UPGRADES_TAG);
+		CompoundTag upgrades = renderInfo.getCompoundOrEmpty(UPGRADES_TAG);
 		modifyUpgradesTag.accept(upgrades);
 		renderInfo.put(UPGRADES_TAG, upgrades);
 		serializeRenderInfo(renderInfo);
@@ -136,17 +136,17 @@ public abstract class RenderInfo {
 	}
 
 	private void deserializeUpgradeItems(CompoundTag renderInfoTag) {
-		ListTag upgradeItemsTag = renderInfoTag.getList(UPGRADE_ITEMS_TAG, Tag.TAG_COMPOUND);
+		ListTag upgradeItemsTag = renderInfoTag.getListOrEmpty(UPGRADE_ITEMS_TAG);
 		upgradeItems.clear();
 		RegistryHelper.getRegistryAccess().ifPresent(registryAccess -> {
 			for (int i = 0; i < upgradeItemsTag.size(); i++) {
-				upgradeItems.add(ItemStack.parseOptional(registryAccess, upgradeItemsTag.getCompound(i)));
+				upgradeItems.add(ItemStack.parseOptional(registryAccess, upgradeItemsTag.getCompoundOrEmpty(i)));
 			}
 		});
 	}
 
 	private void deserializeItemDisplay(CompoundTag renderInfoTag) {
-		itemDisplayRenderInfo = ItemDisplayRenderInfo.deserialize(renderInfoTag.getCompound(ITEM_DISPLAY_TAG));
+		itemDisplayRenderInfo = ItemDisplayRenderInfo.deserialize(renderInfoTag.getCompoundOrEmpty(ITEM_DISPLAY_TAG));
 	}
 
 	protected abstract Optional<CompoundTag> getRenderInfoTag();
@@ -162,11 +162,11 @@ public abstract class RenderInfo {
 	}
 
 	private void deserializeUpgradeData(CompoundTag renderInfoTag) {
-		CompoundTag upgrades = renderInfoTag.getCompound(UPGRADES_TAG);
-		upgrades.getAllKeys().forEach(key -> {
+		CompoundTag upgrades = renderInfoTag.getCompoundOrEmpty(UPGRADES_TAG);
+		upgrades.keySet().forEach(key -> {
 			if (RENDER_DATA_TYPES.containsKey(key)) {
 				UpgradeRenderDataType<?> upgradeRenderDataType = RENDER_DATA_TYPES.get(key);
-				upgradeData.put(upgradeRenderDataType, upgradeRenderDataType.deserialize(upgrades.getCompound(key)));
+				upgradeData.put(upgradeRenderDataType, upgradeRenderDataType.deserialize(upgrades.getCompoundOrEmpty(key)));
 			}
 		});
 	}
@@ -200,10 +200,10 @@ public abstract class RenderInfo {
 	}
 
 	private void deserializeTanks(CompoundTag renderInfoTag) {
-		ListTag tanks = renderInfoTag.getList(TANKS_TAG, Tag.TAG_COMPOUND);
+		ListTag tanks = renderInfoTag.getListOrEmpty(TANKS_TAG);
 		for (int i = 0; i < tanks.size(); i++) {
-			CompoundTag tank = tanks.getCompound(i);
-			tankRenderInfos.put(TankPosition.valueOf(tank.getString(TANK_POSITION_TAG).toUpperCase(Locale.ENGLISH)), IRenderedTankUpgrade.TankRenderInfo.deserialize(tank.getCompound(TANK_INFO_TAG)));
+			CompoundTag tank = tanks.getCompoundOrEmpty(i);
+			tankRenderInfos.put(TankPosition.valueOf(tank.getStringOr(TANK_POSITION_TAG, "").toUpperCase(Locale.ENGLISH)), IRenderedTankUpgrade.TankRenderInfo.deserialize(tank.getCompoundOrEmpty(TANK_INFO_TAG)));
 		}
 	}
 
@@ -215,12 +215,12 @@ public abstract class RenderInfo {
 		CompoundTag tankInfo = tankRenderInfo.serialize();
 
 		CompoundTag renderInfo = getRenderInfoTag().orElse(new CompoundTag());
-		ListTag tanks = renderInfo.getList(TANKS_TAG, Tag.TAG_COMPOUND);
+		ListTag tanks = renderInfo.getListOrEmpty(TANKS_TAG);
 
 		boolean infoSet = false;
 		for (int i = 0; i < tanks.size(); i++) {
-			CompoundTag tank = tanks.getCompound(i);
-			if (tank.getString(TANK_POSITION_TAG).equals(tankPosition.getSerializedName())) {
+			CompoundTag tank = tanks.getCompoundOrEmpty(i);
+			if (tank.getStringOr(TANK_POSITION_TAG, "").equals(tankPosition.getSerializedName())) {
 				tank.put(TANK_INFO_TAG, tankInfo);
 				infoSet = true;
 			}
@@ -373,8 +373,8 @@ public abstract class RenderInfo {
 		}
 
 		private static DisplayItem deserialize(CompoundTag tag) {
-			return new DisplayItem(RegistryHelper.getRegistryAccess().map(registryAccess -> ItemStack.parseOptional(registryAccess, tag.getCompound(ITEM_TAG))).orElse(ItemStack.EMPTY),
-					tag.getInt(ROTATION_TAG), tag.getInt(SLOT_INDEX_TAG), DisplaySide.fromName(tag.getString(DISPLAY_SIDE_TAG)));
+			return new DisplayItem(RegistryHelper.getRegistryAccess().map(registryAccess -> ItemStack.parseOptional(registryAccess, tag.getCompoundOrEmpty(ITEM_TAG))).orElse(ItemStack.EMPTY),
+					tag.getIntOr(ROTATION_TAG, 0), tag.getIntOr(SLOT_INDEX_TAG, 0), DisplaySide.fromName(tag.getStringOr(DISPLAY_SIDE_TAG, "")));
 		}
 
 		public ItemStack getItem() {
