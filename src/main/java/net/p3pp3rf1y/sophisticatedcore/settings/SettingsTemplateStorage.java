@@ -1,20 +1,34 @@
 package net.p3pp3rf1y.sophisticatedcore.settings;
 
-import net.minecraft.core.HolderLookup;
+import com.mojang.serialization.Codec;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.world.level.storage.DimensionDataStorage;
+import net.minecraft.world.level.saveddata.SavedDataType;
+import net.minecraft.world.level.storage.SavedDataStorage;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 
 import java.util.*;
 
 public class SettingsTemplateStorage extends SavedData {
-	private static final String SAVED_DATA_NAME = SophisticatedCore.MOD_ID + "_settings_templates";
+	/**
+	 * 26.3 persists saved data through a codec instead of {@code save}/{@code load}.
+	 * The tag layout is kept byte-for-byte identical to the previous format.
+	 */
+	private static final Codec<SettingsTemplateStorage> CODEC = CompoundTag.CODEC.xmap(
+			SettingsTemplateStorage::load,
+			SettingsTemplateStorage::save);
+
+	private static final SavedDataType<SettingsTemplateStorage> TYPE = new SavedDataType<>(
+			SophisticatedCore.getRL("settings_templates"),
+			SettingsTemplateStorage::new,
+			CODEC,
+			null);
+
 	private Map<UUID, Map<Integer, CompoundTag>> playerTemplates = new HashMap<>();
 	private Map<UUID, Map<String, CompoundTag>> playerNamedTemplates = new HashMap<>();
 	private static final SettingsTemplateStorage clientStorageCopy = new SettingsTemplateStorage();
@@ -45,10 +59,12 @@ public class SettingsTemplateStorage extends SavedData {
 		return playerNamedTemplates.getOrDefault(player.getUUID(), new TreeMap<>());
 	}
 
-	@Override
-	public CompoundTag save(CompoundTag tag, HolderLookup.Provider registries) {
-		NBTHelper.putMap(tag, "playerTemplates", playerTemplates, UUID::toString, slotTemplates -> NBTHelper.putMap(new CompoundTag(), "slotTemplates", slotTemplates, String::valueOf, settingsTag -> settingsTag));
-		NBTHelper.putMap(tag, "playerNamedTemplates", playerNamedTemplates, UUID::toString, namedTemplates -> NBTHelper.putMap(new CompoundTag(), "namedTemplates", namedTemplates, v -> v, settingsTag -> settingsTag));
+	private static CompoundTag save(SettingsTemplateStorage storage) {
+		CompoundTag tag = new CompoundTag();
+		NBTHelper.putMap(tag, "playerTemplates", storage.playerTemplates, UUID::toString,
+				slotTemplates -> NBTHelper.putMap(new CompoundTag(), "slotTemplates", slotTemplates, String::valueOf, settingsTag -> settingsTag));
+		NBTHelper.putMap(tag, "playerNamedTemplates", storage.playerNamedTemplates, UUID::toString,
+				namedTemplates -> NBTHelper.putMap(new CompoundTag(), "namedTemplates", namedTemplates, v -> v, settingsTag -> settingsTag));
 		return tag;
 	}
 
@@ -58,14 +74,14 @@ public class SettingsTemplateStorage extends SavedData {
 			if (server != null) {
 				ServerLevel overworld = server.getLevel(Level.OVERWORLD);
 				//noinspection ConstantConditions - by this time overworld is loaded
-				DimensionDataStorage storage = overworld.getDataStorage();
-				return storage.computeIfAbsent(new Factory<>(SettingsTemplateStorage::new, SettingsTemplateStorage::load, null), SAVED_DATA_NAME);
+				SavedDataStorage storage = overworld.getDataStorage();
+				return storage.computeIfAbsent(TYPE);
 			}
 		}
 		return clientStorageCopy;
 	}
 
-	private static SettingsTemplateStorage load(CompoundTag tag, HolderLookup.Provider registries) {
+	private static SettingsTemplateStorage load(CompoundTag tag) {
 		return new SettingsTemplateStorage(
 				NBTHelper.getMap(tag, "playerTemplates", UUID::fromString,
 						(key, playerTemplatesTag) -> NBTHelper.getMap((CompoundTag) playerTemplatesTag, "slotTemplates", Integer::valueOf, (k, settingsTag) -> Optional.of((CompoundTag) settingsTag))

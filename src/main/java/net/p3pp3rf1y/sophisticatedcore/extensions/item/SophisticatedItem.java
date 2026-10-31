@@ -3,12 +3,12 @@ package net.p3pp3rf1y.sophisticatedcore.extensions.item;
 import net.minecraft.core.Holder;
 import net.p3pp3rf1y.sophisticatedcore.util.FuelHelper;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.equipment.EquipmentAssets;
+import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.food.FoodProperties;
-import net.minecraft.world.item.ArmorItem;
-import net.minecraft.world.item.ArmorMaterials;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -50,6 +50,7 @@ public interface SophisticatedItem {
 	}
 
 	default boolean makesPiglinsNeutral(ItemStack stack, LivingEntity wearer) {
-		return stack.getItem() instanceof ArmorItem && ((ArmorItem)stack.getItem()).getMaterial() == ArmorMaterials.GOLD;
+		Equippable equippable = stack.get(DataComponents.EQUIPPABLE);
+		return equippable != null && equippable.assetId().filter(EquipmentAssets.GOLD::equals).isPresent();
 	}
 }
