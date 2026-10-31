@@ -1,7 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -146,13 +144,13 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		// Fix for Blur+
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
-		poseStack.translate(0, 0, -20);
-		renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
+		guiGraphics.nextStratum();
+		extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
 		poseStack.popMatrix();
 
-		settingsTabControl.render(guiGraphics, mouseX, mouseY, partialTicks);
-		templatePersistanceControl.render(guiGraphics, mouseX, mouseY, partialTicks);
-		super.render(guiGraphics, mouseX, mouseY, partialTicks);
+		settingsTabControl.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
+		templatePersistanceControl.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
+		super.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		settingsTabControl.renderTooltip(this, guiGraphics, mouseX, mouseY);
 		templatePersistanceControl.renderTooltip(this, guiGraphics, mouseX, mouseY);
 		renderTooltip(guiGraphics, mouseX, mouseY);
@@ -162,8 +160,8 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	public void extractTransparentBackground(GuiGraphicsExtractor guiGraphics) {
 		Matrix3x2fStack pose = guiGraphics.pose();
 		pose.pushMatrix();
-		pose.translate(0, 0, -12);
-		super.renderTransparentBackground(guiGraphics);
+		guiGraphics.nextStratum();
+		super.extractTransparentBackground(guiGraphics);
 		pose.popMatrix();
 	}
 
@@ -196,12 +194,11 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	public void extractSlot(GuiGraphicsExtractor guiGraphics, Slot slot) {
 		ItemStack itemstack = slot.getItem() != ItemStack.EMPTY ? slot.getItem() : settingsTabControl.getSlotStackDisplayOverride(slot.sophisticatedCore_getSlotIndex(), isTemplateLoadHovered());
 
-		RenderSystem.enableDepthTest();
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
-		poseStack.translate(0, 0, 100);
+		guiGraphics.nextStratum();
 		//noinspection ConstantConditions - by this point minecraft isn't null
-		if (!settingsTabControl.renderGuiItem(guiGraphics, minecraft.getItemRenderer(), itemstack, slot, isTemplateLoadHovered())) {
+		if (!settingsTabControl.renderGuiItem(guiGraphics, itemstack, slot, isTemplateLoadHovered())) {
 			if (!getMenu().getSlotFilterItem(slot.index).isEmpty()) {
 				guiGraphics.item(getMenu().getSlotFilterItem(slot.index), slot.x, slot.y);
 			} else {
@@ -270,11 +267,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	}
 
 	private void renderSlotOverlay(GuiGraphicsExtractor guiGraphics, int xPos, int yPos, int height, int slotColor) {
-		RenderSystem.disableDepthTest();
-		RenderSystem.colorMask(true, true, true, false);
 		guiGraphics.fillGradient(xPos, yPos, xPos + 16, yPos + height, slotColor, slotColor);
-		RenderSystem.colorMask(true, true, true, true);
-		RenderSystem.enableDepthTest();
 	}
 
 	@Override

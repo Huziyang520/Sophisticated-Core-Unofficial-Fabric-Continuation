@@ -80,7 +80,7 @@ class SearchBox extends TextBox {
 		}
 
 		guiGraphics.pose().pushMatrix();
-		guiGraphics.pose().translate(0, 0, 100);
+		guiGraphics.pose().translate(0, 0);
 		guiGraphics.fill(x, y, x + getWidth(), y + getHeight(), 0xFF777777);
 		guiGraphics.pose().popMatrix();
 	}

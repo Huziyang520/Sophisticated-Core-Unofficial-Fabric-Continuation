@@ -1,11 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.client;
 
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
-import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
-import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
@@ -103,7 +100,7 @@ public class ClientEventHandler implements ClientModInitializer {
 		poseStack.pushMatrix();
 		// Because of trinkets we need to increase this from the original 300
 		// Trinkets uses 310, so 330 was chosen as 320 was not enough as it cut the plus sign in half
-		poseStack.translate(0, 0, 330);
+		guiGraphics.nextStratum();
 
 		int color = stashResult == IStashStorageItem.StashResult.MATCH_AND_SPACE ? ChatFormatting.GREEN.getColor() : 0xFFFF00;
 		if (stack.getItem() instanceof IStashStorageItem) {
@@ -117,7 +114,7 @@ public class ClientEventHandler implements ClientModInitializer {
     private static void renderSpecialTooltip(Minecraft mc, GuiGraphicsExtractor guiGraphics, int x, int y, StashResultAndTooltip stashResultAndTooltip) {
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
-		poseStack.translate(0, 0, 100);
+		guiGraphics.nextStratum();
 		guiGraphics.setTooltipForNextFrame(mc.font, Collections.singletonList(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip("storage") + ".right_click_to_add_to_storage")), stashResultAndTooltip.tooltip(), x, y);
 		poseStack.popMatrix();
 	}
@@ -152,9 +149,7 @@ public class ClientEventHandler implements ClientModInitializer {
 	}
 
 	private static void registerFluidClientExtension() {
-		FluidRenderHandlerRegistry.INSTANCE.register(XP_STILL.get(), XP_FLOWING.get(), new SimpleFluidRenderHandler(
-                SophisticatedCore.getRL("block/xp_still"),
-                SophisticatedCore.getRL("block/xp_flowing")
-        ));
+		// 26.3 resolves fluid sprites from the fluid model set, which already points at the
+		// block/xp_still and block/xp_flowing textures through the normal resource pipeline.
 	}
 }

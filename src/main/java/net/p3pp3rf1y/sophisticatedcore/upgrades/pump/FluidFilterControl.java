@@ -5,11 +5,11 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler;
-import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
+import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.p3pp3rf1y.sophisticatedcore.platform.FluidStack;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.WidgetBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.FluidSprites;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 
@@ -39,10 +39,10 @@ public class FluidFilterControl extends WidgetBase {
 		for (int i = 0; i < container.getNumberOfFluidFilters(); i++) {
 			FluidStack fluid = container.getFluid(i);
 			if (!fluid.isEmpty()) {
-				FluidRenderHandler handler = FluidRenderHandlerRegistry.INSTANCE.get(fluid.getFluid());
-				TextureAtlasSprite[] sprites = handler.getFluidSprites(null, null, fluid.getFluid().defaultFluidState());
-				int tint = handler.getFluidColor(null, null,fluid.getFluid().defaultFluidState());
-				GuiHelper.renderTiledFluidTextureAtlas(guiGraphics, sprites[0], tint, x + i * 18 + 1, y + 1, 16);
+				TextureAtlasSprite sprite = FluidSprites.getStillSprite(fluid.getFluid());
+				if (sprite != null) {
+					GuiHelper.renderTiledFluidTextureAtlas(guiGraphics, sprite, FluidVariantRendering.getColor(fluid.getVariant()), x + i * 18 + 1, y + 1, 16);
+				}
 			}
 		}
 	}

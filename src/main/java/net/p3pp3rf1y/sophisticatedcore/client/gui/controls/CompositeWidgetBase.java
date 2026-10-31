@@ -25,7 +25,7 @@ public abstract class CompositeWidgetBase<T extends WidgetBase> extends WidgetBa
 
 	@Override
 	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		children.forEach(child -> child.render(guiGraphics, mouseX, mouseY, partialTicks));
+		children.forEach(child -> child.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks));
 	}
 
 	protected <U extends T> U addChild(U child) {

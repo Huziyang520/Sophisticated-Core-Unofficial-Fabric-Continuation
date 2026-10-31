@@ -2,7 +2,6 @@ package net.p3pp3rf1y.sophisticatedcore.settings;
 
 import com.google.common.collect.ImmutableMap;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
-import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.SettingsScreen;
@@ -78,11 +77,11 @@ public abstract class StorageSettingsTabControlBase extends SettingsTabControl<S
 		getOpenTab().ifPresent(tab -> tab.handleSlotClick(slot, mouseButton));
 	}
 
-	public boolean renderGuiItem(GuiGraphicsExtractor guiGraphics, ItemRenderer itemRenderer, ItemStack itemstack, Slot slot, boolean templateLoadHovered) {
+	public boolean renderGuiItem(GuiGraphicsExtractor guiGraphics, ItemStack itemstack, Slot slot, boolean templateLoadHovered) {
 		for (SettingsTab<?> tab : settingsTabs) {
 			int rotation = tab.getItemRotation(slot.index, templateLoadHovered);
 			if (rotation != 0) {
-				GuiHelper.tryRenderGuiItem(guiGraphics, itemRenderer, minecraft.player, itemstack, slot.x, slot.y, rotation);
+				GuiHelper.tryRenderGuiItem(guiGraphics, itemstack, slot.x, slot.y, rotation);
 				return true;
 			}
 		}

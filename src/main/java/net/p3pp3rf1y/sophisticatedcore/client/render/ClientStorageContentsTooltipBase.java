@@ -1,7 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.client.render;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
@@ -248,9 +246,9 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 	private int renderTooltipLine(GuiGraphicsExtractor guiGraphics, int leftX, int topY, Font font, Component tooltip) {
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
-		poseStack.translate(0.0D, 0.0D, 200.0F);
+		guiGraphics.nextStratum();
 		guiGraphics.text(font, tooltip, leftX, topY, 16777215);
-		poseStack.translate(0.0D, 0.0D, -200.0F);
+		guiGraphics.nextStratum();
 		poseStack.popMatrix();
 		return topY + 10;
 	}
@@ -259,7 +257,6 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 		int x = leftX;
 		for (IUpgradeWrapper upgradeWrapper : upgrades) {
 			if (upgradeWrapper.canBeDisabled()) {
-				RenderSystem.disableDepthTest();
 				GuiHelper.blit(guiGraphics, x, topY + 3, upgradeWrapper.isEnabled() ? UPGRADE_ON : UPGRADE_OFF);
 				x += 4;
 			}

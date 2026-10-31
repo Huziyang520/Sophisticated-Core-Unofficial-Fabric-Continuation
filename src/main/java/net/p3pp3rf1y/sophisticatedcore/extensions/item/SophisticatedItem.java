@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.extensions.item;
 
-import net.fabricmc.fabric.api.registry.FuelRegistry;
 import net.minecraft.core.Holder;
+import net.p3pp3rf1y.sophisticatedcore.util.FuelHelper;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -28,8 +28,7 @@ public interface SophisticatedItem {
 
 	@OverrideOnly
 	default int getBurnTime(ItemStack stack, @Nullable RecipeType<?> recipeType) {
-		Integer burnTime = FuelRegistry.INSTANCE.get(stack.getItem());
-		return burnTime != null ? burnTime : 0;
+		return FuelHelper.getBurnTime(stack);
 	}
 
     default InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context)

@@ -1,7 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.client.gui;
 
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.narration.NarrationElementOutput;
@@ -53,18 +51,17 @@ public abstract class SettingsTabControl<C extends AbstractContainerScreen<?>, T
 	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		Matrix3x2fStack pose = guiGraphics.pose();
 		pose.pushMatrix();
-		pose.translate(0,0, -11);
+		guiGraphics.nextStratum();
 		children.forEach(child -> {
 			if (child != openTab) {
-				child.render(guiGraphics, mouseX, mouseY, partialTicks);
+				child.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 			}
 		});
 		pose.popMatrix();
 
 		if (openTab != null) {
-			openTab.render(guiGraphics, mouseX, mouseY, partialTicks);
+			openTab.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		}
-		RenderSystem.enableDepthTest();
 	}
 
 	private boolean isNotCovered(T open, Tab t, boolean checkFullyCovered) {

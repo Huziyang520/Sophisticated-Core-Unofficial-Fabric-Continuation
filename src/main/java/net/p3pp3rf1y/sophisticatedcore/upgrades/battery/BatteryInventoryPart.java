@@ -10,7 +10,6 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TextureBlitData;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.UV;
-import org.joml.Matrix4f;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -102,7 +101,6 @@ public class BatteryInventoryPart extends UpgradeInventoryPartBase<BatteryUpgrad
 		int initialGreen = BOTTOM_BAR_COLOR >> 8 & 255;
 		int initialBlue = BOTTOM_BAR_COLOR & 255;
 
-		Matrix4f matrix = guiGraphics.pose().last().pose();
 
 		for (int i = 0; i < displayLevel; i++) {
 			float percentage = (float) i / (numberOfSegments - 1);
@@ -111,7 +109,7 @@ public class BatteryInventoryPart extends UpgradeInventoryPartBase<BatteryUpgrad
 			int blue = (int) (initialBlue * (1 - percentage) + finalBlue * percentage);
 			int color = red << 16 | green << 8 | blue | 255 << 24;
 
-			GuiHelper.coloredBlit(matrix, getTankLeft() + 1, pos.y() + height - (i + 1) * segmentHeight, CHARGE_SEGMENT, color);
+			GuiHelper.coloredBlit(guiGraphics, getTankLeft() + 1, pos.y() + height - (i + 1) * segmentHeight, CHARGE_SEGMENT, color);
 		}
 	}
 }

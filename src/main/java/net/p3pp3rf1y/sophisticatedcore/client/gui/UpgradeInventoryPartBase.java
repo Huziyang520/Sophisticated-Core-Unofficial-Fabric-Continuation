@@ -12,7 +12,7 @@ public abstract class UpgradeInventoryPartBase<C extends UpgradeContainerBase<?,
 		this.upgradeSlot = upgradeSlot;
 	}
 
-	public abstract void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY);
+	public abstract void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY);
 
 	public abstract boolean handleMouseReleased(double mouseX, double mouseY, int button);
 

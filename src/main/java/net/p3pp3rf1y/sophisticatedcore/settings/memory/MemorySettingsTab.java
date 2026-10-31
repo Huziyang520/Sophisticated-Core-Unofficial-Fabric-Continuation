@@ -1,8 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.settings.memory;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.blaze3d.systems.RenderSystem;
-import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.network.chat.Component;
@@ -95,11 +93,7 @@ public class MemorySettingsTab extends SettingsTab<MemorySettingsContainer> {
 	private void drawMemorizedStackOverlay(GuiGraphicsExtractor guiGraphics, Slot slot) {
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
-		RenderSystem.enableBlend();
-		RenderSystem.disableDepthTest();
 		guiGraphics.blit(GuiHelper.GUI_CONTROLS, slot.x, slot.y, 77, 0, 16, 16);
-		RenderSystem.enableDepthTest();
-		RenderSystem.disableBlend();
 		poseStack.popMatrix();
 	}
 }
