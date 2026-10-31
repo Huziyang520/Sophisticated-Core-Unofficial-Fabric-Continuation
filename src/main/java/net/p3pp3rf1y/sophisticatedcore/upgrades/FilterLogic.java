@@ -84,9 +84,9 @@ public class FilterLogic {
 
 	private boolean isTagMatch(ItemStack stack) {
 		if (shouldMatchAnyTag()) {
-			return anyTagMatches(stack.getTags());
+			return anyTagMatches(stack.getItem().builtInRegistryHolder().tags());
 		}
-		return allTagsMatch(stack.getTags());
+		return allTagsMatch(stack.getItem().builtInRegistryHolder().tags());
 	}
 
 	private boolean allTagsMatch(Stream<TagKey<Item>> tagsStream) {
