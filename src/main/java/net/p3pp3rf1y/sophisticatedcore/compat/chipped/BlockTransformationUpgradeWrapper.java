@@ -1,0 +1,72 @@
+package net.p3pp3rf1y.sophisticatedcore.compat.chipped;
+
+import earth.terrarium.chipped.common.recipes.ChippedRecipe;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeType;
+import io.github.fabricators_of_create.porting_lib.transfer.item.ItemStackHandler;
+import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import net.p3pp3rf1y.sophisticatedcore.api.IStorageWrapper;
+import net.p3pp3rf1y.sophisticatedcore.init.ModCoreDataComponents;
+import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
+import net.p3pp3rf1y.sophisticatedcore.util.SimpleItemContent;
+
+import java.util.Optional;
+import java.util.function.Consumer;
+
+public class BlockTransformationUpgradeWrapper extends UpgradeWrapperBase<BlockTransformationUpgradeWrapper, BlockTransformationUpgradeItem> {
+	private final SlottedStackStorage inputInventory;
+	private final RecipeType<ChippedRecipe> recipeType;
+
+	protected BlockTransformationUpgradeWrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler) {
+		super(storageWrapper, upgrade, upgradeSaveHandler);
+
+		inputInventory = new ItemStackHandler(1) {
+			@Override
+			protected void onContentsChanged(int slot) {
+				super.onContentsChanged(slot);
+				if (slot == 0) {
+					upgrade.sophisticatedCore_set(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.copyOf(getStackInSlot(0)));
+				}
+				save();
+			}
+		};
+		inputInventory.setStackInSlot(0, upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.INPUT_ITEM, SimpleItemContent.EMPTY).copy());
+		recipeType = upgradeItem.getRecipeType();
+	}
+
+	public SlottedStackStorage getInputInventory() {
+		return inputInventory;
+	}
+
+	public void setResult(ItemStack result) {
+		if (result.isEmpty()) {
+			upgrade.sophisticatedCore_remove(ModCoreDataComponents.RESULT_ITEM);
+			return;
+		}
+
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.RESULT_ITEM, SimpleItemContent.copyOf(result));
+		save();
+	}
+
+	public Optional<SimpleItemContent> getResult() {
+		return Optional.ofNullable(upgrade.sophisticatedCore_get(ModCoreDataComponents.RESULT_ITEM));
+	}
+
+	@Override
+	public boolean canBeDisabled() {
+		return false;
+	}
+
+	public boolean shouldShiftClickIntoStorage() {
+		return upgrade.sophisticatedCore_getOrDefault(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, true);
+	}
+
+	public void setShiftClickIntoStorage(boolean shiftClickIntoStorage) {
+		upgrade.sophisticatedCore_set(ModCoreDataComponents.SHIFT_CLICK_INTO_STORAGE, shiftClickIntoStorage);
+		save();
+	}
+
+	public RecipeType<ChippedRecipe> getRecipeType() {
+		return recipeType;
+	}
+}
