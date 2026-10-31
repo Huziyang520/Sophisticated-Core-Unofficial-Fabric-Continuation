@@ -3,6 +3,5 @@
 @ParametersAreNonnullByDefault @MethodsReturnNonnullByDefault
 package net.p3pp3rf1y.sophisticatedcore.client.gui.controls;
 
-import net.minecraft.MethodsReturnNonnullByDefault;
 
 import javax.annotation.ParametersAreNonnullByDefault;

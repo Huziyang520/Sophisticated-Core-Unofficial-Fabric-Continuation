@@ -5,7 +5,6 @@ import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
-import net.minecraft.util.Tuple;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Item;
@@ -52,7 +51,7 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 	@Override
 	public ItemStack assemble(CraftingInput inv, HolderLookup.Provider registries) {
 		Map<Integer, List<DyeColor>> columnDyes = new HashMap<>();
-		Tuple<Integer, ItemStack> columnStorage = null;
+		ColumnStorage columnStorage = null;
 
 		for (int slot = 0; slot < inv.size(); slot++) {
 			ItemStack slotStack = inv.getItem(slot);
@@ -65,7 +64,7 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 					return ItemStack.EMPTY;
 				}
 
-				columnStorage = new Tuple<>(column, slotStack);
+				columnStorage = new ColumnStorage(column, slotStack);
 			} else if (slotStack.is(ConventionalItemTags.DYES)) {
 				DyeColor dyeColor = getColorFromStack(slotStack);
 				if (dyeColor == null) {
@@ -80,9 +79,9 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 			return ItemStack.EMPTY;
 		}
 
-		ItemStack coloredStorage = columnStorage.getB().copy();
+		ItemStack coloredStorage = columnStorage.stack().copy();
 		coloredStorage.setCount(1);
-		int storageColumn = columnStorage.getA();
+		int storageColumn = columnStorage.column();
 
 		applyTintColors(columnDyes, coloredStorage, storageColumn);
 
@@ -127,5 +126,11 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 		}
 
 		return null;
+	}
+
+	/**
+	 * Column index plus the storage stack found in that column.
+	 */
+	private record ColumnStorage(int column, ItemStack stack) {
 	}
 }

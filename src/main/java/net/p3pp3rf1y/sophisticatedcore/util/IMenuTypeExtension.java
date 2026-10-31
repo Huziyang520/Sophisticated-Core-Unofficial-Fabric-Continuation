@@ -2,7 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 
 import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType;
-import net.fabricmc.fabric.api.screenhandler.v1.ExtendedMenuType.ExtendedFactory;
+import net.fabricmc.fabric.api.menu.v1.ExtendedMenuType.ExtendedFactory;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.world.inventory.AbstractContainerMenu;
