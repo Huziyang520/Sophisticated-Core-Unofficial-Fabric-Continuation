@@ -10,7 +10,7 @@ public class LitematicaPayloads {
 	public static void registerPackets() {
 		ModPayloads.registerC2S(RequestContentsPayload.TYPE, RequestContentsPayload.STREAM_CODEC, RequestContentsPayload::handlePayload);
 
-		PayloadTypeRegistry.playS2C().register(UpdateMaterialListPayload.TYPE, UpdateMaterialListPayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(UpdateMaterialListPayload.TYPE, UpdateMaterialListPayload.STREAM_CODEC);
 		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
 			ClientPlayNetworking.registerGlobalReceiver(UpdateMaterialListPayload.TYPE, UpdateMaterialListPayload::handlePayload);
 		}

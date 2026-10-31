@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore;
 
-import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeModConfigEvents;
+import fuzs.forgeconfigapiport.fabric.api.v5.ModConfigEvents;
 import com.electronwill.nightconfig.core.io.WritingException;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -52,7 +52,7 @@ public class Config {
 		public final EnabledItems enabledItems;
 
 		public void initListeners() {
-			NeoForgeModConfigEvents.reloading(SophisticatedCore.MOD_ID).register(this::onConfigReload);
+			ModConfigEvents.reloading(SophisticatedCore.MOD_ID).register(this::onConfigReload);
 		}
 
 		@SuppressWarnings("unused") //need the Event parameter for forge reflection to understand what event this listens to

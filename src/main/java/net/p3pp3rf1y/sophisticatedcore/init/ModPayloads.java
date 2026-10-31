@@ -26,16 +26,16 @@ public class ModPayloads {
 		registerC2S(TankClickPayload.TYPE, TankClickPayload.STREAM_CODEC, TankClickPayload::handlePayload);
 		registerC2S(TransferItemsPayload.TYPE, TransferItemsPayload.STREAM_CODEC, TransferItemsPayload::handlePayload);
 
-		PayloadTypeRegistry.playS2C().register(SyncContainerStacksPayload.TYPE, SyncContainerStacksPayload.STREAM_CODEC);
-		PayloadTypeRegistry.playS2C().register(SyncSlotStackPayload.TYPE, SyncSlotStackPayload.STREAM_CODEC);
-		PayloadTypeRegistry.playS2C().register(SyncPlayerSettingsPayload.TYPE, SyncPlayerSettingsPayload.STREAM_CODEC);
-		PayloadTypeRegistry.playS2C().register(PlayDiscPayload.TYPE, PlayDiscPayload.STREAM_CODEC);
-		PayloadTypeRegistry.playS2C().register(StopDiscPlaybackPayload.TYPE, StopDiscPlaybackPayload.STREAM_CODEC);
-		PayloadTypeRegistry.playS2C().register(SyncTemplateSettingsPayload.TYPE, SyncTemplateSettingsPayload.STREAM_CODEC);
-		PayloadTypeRegistry.playS2C().register(SyncAdditionalSlotInfoPayload.TYPE, SyncAdditionalSlotInfoPayload.STREAM_CODEC);
-		PayloadTypeRegistry.playS2C().register(SyncEmptySlotIconsPayload.TYPE, SyncEmptySlotIconsPayload.STREAM_CODEC);
-		PayloadTypeRegistry.playS2C().register(SyncSlotChangeErrorPayload.TYPE, SyncSlotChangeErrorPayload.STREAM_CODEC);
-		PayloadTypeRegistry.playS2C().register(SyncDatapackSettingsTemplatePayload.TYPE, SyncDatapackSettingsTemplatePayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(SyncContainerStacksPayload.TYPE, SyncContainerStacksPayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(SyncSlotStackPayload.TYPE, SyncSlotStackPayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(SyncPlayerSettingsPayload.TYPE, SyncPlayerSettingsPayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(PlayDiscPayload.TYPE, PlayDiscPayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(StopDiscPlaybackPayload.TYPE, StopDiscPlaybackPayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(SyncTemplateSettingsPayload.TYPE, SyncTemplateSettingsPayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(SyncAdditionalSlotInfoPayload.TYPE, SyncAdditionalSlotInfoPayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(SyncEmptySlotIconsPayload.TYPE, SyncEmptySlotIconsPayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(SyncSlotChangeErrorPayload.TYPE, SyncSlotChangeErrorPayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(SyncDatapackSettingsTemplatePayload.TYPE, SyncDatapackSettingsTemplatePayload.STREAM_CODEC);
 
 		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
 			ClientPlayNetworking.registerGlobalReceiver(SyncContainerStacksPayload.TYPE, SyncContainerStacksPayload::handlePayload);
@@ -54,7 +54,7 @@ public class ModPayloads {
 	}
 
 	public static <T extends CustomPacketPayload> void registerC2S(CustomPacketPayload.Type<T> id, StreamCodec<? super RegistryFriendlyByteBuf, T> codec, ServerPlayNetworking.PlayPayloadHandler<T> handler) {
-		PayloadTypeRegistry.playC2S().register(id, codec);
+		PayloadTypeRegistry.serverboundPlay().register(id, codec);
 		ServerPlayNetworking.registerGlobalReceiver(id, handler);
 	}
 }
