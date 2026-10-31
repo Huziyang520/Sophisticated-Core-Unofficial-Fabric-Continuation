@@ -11,6 +11,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 
 import java.util.function.IntConsumer;
+import org.joml.Matrix3x2fStack;
 
 public class ItemButton extends ButtonBase {
 	private final ItemStack stack;
@@ -28,12 +29,12 @@ public class ItemButton extends ButtonBase {
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		PoseStack pose = guiGraphics.pose();
-		pose.pushPose();
+	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		Matrix3x2fStack pose = guiGraphics.pose();
+		pose.pushMatrix();
 		pose.translate(0, 0, -140);
-		guiGraphics.renderItem(stack, x, y);
-		pose.popPose();
+		guiGraphics.item(stack, x, y);
+		pose.popMatrix();
 	}
 
 	@Override

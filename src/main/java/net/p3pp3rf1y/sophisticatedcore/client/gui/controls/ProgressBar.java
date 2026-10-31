@@ -27,7 +27,7 @@ public class ProgressBar extends WidgetBase {
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		int height = progressTexture.getHeight();
 		int width = progressTexture.getWidth();
 		float progress = getProgress.get();

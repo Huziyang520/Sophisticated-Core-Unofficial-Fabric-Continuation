@@ -1,10 +1,10 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
-import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
-import io.github.fabricators_of_create.porting_lib.transfer.TransferUtil;
-import io.github.fabricators_of_create.porting_lib.transfer.callbacks.TransactionCallback;
-import io.github.fabricators_of_create.porting_lib.transfer.fluid.SimpleFluidContent;
-import io.github.fabricators_of_create.porting_lib.transfer.item.SlottedStackStorage;
+import net.p3pp3rf1y.sophisticatedcore.platform.FluidStack;
+import net.p3pp3rf1y.sophisticatedcore.platform.TransferUtil;
+import net.p3pp3rf1y.sophisticatedcore.platform.TransactionCallback;
+import net.p3pp3rf1y.sophisticatedcore.platform.SimpleFluidContent;
+import net.p3pp3rf1y.sophisticatedcore.platform.SlottedStackStorage;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;

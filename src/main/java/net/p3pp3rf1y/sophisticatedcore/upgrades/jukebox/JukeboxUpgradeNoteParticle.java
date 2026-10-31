@@ -6,7 +6,7 @@ import net.minecraft.util.Mth;
 
 import javax.annotation.Nullable;
 
-public class JukeboxUpgradeNoteParticle extends TextureSheetParticle {
+public class JukeboxUpgradeNoteParticle extends SingleQuadParticle {
 	protected JukeboxUpgradeNoteParticle(ClientLevel level, double x, double y, double z) {
 		super(level, x, y, z, 0.0D, 0.0D, 0.0D);
 		xd *= 0.01F;

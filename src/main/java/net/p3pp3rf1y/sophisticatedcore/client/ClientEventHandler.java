@@ -7,7 +7,7 @@ import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandlerRegistry;
 import net.fabricmc.fabric.api.client.render.fluid.v1.SimpleFluidRenderHandler;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
-import net.fabricmc.fabric.api.event.lifecycle.v1.ServerWorldEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
 import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
@@ -37,6 +37,7 @@ import java.util.Optional;
 
 import static net.p3pp3rf1y.sophisticatedcore.init.ModFluids.XP_FLOWING;
 import static net.p3pp3rf1y.sophisticatedcore.init.ModFluids.XP_STILL;
+import org.joml.Matrix3x2fStack;
 
 public class ClientEventHandler implements ClientModInitializer {
 	public ClientEventHandler() {
@@ -47,7 +48,7 @@ public class ClientEventHandler implements ClientModInitializer {
         ModParticles.registerFactories();
 		registerFluidClientExtension();
 
-        ServerWorldEvents.UNLOAD.register(StorageSoundHandler::onWorldUnload);
+        ServerLevelEvents.UNLOAD.register(StorageSoundHandler::onWorldUnload);
 		ClientTickEvents.END_WORLD_TICK.register(StorageSoundHandler::tick);
 
         ClientPlayConnectionEvents.JOIN.register(ClientEventHandler::onPlayerJoinServer);
@@ -98,27 +99,27 @@ public class ClientEventHandler implements ClientModInitializer {
 		int x = containerGui.sophisticatedCore_getGuiLeft() + s.x;
 		int y = containerGui.sophisticatedCore_getGuiTop() + s.y;
 
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
 		// Because of trinkets we need to increase this from the original 300
 		// Trinkets uses 310, so 330 was chosen as 320 was not enough as it cut the plus sign in half
 		poseStack.translate(0, 0, 330);
 
 		int color = stashResult == IStashStorageItem.StashResult.MATCH_AND_SPACE ? ChatFormatting.GREEN.getColor() : 0xFFFF00;
 		if (stack.getItem() instanceof IStashStorageItem) {
-			guiGraphics.drawString(mc.font, "+", x + 10, y + 8, color);
+			guiGraphics.text(mc.font, "+", x + 10, y + 8, color);
 		} else {
-			guiGraphics.drawString(mc.font, "-", x + 1, y, color);
+			guiGraphics.text(mc.font, "-", x + 1, y, color);
 		}
-		poseStack.popPose();
+		poseStack.popMatrix();
 	}
 
     private static void renderSpecialTooltip(Minecraft mc, GuiGraphicsExtractor guiGraphics, int x, int y, StashResultAndTooltip stashResultAndTooltip) {
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
 		poseStack.translate(0, 0, 100);
-		guiGraphics.renderTooltip(mc.font, Collections.singletonList(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip("storage") + ".right_click_to_add_to_storage")), stashResultAndTooltip.tooltip(), x, y);
-		poseStack.popPose();
+		guiGraphics.setTooltipForNextFrame(mc.font, Collections.singletonList(Component.translatable(TranslationHelper.INSTANCE.translItemTooltip("storage") + ".right_click_to_add_to_storage")), stashResultAndTooltip.tooltip(), x, y);
+		poseStack.popMatrix();
 	}
 
 	private static Optional<StashResultAndTooltip> getStashResultAndTooltip(ItemStack inInventory, ItemStack held) {

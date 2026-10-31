@@ -134,7 +134,7 @@ public class BlockTransformationRecipeControl extends WidgetBase {
 	}
 
 	private void renderTooltip(GuiGraphicsExtractor guiGraphics, ItemStack itemStack, int mouseX, int mouseY) {
-		guiGraphics.renderComponentTooltip(font, Screen.getTooltipFromItem(minecraft, itemStack), mouseX, mouseY);
+		guiGraphics.setTooltipForNextFrame(font, Screen.getTooltipFromItem(minecraft, itemStack), Optional.empty(), mouseX, mouseY);
 	}
 
 	private void onInventoryUpdate() {

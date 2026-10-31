@@ -39,6 +39,7 @@ import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import org.joml.Matrix3x2fStack;
 
 public class GuiHelper {
 	public static final Identifier GUI_CONTROLS = SophisticatedCore.getRL("textures/gui/gui_controls.png");
@@ -84,9 +85,9 @@ public class GuiHelper {
 	public static void renderItemInGUI(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, ItemStack stack, int xPosition, int yPosition, boolean renderOverlay,
 									   @Nullable String countText) {
 		RenderSystem.enableDepthTest();
-		guiGraphics.renderItem(stack, xPosition, yPosition);
+		guiGraphics.item(stack, xPosition, yPosition);
 		if (renderOverlay) {
-			guiGraphics.renderItemDecorations(minecraft.font, stack, xPosition, yPosition, countText);
+			guiGraphics.itemDecorations(minecraft.font, stack, xPosition, yPosition, countText);
 		}
 	}
 
@@ -155,7 +156,7 @@ public class GuiHelper {
 		for (int i = 0; i < textLines.size(); ++i) {
 			FormattedCharSequence line = textLines.get(i);
 			if (line != null) {
-				guiGraphics.drawString(font, line, (int) leftX, topY, color, true);
+				guiGraphics.text(font, line, (int) leftX, topY, color, true);
 			}
 
 			if (i == 0) {
@@ -298,8 +299,8 @@ public class GuiHelper {
 	}
 
 	private static void renderGuiItem(GuiGraphicsExtractor guiGraphics, ItemRenderer itemRenderer, ItemStack stack, int x, int y, BakedModel bakedModel, int rotation) {
-		PoseStack posestack = guiGraphics.pose();
-		posestack.pushPose();
+		Matrix3x2fStack posestack = guiGraphics.pose();
+		posestack.pushMatrix();
 		posestack.translate(x + 8F, y + 8F, 150.0F);
 		if (rotation != 0) {
 			posestack.mulPose(Axis.ZP.rotationDegrees(rotation));
@@ -323,13 +324,13 @@ public class GuiHelper {
 			Lighting.setupFor3DItems();
 		}
 
-		posestack.popPose();
+		posestack.popMatrix();
 		RenderSystem.applyModelViewMatrix();
 	}
 
 	public static void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, List<Component> components, int x, int y) {
 		List<ClientTooltipComponent> list = gatherTooltipComponents(components, x, screen.width, screen.height, screen.font);
-		guiGraphics.renderTooltipInternal(screen.font, list, x, y, DefaultTooltipPositioner.INSTANCE);
+		guiGraphics.tooltip(screen.font, list, x, y, DefaultTooltipPositioner.INSTANCE);
 	}
 
 	//copy of ForgeHooksClient.gatherTooltipComponents with splitting always called so that new lines in translation are properly wrapped

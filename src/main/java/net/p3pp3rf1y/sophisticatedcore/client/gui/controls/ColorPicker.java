@@ -186,7 +186,7 @@ public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 		}
 
 		@Override
-		protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 			float[] hsv = Color.RGBtoHSB(FastColor.ARGB32.red(color), FastColor.ARGB32.green(color), FastColor.ARGB32.blue(color), null);
 			int x = (int) (hsv[1] * getWidth());
 			int y = (int) ((1 - hsv[2]) * getHeight());
@@ -243,7 +243,7 @@ public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 		}
 
 		@Override
-		protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 			int hueMarker = (int) (hue * getHeight());
 
 			GuiHelper.fill(guiGraphics, x, y + getHeight() - hueMarker - 1, x + getWidth(), y + getHeight() - hueMarker - 1.2f, 0xFF_FFFFFF);
@@ -288,7 +288,7 @@ public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 		}
 
 		@Override
-		protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 			guiGraphics.fill(x, y, x + getWidth(), y + getHeight(), color);
 		}
 

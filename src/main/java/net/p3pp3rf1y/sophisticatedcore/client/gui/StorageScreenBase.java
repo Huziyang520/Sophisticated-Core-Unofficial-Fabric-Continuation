@@ -22,7 +22,7 @@ import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.FormattedCharSequence;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.item.ItemStack;
@@ -48,6 +48,7 @@ import java.util.function.Consumer;
 import java.util.function.Predicate;
 
 import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.GUI_CONTROLS;
+import org.joml.Matrix3x2fStack;
 
 public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> extends AbstractContainerScreen<S>
 		implements InventoryScrollPanel.IInventoryScreen {
@@ -425,18 +426,18 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	@Override
-	public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		if (menu.detectSettingsChangeAndReload()) {
 			updateStorageSlotsPositions();
 			updatePlayerSlotsPositions();
 			updateInventoryScrollPanel();
 			updateTransferButtonsPositions();
 		}
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
 		poseStack.translate(0, 0, -20);
 		renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
-		poseStack.popPose();
+		poseStack.popMatrix();
 
 		settingsTabControl.render(guiGraphics, mouseX, mouseY, partialTicks);
 
@@ -453,12 +454,12 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	@Override
-	public void renderTransparentBackground(GuiGraphicsExtractor guiGraphics) {
-		PoseStack pose = guiGraphics.pose();
-		pose.pushPose();
+	public void extractTransparentBackground(GuiGraphicsExtractor guiGraphics) {
+		Matrix3x2fStack pose = guiGraphics.pose();
+		pose.pushMatrix();
 		pose.translate(0, 0, -20);
 		super.renderTransparentBackground(guiGraphics);
-		pose.popPose();
+		pose.popMatrix();
 	}
 
 	/*@SuppressWarnings("java:S4449")
@@ -477,8 +478,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			widget.render(guiGraphics, mouseX, mouseY, partialTick);
 		}
 
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
 		poseStack.translate(i, j, 0.0D);
 
 		for (int k = 0; k < StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS; ++k) {
@@ -517,12 +518,12 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			renderFloatingItem(guiGraphics, itemstack, mouseX - i - 8, mouseY - j - i2, s);
 		}
 
-		poseStack.popPose();
+		poseStack.popMatrix();
 		RenderSystem.enableDepthTest();
 	}*/
 
 	@Override
-	protected void renderLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		super.renderLabels(guiGraphics, mouseX, mouseY);
 		renderUpgradeInventoryParts(guiGraphics, mouseX, mouseY);
 		renderUpgradeSlots(guiGraphics, mouseX, mouseY);
@@ -569,7 +570,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	@Override
-	public void renderSlot(GuiGraphicsExtractor guiGraphics, Slot slot) {
+	public void extractSlot(GuiGraphicsExtractor guiGraphics, Slot slot) {
 		int i = slot.x;
 		int j = slot.y;
 		ItemStack stackToRender = slot.getItem();
@@ -603,8 +604,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 				recalculateQuickCraftRemaining();
 			}
 		}
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
 		poseStack.translate(0, 0, 100);
 		if (stackToRender.isEmpty() && slot.isActive()) {
 			renderSlotBackground(guiGraphics, slot, i, j);
@@ -612,7 +613,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			renderStack(guiGraphics, i, j, stackToRender, flag, stackCountText);
 			slotDecorationRenderer.renderDecoration(guiGraphics, slot);
 		}
-		poseStack.popPose();
+		poseStack.popMatrix();
 	}
 
 	private void renderStack(GuiGraphicsExtractor guiGraphics, int x, int y, ItemStack itemstack, boolean flag, @Nullable String stackCountText) {
@@ -621,15 +622,15 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		}
 
 		RenderSystem.enableDepthTest();
-		guiGraphics.renderItem(itemstack, x, y);
+		guiGraphics.item(itemstack, x, y);
 		if (shouldUseSpecialCountRender(itemstack)) {
-			guiGraphics.renderItemDecorations(font, itemstack, x, y, "");
+			guiGraphics.itemDecorations(font, itemstack, x, y, "");
 			if (stackCountText == null) {
 				stackCountText = CountAbbreviator.abbreviate(itemstack.getCount());
 			}
 			renderStackCount(guiGraphics, stackCountText, x, y);
 		} else {
-			guiGraphics.renderItemDecorations(font, itemstack, x, y, stackCountText);
+			guiGraphics.itemDecorations(font, itemstack, x, y, stackCountText);
 		}
 		RenderSystem.disableDepthTest();
 	}
@@ -638,11 +639,11 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		Optional<ItemStack> memorizedStack = getMenu().getMemorizedStackInSlot(slot.index);
 		if (getMenu().isStorageInventorySlot(slot.index)) {
 			if (memorizedStack.isPresent()) {
-				guiGraphics.renderItem(memorizedStack.get(), i, j);
+				guiGraphics.item(memorizedStack.get(), i, j);
 				drawStackOverlay(guiGraphics, i, j);
 				return;
 			} else if (!getMenu().getSlotFilterItem(slot.index).isEmpty()) {
-				guiGraphics.renderItem(getMenu().getSlotFilterItem(slot.index), i, j);
+				guiGraphics.item(getMenu().getSlotFilterItem(slot.index), i, j);
 				drawStackOverlay(guiGraphics, i, j);
 				return;
 			}
@@ -656,13 +657,13 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	private void drawStackOverlay(GuiGraphicsExtractor guiGraphics, int x, int y) {
-		guiGraphics.pose().pushPose();
+		guiGraphics.pose().pushMatrix();
 		RenderSystem.enableBlend();
 		RenderSystem.disableDepthTest();
 		guiGraphics.blit(GuiHelper.GUI_CONTROLS, x, y, 77, 0, 16, 16);
 		RenderSystem.enableDepthTest();
 		RenderSystem.disableBlend();
-		guiGraphics.pose().popPose();
+		guiGraphics.pose().popMatrix();
 	}
 
 	private boolean shouldUseSpecialCountRender(ItemStack itemstack) {
@@ -685,7 +686,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		RenderSystem.enableDepthTest();
 	}
 
-	protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTicks, int mouseX, int mouseY) {
+	protected void extractContents(GuiGraphicsExtractor guiGraphics, float partialTicks, int mouseX, int mouseY) {
 		int x = (width - imageWidth) / 2;
 		int y = (height - imageHeight) / 2;
 		drawInventoryBg(guiGraphics, x, y, storageBackgroundProperties.getTextureName());
@@ -704,8 +705,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	private void drawSlotOverlays(GuiGraphicsExtractor guiGraphics) {
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
 		poseStack.translate(sophisticatedCore_getGuiLeft(), sophisticatedCore_getGuiTop(), 0.0F);
 		for (int slotNumber = 0; slotNumber < menu.getNumberOfStorageInventorySlots(); slotNumber++) {
 			List<Integer> colors = menu.getSlotOverlayColors(slotNumber);
@@ -719,17 +720,17 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 				}
 			}
 		}
-		poseStack.popPose();
+		poseStack.popMatrix();
 	}
 
 	@Override
-	protected void renderTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
+	protected void extractTooltip(GuiGraphicsExtractor guiGraphics, int x, int y) {
 		inventoryParts.values().forEach(part -> part.renderTooltip(this, guiGraphics, x, y));
 		if (getMenu().getCarried().isEmpty() && hoveredSlot != null) {
 			if (hoveredSlot.hasItem()) {
 				super.renderTooltip(guiGraphics, x, y);
 			} else if (hoveredSlot instanceof INameableEmptySlot emptySlot && emptySlot.hasEmptyTooltip()) {
-				guiGraphics.renderComponentTooltip(font, Collections.singletonList(emptySlot.getEmptyTooltip()), x, y);
+				guiGraphics.setTooltipForNextFrame(font, Collections.singletonList(emptySlot.getEmptyTooltip()), Optional.empty(), x, y);
 			}
 		}
 		if (sortButton != null) {
@@ -855,22 +856,22 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 				if (slotItem.getCount() > slotItem.getMaxStackSize()) {
 					PacketDistributor.sendToServer(new TransferFullSlotPayload(slot2.index));
 				} else {
-					slotClicked(slot2, slot2.index, button, ClickType.QUICK_MOVE);
+					slotClicked(slot2, slot2.index, button, ContainerInput.QUICK_MOVE);
 				}
 			}
 		}
 	}
 
 	@Override
-	protected void slotClicked(Slot slot, int slotNumber, int mouseButton, ClickType type) {
-		if (type == ClickType.PICKUP_ALL && !menu.getSlotUpgradeContainer(slot).map(c -> c.allowsPickupAll(slot)).orElse(true)) {
-			type = ClickType.PICKUP;
+	protected void slotClicked(Slot slot, int slotNumber, int mouseButton, ContainerInput type) {
+		if (type == ContainerInput.PICKUP_ALL && !menu.getSlotUpgradeContainer(slot).map(c -> c.allowsPickupAll(slot)).orElse(true)) {
+			type = ContainerInput.PICKUP;
 		}
 
 		handleInventoryMouseClick(slotNumber, mouseButton, type);
 	}
 
-	private void handleInventoryMouseClick(int slotNumber, int mouseButton, ClickType type) {
+	private void handleInventoryMouseClick(int slotNumber, int mouseButton, ContainerInput type) {
 		StorageContainerMenuBase<?> menu = getMenu();
 		List<ItemStack> realInventoryItems = new ArrayList<>(menu.realInventorySlots.size());
 		menu.realInventorySlots.forEach(slot -> realInventoryItems.add(slot.getItem().copy()));
@@ -990,15 +991,15 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	private void renderStackCount(GuiGraphicsExtractor guiGraphics, String count, int x, int y) {
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
 		poseStack.translate(0.0D, 0.0D, 200.0F);
 		float scale = Math.min(1f, (float) 16 / font.width(count));
 		if (scale < 1f) {
 			poseStack.scale(scale, scale, 1.0F);
 		}
-		guiGraphics.drawString(font, count, (int)((x + 19 - 2 - (font.width(count) * scale)) / scale), (int)((y + 6 + 3 + (1 / (scale * scale) - 1)) / scale), 16777215, true);
-		poseStack.popPose();
+		guiGraphics.text(font, count, (int)((x + 19 - 2 - (font.width(count) * scale)) / scale), (int)((y + 6 + 3 + (1 / (scale * scale) - 1)) / scale), 16777215, true);
+		poseStack.popMatrix();
 	}
 
 	@Override
@@ -1024,8 +1025,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	private void renderErrorOverlay(GuiGraphicsExtractor guiGraphics) {
 		menu.getErrorUpgradeSlotChangeResult().ifPresent(upgradeSlotChangeResult -> upgradeSlotChangeResult.getErrorMessage().ifPresent(overlayErrorMessage -> {
 			RenderSystem.disableDepthTest();
-			PoseStack poseStack = guiGraphics.pose();
-			poseStack.pushPose();
+			Matrix3x2fStack poseStack = guiGraphics.pose();
+			poseStack.pushMatrix();
 			poseStack.translate(sophisticatedCore_getGuiLeft(), sophisticatedCore_getGuiTop(), 0.0F);
 			upgradeSlotChangeResult.errorUpgradeSlots().forEach(slotIndex -> {
 				Slot upgradeSlot = menu.getSlot(menu.getFirstUpgradeSlot() + slotIndex);
@@ -1046,14 +1047,14 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 					}
 				}
 			});
-			poseStack.popPose();
+			poseStack.popMatrix();
 
 			renderErrorMessage(guiGraphics, poseStack, overlayErrorMessage);
 		}));
 	}
 
 	private void renderErrorMessage(GuiGraphicsExtractor guiGraphics, PoseStack matrixStack, Component overlayErrorMessage) {
-		matrixStack.pushPose();
+		matrixStack.pushMatrix();
 		matrixStack.translate((float) width / 2, (double) topPos + inventoryLabelY + 4, 300F);
 		Font fontrenderer = Minecraft.getInstance().font;
 
@@ -1090,7 +1091,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		matrixStack.translate(0.0D, 0.0D, 400.0D);
 		GuiHelper.writeTooltipLines(guiGraphics, wrappedTextLines, fontrenderer, leftX, 0, matrix4f, renderTypeBuffer, ERROR_TEXT_COLOR);
 		renderTypeBuffer.endBatch();
-		matrixStack.popPose();
+		matrixStack.popMatrix();
 	}
 
 	@Override
@@ -1145,7 +1146,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		}
 
 		@Override
-		protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 			if (hasShiftDown()) {
 				GuiHelper.blit(guiGraphics, x, y, shiftDefinition.getForegroundTexture());
 			} else {

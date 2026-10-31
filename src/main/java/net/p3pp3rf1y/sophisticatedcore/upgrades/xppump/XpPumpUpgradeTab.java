@@ -130,19 +130,19 @@ public class XpPumpUpgradeTab extends UpgradeSettingsTab<XpPumpUpgradeContainer>
 		}
 
 		@Override
-		protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 			String text = getText.get();
 			Component fullText = Component.translatable(TranslationHelper.INSTANCE.translUpgradeControl("xp_level_select"), Component.literal(text).withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.GRAY);
 			int xOffset = (getWidth() - minecraft.font.width(fullText)) / 2;
 			int yOffset = (int) Math.ceil((getHeight() - minecraft.font.lineHeight) / 2d);
-			guiGraphics.drawString(minecraft.font, fullText, x + xOffset, y + yOffset, DyeColor.BLACK.getTextColor(), false);
+			guiGraphics.text(minecraft.font, fullText, x + xOffset, y + yOffset, DyeColor.BLACK.getTextColor(), false);
 		}
 
 		@Override
 		public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 			super.renderTooltip(screen, guiGraphics, mouseX, mouseY);
 			if (isMouseOver(mouseX, mouseY)) {
-				guiGraphics.renderTooltip(screen.font, TOOLTIP, Optional.empty(), mouseX, mouseY);
+				guiGraphics.setTooltipForNextFrame(screen.font, TOOLTIP, Optional.empty(), mouseX, mouseY);
 			}
 		}
 

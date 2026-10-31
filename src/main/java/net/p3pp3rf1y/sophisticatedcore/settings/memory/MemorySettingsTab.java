@@ -26,6 +26,7 @@ import java.util.Optional;
 
 import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.DEFAULT_BUTTON_BACKGROUND;
 import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.DEFAULT_BUTTON_HOVERED_BACKGROUND;
+import org.joml.Matrix3x2fStack;
 
 public class MemorySettingsTab extends SettingsTab<MemorySettingsContainer> {
 	private static final TextureBlitData ICON = new TextureBlitData(GuiHelper.ICONS, Dimension.SQUARE_256, new UV(128, 32), Dimension.SQUARE_16);
@@ -92,13 +93,13 @@ public class MemorySettingsTab extends SettingsTab<MemorySettingsContainer> {
 	}
 
 	private void drawMemorizedStackOverlay(GuiGraphicsExtractor guiGraphics, Slot slot) {
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
 		RenderSystem.enableBlend();
 		RenderSystem.disableDepthTest();
 		guiGraphics.blit(GuiHelper.GUI_CONTROLS, slot.x, slot.y, 77, 0, 16, 16);
 		RenderSystem.enableDepthTest();
 		RenderSystem.disableBlend();
-		poseStack.popPose();
+		poseStack.popMatrix();
 	}
 }

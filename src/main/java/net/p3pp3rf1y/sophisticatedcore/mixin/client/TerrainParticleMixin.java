@@ -4,7 +4,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.TerrainParticle;
-import net.minecraft.client.particle.TextureSheetParticle;
+import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.renderer.block.BlockModelShaper;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.BlockPos;
@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.jetbrains.annotations.Nullable;
 
 @Mixin(TerrainParticle.class)
-public abstract class TerrainParticleMixin extends TextureSheetParticle implements SophisticatedTerrainParticle {
+public abstract class TerrainParticleMixin extends SingleQuadParticle implements SophisticatedTerrainParticle {
 	protected TerrainParticleMixin(ClientLevel clientLevel, double d, double e, double f) {
 		super(clientLevel, d, e, f);
 	}

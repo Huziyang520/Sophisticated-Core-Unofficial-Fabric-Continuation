@@ -30,7 +30,7 @@ public class ColorButton extends ButtonBase {
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		int color = colorGetter.get();
 		if (color == -1) {
 			for (int row = 0; row < getHeight() - 2; row++) {
@@ -47,7 +47,7 @@ public class ColorButton extends ButtonBase {
 	public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		super.renderTooltip(screen, guiGraphics, mouseX, mouseY);
 		if (visible && isMouseOver(mouseX, mouseY) && !tooltip.isEmpty()) {
-			guiGraphics.renderTooltip(screen.font, tooltip, Optional.empty(), mouseX, mouseY);
+			guiGraphics.setTooltipForNextFrame(screen.font, tooltip, Optional.empty(), mouseX, mouseY);
 		}
 	}
 }

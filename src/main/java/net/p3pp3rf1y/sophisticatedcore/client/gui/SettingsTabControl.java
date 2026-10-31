@@ -17,6 +17,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import org.joml.Matrix3x2fStack;
 
 public abstract class SettingsTabControl<C extends AbstractContainerScreen<?>, T extends SettingsTabBase<C>> extends CompositeWidgetBase<Tab> {
 	private static final int VERTICAL_SPACE = 1;
@@ -49,16 +50,16 @@ public abstract class SettingsTabControl<C extends AbstractContainerScreen<?>, T
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		PoseStack pose = guiGraphics.pose();
-		pose.pushPose();
+	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		Matrix3x2fStack pose = guiGraphics.pose();
+		pose.pushMatrix();
 		pose.translate(0,0, -11);
 		children.forEach(child -> {
 			if (child != openTab) {
 				child.render(guiGraphics, mouseX, mouseY, partialTicks);
 			}
 		});
-		pose.popPose();
+		pose.popMatrix();
 
 		if (openTab != null) {
 			openTab.render(guiGraphics, mouseX, mouseY, partialTicks);

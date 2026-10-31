@@ -87,7 +87,7 @@ public abstract class StorageSettingsTabControlBase extends SettingsTabControl<S
 			}
 		}
 		if (!itemstack.isEmpty()) {
-			guiGraphics.renderItem(itemstack, slot.x, slot.y);
+			guiGraphics.item(itemstack, slot.x, slot.y);
 			return true;
 		}
 		return false;

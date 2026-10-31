@@ -108,7 +108,7 @@ public class StonecutterRecipeControl extends WidgetBase {
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		//noop - everything is rendered in background or after screen render is done
 	}
 
@@ -136,7 +136,7 @@ public class StonecutterRecipeControl extends WidgetBase {
 	}
 
 	private void renderTooltip(GuiGraphicsExtractor guiGraphics, ItemStack itemStack, int mouseX, int mouseY) {
-		guiGraphics.renderComponentTooltip(this.font, Screen.getTooltipFromItem(minecraft, itemStack), mouseX, mouseY);	}
+		guiGraphics.setTooltipForNextFrame(this.font, Screen.getTooltipFromItem(minecraft, itemStack), Optional.empty(), mouseX, mouseY);	}
 
 	private void onInventoryUpdate() {
 		hasItemsInInputSlot = container.hasItemsInInputSlot();

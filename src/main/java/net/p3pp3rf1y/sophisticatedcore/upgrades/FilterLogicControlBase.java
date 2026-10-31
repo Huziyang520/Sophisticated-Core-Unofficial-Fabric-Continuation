@@ -154,7 +154,7 @@ public abstract class FilterLogicControlBase<F extends FilterLogic, S extends Sl
 			}
 
 			@Override
-			protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+			protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 				if (container.getPrimaryMatch() == PrimaryMatch.TAGS) {
 					super.renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
 				}
@@ -269,7 +269,7 @@ public abstract class FilterLogicControlBase<F extends FilterLogic, S extends Sl
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		super.renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
 		if (container.getPrimaryMatch() == PrimaryMatch.TAGS) {
 			renderTagNames(guiGraphics);
@@ -283,7 +283,7 @@ public abstract class FilterLogicControlBase<F extends FilterLogic, S extends Sl
 		int maxTagNameLines = getTagListHeight() / 10;
 		for (TagKey<Item> tagName : tagNames) {
 			if (tagNames.size() > maxTagNameLines && count == maxTagNameLines - 1) {
-				guiGraphics.drawString(minecraft.font, Component.translatable(TranslationHelper.INSTANCE.translUpgradeKey("tag_list.tag_overflow"), String.valueOf(tagNames.size() - (maxTagNameLines - 1))), x + 2, y + 23 + count * 10, MORE_TAGS_FONT_COLOR, false);
+				guiGraphics.text(minecraft.font, Component.translatable(TranslationHelper.INSTANCE.translUpgradeKey("tag_list.tag_overflow"), String.valueOf(tagNames.size() - (maxTagNameLines - 1))), x + 2, y + 23 + count * 10, MORE_TAGS_FONT_COLOR, false);
 				break;
 			}
 			String name = tagName.location().toString();
@@ -294,7 +294,7 @@ public abstract class FilterLogicControlBase<F extends FilterLogic, S extends Sl
 					shortened = "..." + shortened;
 				}
 			}
-			guiGraphics.drawString(minecraft.font, shortened, x + 2, y + 23 + count * 10, TAG_FONT_COLOR, false);
+			guiGraphics.text(minecraft.font, shortened, x + 2, y + 23 + count * 10, TAG_FONT_COLOR, false);
 			count++;
 		}
 	}
@@ -303,7 +303,7 @@ public abstract class FilterLogicControlBase<F extends FilterLogic, S extends Sl
 	public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		super.renderTooltip(screen, guiGraphics, mouseX, mouseY);
 		if (container.getPrimaryMatch() == PrimaryMatch.TAGS && isMouseOverTagList(mouseX, mouseY)) {
-			guiGraphics.renderTooltip(screen.font, tagListTooltip, Optional.empty(), mouseX, mouseY);
+			guiGraphics.setTooltipForNextFrame(screen.font, tagListTooltip, Optional.empty(), mouseX, mouseY);
 		}
 	}
 
@@ -345,7 +345,7 @@ public abstract class FilterLogicControlBase<F extends FilterLogic, S extends Sl
 		}
 
 		@Override
-		protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 			if (container.getPrimaryMatch() == PrimaryMatch.TAGS) {
 				super.renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
 			}

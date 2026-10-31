@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 
 import java.util.Optional;
 import java.util.function.Predicate;
+import org.joml.Matrix3x2fStack;
 
 public class InventoryScrollPanel extends ScrollPanel {
 	private static final int TOP_Y_OFFSET = 1;
@@ -46,13 +47,13 @@ public class InventoryScrollPanel extends ScrollPanel {
 
 	@Override
 	protected void drawPanel(GuiGraphicsExtractor guiGraphics, int entryRight, int relativeY, Tesselator tess, int mouseX, int mouseY) {
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
 		poseStack.translate(screen.getLeftX(), screen.getTopY(), 0.0D);
 
 		screen.renderInventorySlots(guiGraphics, mouseX, mouseY, isMouseOver(mouseX, mouseY));
 
-		poseStack.popPose();
+		poseStack.popMatrix();
 	}
 
 	public Optional<Slot> findSlot(double mouseX, double mouseY) {

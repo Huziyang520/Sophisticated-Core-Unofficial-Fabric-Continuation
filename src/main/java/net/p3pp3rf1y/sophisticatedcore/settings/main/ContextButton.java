@@ -45,7 +45,7 @@ public class ContextButton extends ButtonBase {
 	public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		super.renderTooltip(screen, guiGraphics, mouseX, mouseY);
 		if (isMouseOver(mouseX, mouseY)) {
-			guiGraphics.renderTooltip(minecraft.font, getTooltipKey.get(), Optional.empty(), mouseX, mouseY);
+			guiGraphics.setTooltipForNextFrame(minecraft.font, getTooltipKey.get(), Optional.empty(), mouseX, mouseY);
 		}
 	}
 
@@ -61,8 +61,8 @@ public class ContextButton extends ButtonBase {
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		guiGraphics.drawCenteredString(minecraft.font, getTitle.get(), x + getWidth() / 2, y - 4 + getHeight() / 2, 16777215 | (255 << 24));
+	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		guiGraphics.centeredText(minecraft.font, getTitle.get(), x + getWidth() / 2, y - 4 + getHeight() / 2, 16777215 | (255 << 24));
 	}
 
 	@Override

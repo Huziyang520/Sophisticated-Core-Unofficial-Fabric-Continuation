@@ -12,6 +12,7 @@ import org.lwjgl.glfw.GLFW;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
+import org.joml.Matrix3x2fStack;
 
 public class TextBox extends WidgetBase {
 	private final EditBox editBox;
@@ -29,17 +30,17 @@ public class TextBox extends WidgetBase {
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
+	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
 		poseStack.translate(0, 0, 100);
 		editBox.renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
 		if (editBox.getValue().isEmpty() && unfocusedEmptyHint != null && !editBox.isFocused()) {
 			int x = editBox.getX() + editBox.getWidth() / 2 + 2/* editBox.isBordered() ? editBox.getX() + 4 : editBox.getX()*/;
 			int y = editBox.isBordered() ? editBox.getY() + (editBox.getHeight() - 8) / 2 : editBox.getY();
-			guiGraphics.drawCenteredString(this.font, unfocusedEmptyHint, x, y, editBox.textColor);
+			guiGraphics.centeredText(this.font, unfocusedEmptyHint, x, y, editBox.textColor);
 		}
-		poseStack.popPose();
+		poseStack.popMatrix();
 	}
 
 	@Override

@@ -53,7 +53,7 @@ public class Button extends ButtonBase {
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		if (foregroundTexture != null) {
 			GuiHelper.blit(guiGraphics, x, y, foregroundTexture);
 		}
@@ -72,7 +72,7 @@ public class Button extends ButtonBase {
 	public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		super.renderTooltip(screen, guiGraphics, mouseX, mouseY);
 		if (visible && isMouseOver(mouseX, mouseY)) {
-			guiGraphics.renderTooltip(screen.font, getTooltip(), Optional.empty(), mouseX, mouseY);
+			guiGraphics.setTooltipForNextFrame(screen.font, getTooltip(), Optional.empty(), mouseX, mouseY);
 		}
 	}
 }

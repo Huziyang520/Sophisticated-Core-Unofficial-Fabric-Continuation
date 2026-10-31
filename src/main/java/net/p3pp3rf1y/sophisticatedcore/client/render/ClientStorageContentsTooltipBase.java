@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
+import org.joml.Matrix3x2fStack;
 
 public abstract class ClientStorageContentsTooltipBase implements ClientTooltipComponent {
 	private static final int REFRESH_INTERVAL = 20;
@@ -245,12 +246,12 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 	}
 
 	private int renderTooltipLine(GuiGraphicsExtractor guiGraphics, int leftX, int topY, Font font, Component tooltip) {
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
 		poseStack.translate(0.0D, 0.0D, 200.0F);
-		guiGraphics.drawString(font, tooltip, leftX, topY, 16777215);
+		guiGraphics.text(font, tooltip, leftX, topY, 16777215);
 		poseStack.translate(0.0D, 0.0D, -200.0F);
-		poseStack.popPose();
+		poseStack.popMatrix();
 		return topY + 10;
 	}
 
@@ -262,7 +263,7 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 				GuiHelper.blit(guiGraphics, x, topY + 3, upgradeWrapper.isEnabled() ? UPGRADE_ON : UPGRADE_OFF);
 				x += 4;
 			}
-			guiGraphics.renderItem(upgradeWrapper.getUpgradeStack(), x, topY);
+			guiGraphics.item(upgradeWrapper.getUpgradeStack(), x, topY);
 			x += DEFAULT_STACK_WIDTH;
 		}
 		topY += 20;
@@ -279,8 +280,8 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 			ItemStack stack = sortedContents.get(i);
 			int stackWidth = Math.max(getStackCountWidth(minecraft.font, stack), DEFAULT_STACK_WIDTH);
 			int xOffset = stackWidth - DEFAULT_STACK_WIDTH;
-			guiGraphics.renderItem(stack, x + xOffset, y);
-			guiGraphics.renderItemDecorations(font, stack, x + xOffset, y, CountAbbreviator.abbreviate(stack.getCount()));
+			guiGraphics.item(stack, x + xOffset, y);
+			guiGraphics.itemDecorations(font, stack, x + xOffset, y, CountAbbreviator.abbreviate(stack.getCount()));
 			x += stackWidth;
 		}
 	}

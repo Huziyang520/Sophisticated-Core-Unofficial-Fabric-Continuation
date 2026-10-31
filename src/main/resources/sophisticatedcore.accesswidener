@@ -1,4 +1,4 @@
-accessWidener v2 named
+accessWidener v2 official
 
 accessible field net/minecraft/client/gui/components/EditBox responder Ljava/util/function/Consumer;
 accessible field net/minecraft/client/gui/components/EditBox textColor I

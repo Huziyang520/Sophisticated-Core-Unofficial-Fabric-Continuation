@@ -38,7 +38,7 @@ public abstract class WidgetBase implements Renderable, GuiEventListener, Narrat
 	}
 
 	@Override
-	public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		if (!visible) {
 			return;
 		}

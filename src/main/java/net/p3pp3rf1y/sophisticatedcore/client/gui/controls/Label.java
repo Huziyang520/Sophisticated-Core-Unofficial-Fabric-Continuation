@@ -28,8 +28,8 @@ public class Label extends WidgetBase {
 	}
 
 	@Override
-	protected void renderWidget(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		guiGraphics.drawString(minecraft.font, labelText, x, y, color, false);
+	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		guiGraphics.text(minecraft.font, labelText, x, y, color, false);
 	}
 
 	@Override

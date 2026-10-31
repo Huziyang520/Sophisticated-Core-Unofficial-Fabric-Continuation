@@ -1,8 +1,8 @@
 package net.p3pp3rf1y.sophisticatedcore.fluid;
 
-import io.github.fabricators_of_create.porting_lib.fluids.FluidStack;
-import io.github.fabricators_of_create.porting_lib.transfer.MutableContainerItemContext;
-import io.github.fabricators_of_create.porting_lib.transfer.item.ItemHandlerHelper;
+import net.p3pp3rf1y.sophisticatedcore.platform.FluidStack;
+import net.p3pp3rf1y.sophisticatedcore.platform.MutableContainerItemContext;
+import net.p3pp3rf1y.sophisticatedcore.platform.TransferHelper;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;

@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.ClickType;
+import net.minecraft.world.inventory.ContainerInput;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.InventoryScrollPanel;
@@ -23,6 +23,7 @@ import net.p3pp3rf1y.sophisticatedcore.settings.StorageSettingsTabControlBase;
 
 import javax.annotation.Nullable;
 import java.util.function.Predicate;
+import org.joml.Matrix3x2fStack;
 
 public abstract class SettingsScreen extends AbstractContainerScreen<SettingsContainerMenu<?>> implements InventoryScrollPanel.IInventoryScreen {
 	public static final int HEIGHT_WITHOUT_STORAGE_SLOTS = 114;
@@ -122,7 +123,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	protected abstract StorageSettingsTabControlBase initializeTabControl();
 
 	@Override
-	protected void renderBg(GuiGraphicsExtractor guiGraphics, float partialTicks, int mouseX, int mouseY) {
+	protected void extractContents(GuiGraphicsExtractor guiGraphics, float partialTicks, int mouseX, int mouseY) {
 		int x = (width - imageWidth) / 2;
 		int y = (height - imageHeight) / 2;
 		StorageGuiHelper.renderStorageBackground(new Position(x, y), guiGraphics, storageBackgroundProperties.getTextureName(), imageWidth, getStorageInventoryHeight(getNumberOfVisibleRows()));
@@ -139,15 +140,15 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	}
 
 	@Override
-	public void render(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		menu.detectSettingsChangeAndReload();
 
 		// Fix for Blur+
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
 		poseStack.translate(0, 0, -20);
 		renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
-		poseStack.popPose();
+		poseStack.popMatrix();
 
 		settingsTabControl.render(guiGraphics, mouseX, mouseY, partialTicks);
 		templatePersistanceControl.render(guiGraphics, mouseX, mouseY, partialTicks);
@@ -158,16 +159,16 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	}
 
 	@Override
-	public void renderTransparentBackground(GuiGraphicsExtractor guiGraphics) {
-		PoseStack pose = guiGraphics.pose();
-		pose.pushPose();
+	public void extractTransparentBackground(GuiGraphicsExtractor guiGraphics) {
+		Matrix3x2fStack pose = guiGraphics.pose();
+		pose.pushMatrix();
 		pose.translate(0, 0, -12);
 		super.renderTransparentBackground(guiGraphics);
-		pose.popPose();
+		pose.popMatrix();
 	}
 
 	@Override
-	protected void renderLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 		super.renderLabels(guiGraphics, mouseX, mouseY);
 		if (inventoryScrollPanel == null) {
 			renderInventorySlots(guiGraphics, mouseX, mouseY, true);
@@ -192,17 +193,17 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	}
 
 	@Override
-	public void renderSlot(GuiGraphicsExtractor guiGraphics, Slot slot) {
+	public void extractSlot(GuiGraphicsExtractor guiGraphics, Slot slot) {
 		ItemStack itemstack = slot.getItem() != ItemStack.EMPTY ? slot.getItem() : settingsTabControl.getSlotStackDisplayOverride(slot.sophisticatedCore_getSlotIndex(), isTemplateLoadHovered());
 
 		RenderSystem.enableDepthTest();
-		PoseStack poseStack = guiGraphics.pose();
-		poseStack.pushPose();
+		Matrix3x2fStack poseStack = guiGraphics.pose();
+		poseStack.pushMatrix();
 		poseStack.translate(0, 0, 100);
 		//noinspection ConstantConditions - by this point minecraft isn't null
 		if (!settingsTabControl.renderGuiItem(guiGraphics, minecraft.getItemRenderer(), itemstack, slot, isTemplateLoadHovered())) {
 			if (!getMenu().getSlotFilterItem(slot.index).isEmpty()) {
-				guiGraphics.renderItem(getMenu().getSlotFilterItem(slot.index), slot.x, slot.y);
+				guiGraphics.item(getMenu().getSlotFilterItem(slot.index), slot.x, slot.y);
 			} else {
 				Pair<Identifier, Identifier> pair = slot.getNoItemIcon();
 				if (pair != null) {
@@ -211,7 +212,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 				}
 			}
 		}
-		poseStack.popPose();
+		poseStack.popMatrix();
 
 		settingsTabControl.drawSlotStackOverlay(guiGraphics, slot, isTemplateLoadHovered());
 	}
@@ -222,7 +223,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 	@SuppressWarnings("java:S2589") // slot can actually be null despite being marked non null
 	@Override
-	protected void slotClicked(Slot slot, int slotId, int mouseButton, ClickType type) {
+	protected void slotClicked(Slot slot, int slotId, int mouseButton, ContainerInput type) {
 		//noinspection ConstantConditions
 		if (slot != null) {
 			settingsTabControl.handleSlotClick(slot, mouseButton);

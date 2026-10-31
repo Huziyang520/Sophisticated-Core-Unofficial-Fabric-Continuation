@@ -2,11 +2,10 @@ package net.p3pp3rf1y.sophisticatedcore.network;
 
 import io.netty.buffer.ByteBuf;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
-import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ContainerStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
-import net.fabricmc.fabric.impl.transfer.item.InventoryStorageImpl;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
@@ -288,26 +287,28 @@ public record TransferItemsPayload(boolean transferToInventory,
 	}
 
 	private static class RangedWrapper implements IItemHandlerSimpleInserter {
-		private final InventoryStorageImpl inventoryStorage;
+		private final ContainerStorage inventoryStorage;
+		private final List<SingleSlotStorage<ItemVariant>> slots;
 
 		public RangedWrapper(Inventory inv, int start, int end) {
-			this.inventoryStorage = (InventoryStorageImpl) InventoryStorage.of(inv, null);
-			this.inventoryStorage.parts = Collections.unmodifiableList(inventoryStorage.parts.subList(start, end));
+			this.inventoryStorage = ContainerStorage.of(inv, null);
+			List<SingleSlotStorage<ItemVariant>> all = inventoryStorage.getSlots();
+			this.slots = Collections.unmodifiableList(all.subList(Math.min(start, all.size()), Math.min(end, all.size())));
 		}
 
 		@Override
 		public int getSlotCount() {
-			return inventoryStorage.getSlotCount();
+			return slots.size();
 		}
 
 		@Override
 		public SingleSlotStorage<ItemVariant> getSlot(int slot) {
-			return inventoryStorage.getSlot(slot);
+			return slots.get(slot);
 		}
 
 		@Override
 		public List<SingleSlotStorage<ItemVariant>> getSlots() {
-			return inventoryStorage.parts;
+			return slots;
 		}
 
 		@Override
