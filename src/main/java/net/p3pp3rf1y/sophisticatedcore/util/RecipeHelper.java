@@ -3,6 +3,8 @@ package net.p3pp3rf1y.sophisticatedcore.util;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -12,6 +14,8 @@ import net.minecraft.world.inventory.CraftingContainer;
 import net.minecraft.world.inventory.TransientCraftingContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplayContext;
 import net.minecraft.world.level.Level;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import org.jetbrains.annotations.Nullable;
@@ -268,6 +272,13 @@ public class RecipeHelper {
 		return craftinginventory;
 	}
 
+	public static ItemStack getResultItem(Recipe<?> recipe, Level level) {
+		List<RecipeDisplay> displays = recipe.display();
+		if (displays.isEmpty()) {
+			return ItemStack.EMPTY;
+		}
+		return displays.get(0).result().resolveForFirstStack(SlotDisplayContext.fromLevel(level));
+	}
 	public static <T extends AbstractCookingRecipe> Optional<RecipeHolder<T>> getCookingRecipe(ItemStack stack, RecipeType<T> recipeType) {
 		return getLevel().flatMap(w -> safeGetRecipeFor(recipeType, new SingleRecipeInput(stack), w, null));
 	}
@@ -276,8 +287,26 @@ public class RecipeHelper {
 		return getFromCache(cache -> cache.getItemCompactingShapes(stack), Collections.emptySet());
 	}
 
+	/**
+	 * 26.3 exposes recipes through {@code RecipeAccess} on the level; only the server keeps a
+	 * queryable {@link RecipeManager}.
+	 */
+	public static Optional<RecipeHolder<?>> getRecipeByKey(Level level, Identifier recipeId) {
+		RecipeManager manager = recipeManagerOf(level);
+		if (manager == null) {
+			return Optional.empty();
+		}
+		return manager.byKey(ResourceKey.create(Registries.RECIPE, recipeId));
+	}
+	private static RecipeManager recipeManagerOf(Level level) {
+		if (level instanceof ServerLevel serverLevel) {
+			return serverLevel.recipeAccess();
+		}
+		return null;
+	}
+
 	public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> getRecipesOfType(RecipeType<T> recipeType, I inventory) {
-		return getLevel().map(w -> w.getRecipeManager().getRecipesFor(recipeType, inventory, w)).orElse(Collections.emptyList());
+		return getLevel().map(w -> new ArrayList<>(recipeManagerOf(w).getRecipesFor(recipeType, inventory, w))).orElse(Collections.emptyList());
 	}
 
 	public static <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> safeGetRecipeFor(RecipeType<T> recipeType, I inventory, @Nullable Identifier recipeId) {
@@ -286,7 +315,7 @@ public class RecipeHelper {
 
 	public static <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> safeGetRecipeFor(RecipeType<T> recipeType, I inventory, Level level, @Nullable Identifier recipeId) {
 		try {
-			return level.getRecipeManager().getRecipeFor(recipeType, inventory, level, recipeId);
+			return recipeManagerOf(level).getRecipeFor(recipeType, inventory, level, recipeId);
 		} catch (Exception e) {
 			SophisticatedCore.LOGGER.error("Error while getting recipe ", e);
 			return Optional.empty();
@@ -295,7 +324,7 @@ public class RecipeHelper {
 
 	public static <I extends CraftingInput, T extends Recipe<I>> List<RecipeHolder<T>> safeGetRecipesFor(RecipeType<T> recipeType, I inventory, Level level) {
 		try {
-			return level.getRecipeManager().getRecipesFor(recipeType, inventory, level);
+			return new ArrayList<>(recipeManagerOf(level).getRecipesFor(recipeType, inventory, level));
 		} catch (Exception e) {
 			SophisticatedCore.LOGGER.error("Error while getting recipe ", e);
 			return Collections.emptyList();

@@ -259,7 +259,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 		if (lastRecipe != null && lastRecipe.id().equals(recipeId)) {
 			return;
 		}
-		player.level().getRecipeManager().byKey(recipeId).filter(r -> r.value().getType() == RecipeType.CRAFTING).map(r -> (RecipeHolder<CraftingRecipe>) r)
+		RecipeHelper.getRecipeByKey(player.level(), recipeId).filter(r -> r.value().getType() == RecipeType.CRAFTING).map(r -> (RecipeHolder<CraftingRecipe>) r)
 				.ifPresent(recipe -> {
 					lastRecipe = recipe;
 					for (int i = 0; i < matchedCraftingRecipes.size(); i++) {

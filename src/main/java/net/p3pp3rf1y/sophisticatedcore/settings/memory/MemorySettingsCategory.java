@@ -3,6 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.settings.memory;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
 import net.minecraft.nbt.StringTag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
@@ -238,7 +239,7 @@ public class MemorySettingsCategory implements ISettingsCategory<MemorySettingsC
 	private void serializeFilterItems() {
 		NBTHelper.putMap(categoryNbt, SLOT_FILTER_ITEMS_TAG, slotFilterItems, String::valueOf, i -> StringTag.valueOf(BuiltInRegistries.ITEM.getKey(i).toString()));
 		NBTHelper.putMap(categoryNbt, SLOT_FILTER_STACKS_TAG, slotFilterStacks, String::valueOf,
-				isk -> RegistryHelper.getRegistryAccess().map(registryAccess -> isk.stack().saveOptional(registryAccess)).orElse(new CompoundTag()));
+				isk -> RegistryHelper.getRegistryAccess().map(registryAccess -> CodecHelper.OVERSIZED_ITEM_STACK_CODEC.encode(isk.stack(), registryAccess.createSerializationContext(NbtOps.INSTANCE), new CompoundTag()).getOrThrow()).orElse(new CompoundTag()));
 		saveNbt.accept(categoryNbt);
 	}
 

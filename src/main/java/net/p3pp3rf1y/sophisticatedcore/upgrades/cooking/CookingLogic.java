@@ -169,7 +169,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		}
 
 		ItemStack input = getCookInput();
-		ItemStack recipeOutput = recipe.getResultItem(level.registryAccess());
+		ItemStack recipeOutput = RecipeHelper.getResultItem(recipe, level);
 		ItemStack output = getCookOutput();
 		if (output.isEmpty()) {
 			setCookOutput(recipeOutput.copy());
@@ -240,7 +240,7 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		if (getCookInput().isEmpty()) {
 			return false;
 		}
-		ItemStack recipeOutput = cookingRecipe.getResultItem(level.registryAccess());
+		ItemStack recipeOutput = RecipeHelper.getResultItem(cookingRecipe, level);
 		if (recipeOutput.isEmpty()) {
 			return false;
 		} else {
