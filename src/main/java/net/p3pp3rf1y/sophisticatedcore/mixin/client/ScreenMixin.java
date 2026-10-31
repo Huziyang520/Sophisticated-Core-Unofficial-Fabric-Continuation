@@ -9,15 +9,18 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * Stops the vanilla screen extraction for the mod's screens, which draw themselves.
+ */
 @Mixin(Screen.class)
 public class ScreenMixin {
 	@Inject(
-			method = "render",
+			method = "extractRenderState",
 			at = @At("HEAD"),
-			order = 100000, // Make sure this injection runs last
+			order = 100000,
 			cancellable = true
 	)
-	private void sophisticatedCore$renderHead(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
+	private void sophisticatedCore$cancelVanillaExtraction(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTick, CallbackInfo ci) {
 		if ((Object) this instanceof StorageScreenBase<?> || (Object) this instanceof SettingsScreen) {
 			ci.cancel();
 		}

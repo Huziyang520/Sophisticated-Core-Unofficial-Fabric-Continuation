@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.mixin.client;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.MouseHandler;
 import net.minecraft.world.InteractionResult;
@@ -12,18 +11,30 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+/**
+ * Publishes raw scroll input before vanilla consumes it.
+ * <p>
+ * 26.3 removed the {@code accumulatedScrollY} field this used to anchor to, so the hook
+ * now runs at the head of {@code onScroll} with the raw offsets.
+ */
 @Mixin(MouseHandler.class)
 public class MouseHandlerMixin {
-    @Shadow
-    @Final
-    private Minecraft minecraft;
+	@Shadow
+	@Final
+	private Minecraft minecraft;
 
-    @Inject(method = "onScroll", at = @At(value = "FIELD", target = "Lnet/minecraft/client/MouseHandler;accumulatedScrollY:D", ordinal = 6, shift = At.Shift.AFTER), cancellable = true)
-    private void  sophisticatedCore$onScroll(long handle, double xOffset, double yOffset, CallbackInfo ci, @Local(ordinal = 2) double deltaX, @Local(ordinal = 3) double deltaY) {
-        if (handle == this.minecraft.getWindow().getWindow()) {
-            var result = ClientRawInputEvent.MOUSE_SCROLLED.invoker().mouseScrolled(minecraft, deltaX, deltaY);
-            if (result != InteractionResult.PASS)
-                ci.cancel();
-        }
-    }
+	@Inject(method = "onScroll", at = @At("HEAD"), cancellable = true)
+	private void sophisticatedCore$onScroll(long handle, double xOffset, double yOffset, CallbackInfo ci) {
+		if (handle != this.minecraft.getWindow().handle()) {
+			return;
+		}
+		// Screens and overlays handle their own scrolling.
+		if (this.minecraft.gui.overlay() != null || this.minecraft.gui.screen() != null) {
+			return;
+		}
+		InteractionResult result = ClientRawInputEvent.MOUSE_SCROLLED.invoker().mouseScrolled(minecraft, xOffset, yOffset);
+		if (result != InteractionResult.PASS) {
+			ci.cancel();
+		}
+	}
 }
