@@ -13,6 +13,7 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
 import net.minecraft.world.level.ItemLike;
@@ -129,9 +130,9 @@ public class SCShapelessRecipeBuilder implements RecipeBuilder {
 				.requirements(AdvancementRequirements.Strategy.OR);
 		this.criteria.forEach(builder::addCriterion);
 		ShapelessRecipe shapelessRecipe = new ShapelessRecipe(
-				Objects.requireNonNullElse(this.group, ""),
-				RecipeBuilder.determineBookCategory(this.category),
-				this.resultStack,
+				RecipeBuilder.createCraftingCommonInfo(true),
+				RecipeBuilder.createCraftingBookInfo(this.category, Objects.requireNonNullElse(this.group, "")),
+				ItemStackTemplate.fromNonEmptyStack(this.resultStack),
 				this.ingredients
 		);
 		recipeOutput.accept(id, shapelessRecipe, builder.build(id.withPrefix("recipes/" + this.category.getFolderName() + "/")));

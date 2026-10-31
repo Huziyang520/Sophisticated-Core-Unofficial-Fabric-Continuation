@@ -58,11 +58,19 @@ public class ClientRecipeHelper {
 	}
 
 	public static CraftingRecipe copyShapedRecipe(ShapedRecipe recipe) {
-		return new ShapedRecipe("", recipe.category(), recipe.pattern, getResultItem(recipe));
+		return new ShapedRecipe(
+				net.minecraft.data.recipes.RecipeBuilder.createCraftingCommonInfo(true),
+				new net.minecraft.world.item.crafting.CraftingRecipe.CraftingBookInfo(recipe.category(), ""),
+				recipe.pattern,
+				net.minecraft.world.item.ItemStackTemplate.fromNonEmptyStack(getResultItem(recipe)));
 	}
 
 	public static CraftingRecipe copyShapelessRecipe(ShapelessRecipe recipe) {
-		return new ShapelessRecipe("", recipe.category(), getResultItem(recipe), recipe.getIngredients());
+		return new ShapelessRecipe(
+				net.minecraft.data.recipes.RecipeBuilder.createCraftingCommonInfo(true),
+				new net.minecraft.world.item.crafting.CraftingRecipe.CraftingBookInfo(recipe.category(), ""),
+				net.minecraft.world.item.ItemStackTemplate.fromNonEmptyStack(getResultItem(recipe)),
+				recipe.getIngredients());
 	}
 
 	private static ItemStack registryAccessAware(Function<RegistryAccess, ItemStack> func) {
