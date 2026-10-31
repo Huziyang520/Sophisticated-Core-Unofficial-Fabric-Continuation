@@ -42,12 +42,20 @@ public class NBTHelper {
 		return Optional.of(getValue.apply(tag, key));
 	}
 
+	/**
+	 * Reads a list of elements. 26.3 dropped the element-type argument from
+	 * {@code CompoundTag.getList} and ListTag is no longer iterable, so it is walked by index.
+	 */
 	public static <E, C extends Collection<E>> Optional<C> getCollection(CompoundTag tag, String key, byte listType, Function<Tag, Optional<E>> getElement, Supplier<C> initCollection) {
-		return getTagValue(tag, key, (c, n) -> c.getListOrEmpty(n)).map(listNbt -> {
-			C ret = initCollection.get();
-			listNbt.forEach(elementNbt -> getElement.apply(elementNbt).ifPresent(ret::add));
-			return ret;
-		});
+		if (!tag.contains(key)) {
+			return Optional.empty();
+		}
+		ListTag listNbt = tag.getListOrEmpty(key);
+		C ret = initCollection.get();
+		for (int i = 0; i < listNbt.size(); i++) {
+			getElement.apply(listNbt.get(i)).ifPresent(ret::add);
+		}
+		return Optional.of(ret);
 	}
 
 	public static <T extends Enum<T>> Optional<T> getEnumConstant(CompoundTag tag, String key, Function<String, T> deserialize) {

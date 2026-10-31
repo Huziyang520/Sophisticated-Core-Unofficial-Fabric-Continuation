@@ -8,6 +8,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 
 import java.util.function.IntConsumer;
+import net.minecraft.client.input.MouseButtonEvent;
 
 public abstract class ButtonBase extends WidgetBase {
 	protected IntConsumer onClick;
@@ -22,7 +23,10 @@ public abstract class ButtonBase extends WidgetBase {
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 		if (!isMouseOver(mouseX, mouseY)) {
 			return false;
 		}

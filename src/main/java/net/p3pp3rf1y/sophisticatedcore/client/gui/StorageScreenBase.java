@@ -45,9 +45,15 @@ import java.util.function.Predicate;
 
 import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.GUI_CONTROLS;
 import org.joml.Matrix3x2fStack;
+import net.minecraft.client.input.MouseButtonEvent;
 
 public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> extends AbstractContainerScreen<S>
 		implements InventoryScrollPanel.IInventoryScreen {
+	/**
+	 * 26.3 makes the base class dimensions final, so each screen tracks its own.
+	 */
+	protected int guiWidth;
+	protected int guiHeight;
 	public static final int ERROR_BACKGROUND_COLOR = 0xF0100010;
 	public static final int ERROR_BORDER_COLOR = DyeColor.RED.getTextureDiffuseColor();
 	private static final int DISABLED_SLOT_COLOR = -1072689136;
@@ -85,7 +91,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	private Button transferToInventoryButton;
 	private TextBox searchBox;
 	private Predicate<ItemStack> stackFilter = stack -> searchBox == null || searchBox.getValue().isEmpty()
-			|| (!stack.isEmpty() && stack.getHoverName().getStringOr(, "").toLowerCase().contains(searchBox.getValue().toLowerCase()));
+			|| (!stack.isEmpty() && stack.getHoverName().getString().toLowerCase().contains(searchBox.getValue().toLowerCase()));
 	private int visibleSlotsCount;
 	private boolean initializing = true;
 
@@ -109,9 +115,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	@Override
-	public void resize(Minecraft minecraft, int width, int height) {
+	public void resize(int width, int height) {
 		updateDimensionsAndSlotPositions(height);
-		super.resize(minecraft, width, height);
+		super.resize(width, height);
 	}
 
 	private void updateDimensionsAndSlotPositions(int height) {
@@ -119,14 +125,14 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		int newImageHeight = HEIGHT_WITHOUT_STORAGE_SLOTS + getStorageInventoryHeight(displayableNumberOfRows);
 		storageBackgroundProperties = (getMenu().getNumberOfStorageInventorySlots() + getMenu().getColumnsTaken() * getMenu().getNumberOfRows()) <= 81 ? StorageBackgroundProperties.REGULAR_9_SLOT : StorageBackgroundProperties.REGULAR_12_SLOT;
 
-		imageWidth = storageBackgroundProperties.getSlotsOnLine() * 18 + 14;
+		guiWidth = storageBackgroundProperties.getSlotsOnLine() * 18 + 14;
 		updateStorageSlotsPositions();
 		if (displayableNumberOfRows < getMenu().getNumberOfRows()) {
 			storageBackgroundProperties = storageBackgroundProperties == StorageBackgroundProperties.REGULAR_9_SLOT ? StorageBackgroundProperties.WIDER_9_SLOT : StorageBackgroundProperties.WIDER_12_SLOT;
-			imageWidth += 6;
+			guiWidth += 6;
 		}
-		imageHeight = newImageHeight;
-		inventoryLabelY = imageHeight - 94;
+		guiHeight = newImageHeight;
+		inventoryLabelY = guiHeight - 94;
 		inventoryLabelX = 8 + storageBackgroundProperties.getPlayerInventoryXOffset();
 		updatePlayerSlotsPositions();
 		updateUpgradeSlotsPositions();
@@ -238,7 +244,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	protected void addSearchBox() {
 		SortButtonsPosition sortButtonsPosition = Config.CLIENT.sortButtonsPosition.get();
 		int x = 7;
-		int xEnd = sortButtonsPosition == SortButtonsPosition.TITLE_LINE_RIGHT ? getSortButtonsPosition(sortButtonsPosition).x() - 1 - leftPos : imageWidth - 7;
+		int xEnd = sortButtonsPosition == SortButtonsPosition.TITLE_LINE_RIGHT ? getSortButtonsPosition(sortButtonsPosition).x() - 1 - leftPos : guiWidth - 7;
 		int width = xEnd - x;
 
 		searchBox = new SearchBox(new Position(leftPos + x, topPos + 5), new Dimension(width, 10), this);
@@ -278,9 +284,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 				filters.add(stack -> modName.isEmpty() || BuiltInRegistries.ITEM.getKey(stack.getItem()).getNamespace().contains(modName));
 			} else if (searchTerm.startsWith("#")) {
 				String tooltipKeyword = searchTerm.substring(1).toLowerCase();
-				filters.add(stack -> getTooltipFromItem(minecraft, stack).stream().anyMatch(line -> line.getStringOr(, "").toLowerCase().contains(tooltipKeyword)));
+				filters.add(stack -> getTooltipFromItem(minecraft, stack).stream().anyMatch(line -> line.getString().toLowerCase().contains(tooltipKeyword)));
 			} else {
-				filters.add(stack -> stack.getHoverName().getStringOr(, "").toLowerCase().contains(searchTerm.toLowerCase()));
+				filters.add(stack -> stack.getHoverName().getString().toLowerCase().contains(searchTerm.toLowerCase()));
 			}
 		}
 
@@ -324,7 +330,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	private int getNumberOfVisibleRows() {
-		return Math.min((imageHeight - HEIGHT_WITHOUT_STORAGE_SLOTS) / 18, getMenu().getNumberOfRows());
+		return Math.min((guiHeight - HEIGHT_WITHOUT_STORAGE_SLOTS) / 18, getMenu().getNumberOfRows());
 	}
 
 	public int getSlotsOnLine() {
@@ -395,12 +401,12 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 					new Position(leftPos - UPGRADE_INVENTORY_OFFSET - 2, topPos + getUpgradeHeightWithoutBottom() + UPGRADE_BOTTOM_HEIGHT + 2);
 			case BELOW_UPGRADE_TABS ->
 					new Position(settingsTabControl.getX() + 2, settingsTabControl.getY() + Math.max(0, settingsTabControl.getHeight() + 2));
-			default -> new Position(leftPos + imageWidth - 31, topPos + 4);
+			default -> new Position(leftPos + guiWidth - 31, topPos + 4);
 		};
 	}
 
 	private void initUpgradeSettingsControl() {
-		settingsTabControl = new UpgradeSettingsTabControl(new Position(leftPos + imageWidth, topPos + 4), this, getStorageSettingsTabTooltip());
+		settingsTabControl = new UpgradeSettingsTabControl(new Position(leftPos + guiWidth, topPos + 4), this, getStorageSettingsTabTooltip());
 		addWidget(settingsTabControl);
 	}
 
@@ -446,7 +452,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		}
 		upgradeSwitches.forEach(us -> us.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks));
 		renderErrorOverlay(guiGraphics);
-		renderTooltip(guiGraphics, mouseX, mouseY);
+		extractTooltip(guiGraphics, mouseX, mouseY);
 	}
 
 	@Override
@@ -518,7 +524,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	@Override
 	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
-		super.renderLabels(guiGraphics, mouseX, mouseY);
+		super.extractLabels(guiGraphics, mouseX, mouseY);
 		renderUpgradeInventoryParts(guiGraphics, mouseX, mouseY);
 		renderUpgradeSlots(guiGraphics, mouseX, mouseY);
 		if (inventoryScrollPanel == null) {
@@ -640,17 +646,17 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 				return;
 			}
 		}
-		Pair<Identifier, Identifier> pair = slot.getNoItemIcon();
+		Identifier pair = slot.getNoItemIcon();
 		if (pair != null) {
 			//noinspection ConstantConditions - by this point minecraft isn't null
-			TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(pair.getFirst()).apply(pair.getSecond());
-			guiGraphics.blit(i, j, 0, 16, 16, textureatlassprite);
+			TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(net.minecraft.world.inventory.InventoryMenu.BLOCK_ATLAS).apply(pair);
+			guiGraphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, textureatlassprite, i, j, 16, 16);
 		}
 	}
 
 	private void drawStackOverlay(GuiGraphicsExtractor guiGraphics, int x, int y) {
 		guiGraphics.pose().pushMatrix();
-		guiGraphics.blit(GuiHelper.GUI_CONTROLS, x, y, 77, 0, 16, 16);
+		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GuiHelper.GUI_CONTROLS, x, y, 77, 0, 16, 16);
 		guiGraphics.pose().popMatrix();
 	}
 
@@ -671,8 +677,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	protected void extractContents(GuiGraphicsExtractor guiGraphics, float partialTicks, int mouseX, int mouseY) {
-		int x = (width - imageWidth) / 2;
-		int y = (height - imageHeight) / 2;
+		int x = (width - guiWidth) / 2;
+		int y = (height - guiHeight) / 2;
 		drawInventoryBg(guiGraphics, x, y, storageBackgroundProperties.getTextureName());
 		if (inventoryScrollPanel == null) {
 			drawSlotBg(guiGraphics, x, y, visibleSlotsCount);
@@ -691,7 +697,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	private void drawSlotOverlays(GuiGraphicsExtractor guiGraphics) {
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
-		poseStack.translate(sophisticatedCore_getGuiLeft(), sophisticatedCore_getGuiTop(), 0.0F);
+		poseStack.translate(sophisticatedCore_getGuiLeft(), sophisticatedCore_getGuiTop());
 		for (int slotNumber = 0; slotNumber < menu.getNumberOfStorageInventorySlots(); slotNumber++) {
 			List<Integer> colors = menu.getSlotOverlayColors(slotNumber);
 			if (!colors.isEmpty()) {
@@ -712,7 +718,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		inventoryParts.values().forEach(part -> part.renderTooltip(this, guiGraphics, x, y));
 		if (getMenu().getCarried().isEmpty() && hoveredSlot != null) {
 			if (hoveredSlot.hasItem()) {
-				super.renderTooltip(guiGraphics, x, y);
+				super.extractTooltip(guiGraphics, x, y);
 			} else if (hoveredSlot instanceof INameableEmptySlot emptySlot && emptySlot.hasEmptyTooltip()) {
 				guiGraphics.setTooltipForNextFrame(font, Collections.singletonList(emptySlot.getEmptyTooltip()), Optional.empty(), x, y);
 			}
@@ -749,7 +755,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	public void drawInventoryBg(GuiGraphicsExtractor guiGraphics, int x, int y, Identifier textureName) {
-		StorageGuiHelper.renderStorageBackground(new Position(x, y), guiGraphics, textureName, imageWidth, imageHeight - HEIGHT_WITHOUT_STORAGE_SLOTS);
+		StorageGuiHelper.renderStorageBackground(new Position(x, y), guiGraphics, textureName, guiWidth, guiHeight - HEIGHT_WITHOUT_STORAGE_SLOTS);
 	}
 
 	private void drawUpgradeBackground(GuiGraphicsExtractor guiGraphics) {
@@ -811,7 +817,10 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 
 	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
+	public boolean mouseReleased(MouseButtonEvent event) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 		for (UpgradeInventoryPartBase<?> inventoryPart : inventoryParts.values()) {
 			if (inventoryPart.handleMouseReleased(mouseX, mouseY, button)) {
 				return true;
@@ -820,7 +829,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 		handleQuickMoveAll(mouseX, mouseY, button);
 
-		return super.mouseReleased(mouseX, mouseY, button);
+		return super.mouseReleased(event);
 	}
 
 	private void handleQuickMoveAll(double mouseX, double mouseY, int button) {
@@ -909,7 +918,10 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 		Slot slot = findSlot(mouseX, mouseY);
 		if (hasShiftDown() && hasControlDown() && slot instanceof StorageInventorySlot && button == 0) {
 			PacketDistributor.sendToServer(new TransferFullSlotPayload(slot.index));
@@ -920,13 +932,16 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			widgetBase.setFocused(false);
 		}
 
-		return super.mouseClicked(mouseX, mouseY, button);
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+	public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 		for (GuiEventListener child : children()) {
-			if (child.isMouseOver(mouseX, mouseY) && child.mouseDragged(mouseX, mouseY, button, dragX, dragY)) {
+			if (child.isMouseOver(mouseX, mouseY) && child.mouseDragged(event, dragX, dragY)) {
 				return true;
 			}
 		}
@@ -944,7 +959,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			return true;
 		}
 
-		return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+		return super.mouseDragged(event, dragX, dragY);
 	}
 
 	private boolean isAllowedSlotCombination(Slot slot, ItemStack carried) {
@@ -956,7 +971,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	@Override
 	protected boolean hasClickedOutside(double mouseX, double mouseY, int guiLeftIn, int guiTopIn, int mouseButton) {
-		return super.hasClickedOutside(mouseX, mouseY, guiLeftIn, guiTopIn, mouseButton) && hasClickedOutsideOfUpgradeSlots(mouseX, mouseY)
+		return super.hasClickedOutside(mouseX, mouseY, guiLeftIn, guiTopIn) && hasClickedOutsideOfUpgradeSlots(mouseX, mouseY)
 				&& hasClickedOutsideOfUpgradeSettings(mouseX, mouseY);
 	}
 
@@ -1010,7 +1025,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		menu.getErrorUpgradeSlotChangeResult().ifPresent(upgradeSlotChangeResult -> upgradeSlotChangeResult.getErrorMessage().ifPresent(overlayErrorMessage -> {
 			Matrix3x2fStack poseStack = guiGraphics.pose();
 			poseStack.pushMatrix();
-			poseStack.translate(sophisticatedCore_getGuiLeft(), sophisticatedCore_getGuiTop(), 0.0F);
+			poseStack.translate(sophisticatedCore_getGuiLeft(), sophisticatedCore_getGuiTop());
 			upgradeSlotChangeResult.errorUpgradeSlots().forEach(slotIndex -> {
 				Slot upgradeSlot = menu.getSlot(menu.getFirstUpgradeSlot() + slotIndex);
 				GuiHelper.renderSlotHighlight(guiGraphics, upgradeSlot.x, upgradeSlot.y, 0, ERROR_SLOT_COLOR);
@@ -1038,7 +1053,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	private void renderErrorMessage(GuiGraphicsExtractor guiGraphics, Matrix3x2fStack matrixStack, Component overlayErrorMessage) {
 		matrixStack.pushMatrix();
-		matrixStack.translate((float) width / 2, (double) topPos + inventoryLabelY + 4, 300F);
+		matrixStack.translate((float) width / 2, (double) topPos + inventoryLabelY + 4);
 		Font fontrenderer = Minecraft.getInstance().font;
 
 		int tooltipWidth = font.width(overlayErrorMessage);
@@ -1096,7 +1111,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	@Override
 	public void drawSlotBg(GuiGraphicsExtractor guiGraphics, int visibleSlotsCount) {
-		drawSlotBg(guiGraphics, (width - imageWidth) / 2, (height - imageHeight) / 2, visibleSlotsCount);
+		drawSlotBg(guiGraphics, (width - guiWidth) / 2, (height - guiHeight) / 2, visibleSlotsCount);
 		drawSlotOverlays(guiGraphics);
 	}
 

@@ -50,9 +50,10 @@ public class UpgradeNextTierRecipe extends ShapedRecipe implements IWrapperRecip
 		return ModRecipes.UPGRADE_NEXT_TIER_SERIALIZER.get();
 	}
 
-	public static class Serializer extends RecipeWrapperSerializer<ShapedRecipe, UpgradeNextTierRecipe> {
-		public Serializer() {
-			super(UpgradeNextTierRecipe::new, RecipeSerializer.SHAPED_RECIPE);
-		}
+	/**
+	 * Wraps the vanilla shaped recipe serializer so this recipe still loads and syncs.
+	 */
+	public static RecipeSerializer<UpgradeNextTierRecipe> createSerializer() {
+		return RecipeWrapperSerializer.create(UpgradeNextTierRecipe::new, ShapedRecipe.SERIALIZER);
 	}
 }

@@ -217,7 +217,7 @@ public class GuiHelper {
 	}
 	public static void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, List<Component> components, int x, int y) {
 		List<ClientTooltipComponent> list = gatherTooltipComponents(components, x, screen.width, screen.height, screen.font);
-		guiGraphics.tooltip(screen.font, list, x, y, DefaultTooltipPositioner.INSTANCE);
+		guiGraphics.setTooltipForNextFrame(screen.font, list, Optional.empty(), x, y);
 	}
 
 	//copy of ForgeHooksClient.gatherTooltipComponents with splitting always called so that new lines in translation are properly wrapped

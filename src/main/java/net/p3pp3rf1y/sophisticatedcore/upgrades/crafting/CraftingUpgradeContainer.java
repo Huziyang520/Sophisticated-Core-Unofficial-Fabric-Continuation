@@ -100,7 +100,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 								remainingItemStack.grow(recipeInputStack.getCount());
 								craftMatrix.setItem(i, remainingItemStack);
 							} else if (!player.getInventory().add(remainingItemStack)) {
-								player.drop(remainingItemStack, false);
+								player.drop(remainingItemStack, false, net.minecraft.util.Prediction.SERVER_ONLY);
 							}
 						}
 						remaininItemsIndex++;
@@ -108,7 +108,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 				}
 
 				if (!remainingStack.isEmpty()) {
-					player.drop(remainingStack, false);
+					player.drop(remainingStack, false, net.minecraft.util.Prediction.SERVER_ONLY);
 				}
 			}
 
@@ -116,7 +116,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 				for (int j = remaininItemsIndex; j < remainingItems.size(); j++) {
 					ItemStack remaining = remainingItems.get(j);
 					if (!remaining.isEmpty()) {
-						player.drop(remaining, false);
+						player.drop(remaining, false, net.minecraft.util.Prediction.SERVER_ONLY);
 					}
 				}
 				SophisticatedCore.LOGGER.error("Recipe " + (lastRecipe != null ? lastRecipe.id() : "[unknown]") + " returned more than 9 remaining items, ignoring the rest!");
@@ -164,7 +164,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 	}
 
 	private void updateCraftingResult(Level level, Player player, CraftingContainer inventory, ResultContainer inventoryResult, ResultSlot craftingResultSlot) {
-		if (!level.isClientSide) {
+		if (!level.isClientSide()) {
 			ServerPlayer serverplayerentity = (ServerPlayer) player;
 			ItemStack itemstack = ItemStack.EMPTY;
 			if (lastRecipe != null && lastRecipe.value().matches(inventory.asCraftInput(), level)) {

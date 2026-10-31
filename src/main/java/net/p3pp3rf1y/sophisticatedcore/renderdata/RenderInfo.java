@@ -6,6 +6,7 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.IRenderedBatteryUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.IRenderedTankUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.cooking.CookingUpgradeRenderData;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.JukeboxUpgradeRenderData;
+import net.p3pp3rf1y.sophisticatedcore.util.CodecHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.RegistryHelper;
 
@@ -71,7 +72,7 @@ public abstract class RenderInfo {
 		CompoundTag renderInfo = getRenderInfoTag().orElse(new CompoundTag());
 		ListTag upgradeItemsTag = new ListTag();
 		for (ItemStack upgradeItem : upgradeItems) {
-			upgradeItemsTag.add(RegistryHelper.getRegistryAccess().map(upgradeItem::saveOptional).orElse(new CompoundTag()));
+			upgradeItemsTag.add(RegistryHelper.getRegistryAccess().map(access -> CodecHelper.OVERSIZED_ITEM_STACK_CODEC.encode(upgradeItem, access.createSerializationContext(NbtOps.INSTANCE), new CompoundTag()).getOrThrow()).orElse(new CompoundTag()));
 		}
 		renderInfo.put(UPGRADE_ITEMS_TAG, upgradeItemsTag);
 		serializeRenderInfo(renderInfo);
@@ -140,7 +141,7 @@ public abstract class RenderInfo {
 		upgradeItems.clear();
 		RegistryHelper.getRegistryAccess().ifPresent(registryAccess -> {
 			for (int i = 0; i < upgradeItemsTag.size(); i++) {
-				upgradeItems.add(ItemStack.parseOptional(registryAccess, upgradeItemsTag.getCompoundOrEmpty(i)));
+				CodecHelper.OVERSIZED_ITEM_STACK_CODEC.parse(registryAccess.createSerializationContext(NbtOps.INSTANCE), upgradeItemsTag.getCompoundOrEmpty(i)).result().ifPresent(upgradeItems::add);
 			}
 		});
 	}
@@ -305,14 +306,14 @@ public abstract class RenderInfo {
 
 		public static ItemDisplayRenderInfo deserialize(CompoundTag tag) {
 			List<Integer> inaccessibleSlots;
-			if (tag.getTagType(INACCESSIBLE_SLOTS_TAG) == Tag.TAG_INT_ARRAY) {
-				inaccessibleSlots = Arrays.stream(tag.getIntArray(INACCESSIBLE_SLOTS_TAG)).boxed().collect(Collectors.toCollection(ArrayList::new));
+			if (tag.getIntArray(INACCESSIBLE_SLOTS_TAG).isPresent()) {
+				inaccessibleSlots = Arrays.stream(tag.getIntArray(INACCESSIBLE_SLOTS_TAG).orElse(new int[0])).boxed().collect(Collectors.toCollection(ArrayList::new));
 			} else {
-				inaccessibleSlots = NBTHelper.getCollection(tag, INACCESSIBLE_SLOTS_TAG, Tag.TAG_INT, t -> Optional.of(((IntTag) t).getAsInt()), ArrayList::new).orElseGet(ArrayList::new); //TODO remove this legacy support in the future
+				inaccessibleSlots = NBTHelper.<Integer, List<Integer>>getCollection(tag, INACCESSIBLE_SLOTS_TAG, Tag.TAG_INT, t -> Optional.of(((IntTag) t).intValue()), ArrayList::new).orElseGet(ArrayList::new); //TODO remove this legacy support in the future
 			}
-			List<Integer> infiniteSlots = Arrays.stream(tag.getIntArray(INFINITE_SLOTS_TAG)).boxed().collect(Collectors.toCollection(ArrayList::new));
-			List<Integer> slotCounts = Arrays.stream(tag.getIntArray(SLOT_COUNTS_TAG)).boxed().collect(Collectors.toCollection(ArrayList::new));
-			List<Float> slotFillRatios = NBTHelper.getCollection(tag, SLOT_FILL_RATIOS_TAG, Tag.TAG_FLOAT, t -> Optional.of(((FloatTag) t).getAsFloat()), ArrayList::new).orElseGet(ArrayList::new);
+			List<Integer> infiniteSlots = Arrays.stream(tag.getIntArray(INFINITE_SLOTS_TAG).orElse(new int[0])).boxed().collect(Collectors.toCollection(ArrayList::new));
+			List<Integer> slotCounts = Arrays.stream(tag.getIntArray(SLOT_COUNTS_TAG).orElse(new int[0])).boxed().collect(Collectors.toCollection(ArrayList::new));
+			List<Float> slotFillRatios = NBTHelper.<Float, List<Float>>getCollection(tag, SLOT_FILL_RATIOS_TAG, Tag.TAG_FLOAT, t -> Optional.of(((FloatTag) t).floatValue()), ArrayList::new).orElseGet(ArrayList::new);
 			if (tag.contains(DisplayItem.ITEM_TAG)) {
 				return new ItemDisplayRenderInfo(DisplayItem.deserialize(tag), inaccessibleSlots, infiniteSlots, slotCounts, slotFillRatios);
 			} else if (tag.contains(ITEMS_TAG)) {
@@ -365,7 +366,7 @@ public abstract class RenderInfo {
 		}
 
 		private CompoundTag serialize(CompoundTag tag) {
-			tag.put(ITEM_TAG, RegistryHelper.getRegistryAccess().map(item::saveOptional).orElse(new CompoundTag()));
+			tag.put(ITEM_TAG, RegistryHelper.getRegistryAccess().map(access -> CodecHelper.OVERSIZED_ITEM_STACK_CODEC.encode(item, access.createSerializationContext(NbtOps.INSTANCE), new CompoundTag()).getOrThrow()).orElse(new CompoundTag()));
 			tag.putInt(ROTATION_TAG, rotation);
 			tag.putInt(SLOT_INDEX_TAG, slotIndex);
 			tag.putString(DISPLAY_SIDE_TAG, displaySide.getSerializedName());
@@ -373,7 +374,7 @@ public abstract class RenderInfo {
 		}
 
 		private static DisplayItem deserialize(CompoundTag tag) {
-			return new DisplayItem(RegistryHelper.getRegistryAccess().map(registryAccess -> ItemStack.parseOptional(registryAccess, tag.getCompoundOrEmpty(ITEM_TAG))).orElse(ItemStack.EMPTY),
+			return new DisplayItem(RegistryHelper.getRegistryAccess().map(access -> CodecHelper.OVERSIZED_ITEM_STACK_CODEC.parse(access.createSerializationContext(NbtOps.INSTANCE), tag.getCompoundOrEmpty(ITEM_TAG)).result().orElse(ItemStack.EMPTY)).orElse(ItemStack.EMPTY),
 					tag.getIntOr(ROTATION_TAG, 0), tag.getIntOr(SLOT_INDEX_TAG, 0), DisplaySide.fromName(tag.getStringOr(DISPLAY_SIDE_TAG, "")));
 		}
 

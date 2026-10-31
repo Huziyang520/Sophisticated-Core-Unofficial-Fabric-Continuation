@@ -1,6 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.compat.rei;
 
-import me.shedaniel.rei.api.common.plugins.REIServerPlugin;
+import me.shedaniel.rei.api.common.plugins.REICommonPlugin;
 import me.shedaniel.rei.api.common.transfer.info.stack.SlotAccessor;
 import me.shedaniel.rei.api.common.transfer.info.stack.SlotAccessorRegistry;
 import net.minecraft.nbt.CompoundTag;
@@ -10,7 +10,7 @@ import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import org.jetbrains.annotations.Nullable;
 
-public class REIServerCompat implements REIServerPlugin {
+public class REIServerCompat implements REICommonPlugin {
 	@Override
 	public void registerSlotAccessors(SlotAccessorRegistry registry) {
 		registry.register(Identifier.fromNamespaceAndPath(SophisticatedCore.MOD_ID, "storage"),

@@ -13,6 +13,7 @@ import net.p3pp3rf1y.sophisticatedcore.util.Easing;
 
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.client.input.MouseButtonEvent;
 
 class SearchBox extends TextBox {
 	private static final List<Component> TOOLTIP = List.of(
@@ -39,7 +40,10 @@ class SearchBox extends TextBox {
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 		if (!isMouseOver(mouseX, mouseY)) {
 			return false;
 		}
@@ -53,7 +57,7 @@ class SearchBox extends TextBox {
 			}
 			return true;
 		}
-		return super.mouseClicked(mouseX, mouseY, button);
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	@Override

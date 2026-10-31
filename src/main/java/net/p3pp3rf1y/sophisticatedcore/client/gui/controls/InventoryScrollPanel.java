@@ -9,6 +9,7 @@ import net.minecraft.world.item.ItemStack;
 import java.util.Optional;
 import java.util.function.Predicate;
 import org.joml.Matrix3x2fStack;
+import net.minecraft.client.input.MouseButtonEvent;
 
 public class InventoryScrollPanel extends ScrollPanel {
 	private static final int TOP_Y_OFFSET = 1;
@@ -101,16 +102,22 @@ public class InventoryScrollPanel extends ScrollPanel {
 	}
 
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
-		boolean ret = super.mouseDragged(mouseX, mouseY, button, deltaX, deltaY);
+	public boolean mouseDragged(MouseButtonEvent event, double deltaX, double deltaY) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
+		boolean ret = super.mouseDragged(event, deltaX, deltaY);
 		updateSlotsPosition();
 		return ret;
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 		if (isMouseOver(mouseX, mouseY)) {
-			return super.mouseClicked(mouseX, mouseY, button);
+			return super.mouseClicked(event, doubleClick);
 		}
 		return false;
 	}

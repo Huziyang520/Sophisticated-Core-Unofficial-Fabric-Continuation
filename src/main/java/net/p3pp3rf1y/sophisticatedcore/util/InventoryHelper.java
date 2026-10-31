@@ -398,7 +398,7 @@ public class InventoryHelper {
 			}
 		}
 		if (toInsert > 0) {
-			player.drop(resource.toStack((int) toInsert), true);
+			player.drop(resource.toStack((int) toInsert), true, net.minecraft.util.Prediction.PREDICTED);
 		}
 	}
 	/*public static void insertOrDropItem(Player player, ItemStack stack, IItemHandler... inventories) {
@@ -410,7 +410,7 @@ public class InventoryHelper {
 			}
 		}
 		if (!ret.isEmpty()) {
-			player.drop(ret, true);
+			player.drop(ret, true, net.minecraft.util.Prediction.PREDICTED);
 		}
 	}*/
 

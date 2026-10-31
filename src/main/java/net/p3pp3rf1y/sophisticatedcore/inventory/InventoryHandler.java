@@ -145,7 +145,7 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 	@Override
 	public void deserializeNBT(HolderLookup.Provider registries, CompoundTag nbt) {
 		slotTracker.clear();
-		setSize(nbt.contains("Size", Tag.TAG_INT) ? nbt.getIntOr("Size", 0) : getSlotCount());
+		setSize(nbt.contains("Size") ? nbt.getIntOr("Size", 0) : getSlotCount());
 		ListTag tagList = nbt.getListOrEmpty("Items");
 		RegistryHelper.getRegistryAccess().ifPresent(registryAccess -> {
 			for (int i = 0; i < tagList.size(); i++) {

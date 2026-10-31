@@ -101,7 +101,7 @@ public record TransferItemsPayload(boolean transferToInventory,
 			if (rest.getCount() != stack.getCount()) {
 				ItemStack inSlot = this.getStackInSlot(slot);
 				if (!inSlot.isEmpty()) {
-					if (this.getInventoryPlayer().player.level().isClientSide) {
+					if (this.getInventoryPlayer().player.level().isClientSide()) {
 						inSlot.setPopTime(5);
 					} else if (this.getInventoryPlayer().player instanceof ServerPlayer) {
 						this.getInventoryPlayer().player.containerMenu.broadcastChanges();
@@ -117,7 +117,7 @@ public record TransferItemsPayload(boolean transferToInventory,
 			if (inserted != maxAmount) {
 				ItemStack inSlot = this.getStackInSlot(slot);
 				if (!inSlot.isEmpty()) {
-					if (this.getInventoryPlayer().player.level().isClientSide) {
+					if (this.getInventoryPlayer().player.level().isClientSide()) {
 						inSlot.setPopTime(5);
 					} else if (this.getInventoryPlayer().player instanceof ServerPlayer) {
 						this.getInventoryPlayer().player.containerMenu.broadcastChanges();
@@ -131,7 +131,7 @@ public record TransferItemsPayload(boolean transferToInventory,
 		public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
 			long inserted = super.insert(resource, maxAmount, transaction);
 			if (inserted != maxAmount) {
-				if (this.getInventoryPlayer().player.level().isClientSide) {
+				if (this.getInventoryPlayer().player.level().isClientSide()) {
 					// resource.toStack((int) (maxAmount - inserted)).setPopTime(5);
 				} else if (this.getInventoryPlayer().player instanceof ServerPlayer) {
 					this.getInventoryPlayer().player.containerMenu.broadcastChanges();
@@ -271,7 +271,7 @@ public record TransferItemsPayload(boolean transferToInventory,
 		public long insert(ItemVariant resource, long maxAmount, TransactionContext transaction) {
 			long inserted = super.insert(resource, maxAmount, transaction);
 			if (inserted != maxAmount) {
-				if (this.getInventoryPlayer().player.level().isClientSide) {
+				if (this.getInventoryPlayer().player.level().isClientSide()) {
 					// resource.toStack((int) (maxAmount - inserted)).setPopTime(5);
 				} else if (this.getInventoryPlayer().player instanceof ServerPlayer) {
 					this.getInventoryPlayer().player.containerMenu.broadcastChanges();

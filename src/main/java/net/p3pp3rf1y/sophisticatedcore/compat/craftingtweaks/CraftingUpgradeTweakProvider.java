@@ -66,7 +66,7 @@ public class CraftingUpgradeTweakProvider implements CraftingGridProvider {
 					player.getInventory().add(returnStack);
 					craftMatrix.setItem(slotIndex, returnStack.getCount() == 0 ? ItemStack.EMPTY : returnStack);
 					if (returnStack.getCount() > 0 && forced) {
-						player.drop(returnStack, false);
+						player.drop(returnStack, false, net.minecraft.util.Prediction.SERVER_ONLY);
 						craftMatrix.setItem(slotIndex, ItemStack.EMPTY);
 					}
 				}

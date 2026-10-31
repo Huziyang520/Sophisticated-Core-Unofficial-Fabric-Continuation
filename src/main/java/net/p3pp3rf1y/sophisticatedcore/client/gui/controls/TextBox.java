@@ -7,11 +7,13 @@ import net.minecraft.client.gui.narration.NarrationElementOutput;
 import net.minecraft.network.chat.Component;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Dimension;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
-import org.lwjgl.glfw.GLFW;
+import com.mojang.blaze3d.platform.InputConstants;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
 import org.joml.Matrix3x2fStack;
+import net.minecraft.client.input.CharacterEvent;
+import net.minecraft.client.input.KeyEvent;
 
 public class TextBox extends WidgetBase {
 	private final EditBox editBox;
@@ -33,7 +35,7 @@ public class TextBox extends WidgetBase {
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
 		guiGraphics.nextStratum();
-		editBox.renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
+		editBox.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		if (editBox.getValue().isEmpty() && unfocusedEmptyHint != null && !editBox.isFocused()) {
 			int x = editBox.getX() + editBox.getWidth() / 2 + 2/* editBox.isBordered() ? editBox.getX() + 4 : editBox.getX()*/;
 			int y = editBox.isBordered() ? editBox.getY() + (editBox.getHeight() - 8) / 2 : editBox.getY();
@@ -51,15 +53,17 @@ public class TextBox extends WidgetBase {
 	}
 
 	@Override
-	public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+	public boolean keyPressed(KeyEvent event) {
+		int keyCode = event.keycode();
+		int modifiers = event.modifiers();
 		if (!editBox.isFocused()) {
 			return false;
 		}
-		editBox.keyPressed(keyCode, scanCode, modifiers);
-		if (keyCode == GLFW.GLFW_KEY_ENTER) {
+		editBox.keyPressed(event);
+		if (keyCode == InputConstants.KEY_RETURN) {
 			onEnterPressed();
 		}
-		return keyCode != GLFW.GLFW_KEY_ESCAPE;
+		return keyCode != InputConstants.KEY_ESCAPE;
 	}
 
 	protected void onEnterPressed() {
@@ -71,8 +75,9 @@ public class TextBox extends WidgetBase {
 	}
 
 	@Override
-	public boolean charTyped(char codePoint, int modifiers) {
-		return editBox.charTyped(codePoint, modifiers);
+	public boolean charTyped(CharacterEvent event) {
+		char codePoint = (char) event.codepoint();
+		return editBox.charTyped(event);
 	}
 
 	@Override

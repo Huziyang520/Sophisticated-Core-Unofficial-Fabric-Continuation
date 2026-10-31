@@ -190,7 +190,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		slot.index = getInventorySlotsSize();
 		slots.add(slot);
 		lastSlots.add(ItemStack.EMPTY);
-		remoteSlots.add(ItemStack.EMPTY);
+		remoteSlots.add(net.minecraft.world.inventory.RemoteSlot.PLACEHOLDER);
 		realInventorySlots.add(slot);
 		lastRealSlots.add(ItemStack.EMPTY);
 		remoteRealSlots.add(ItemStack.EMPTY);
@@ -220,7 +220,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		Set<Integer> noSortSlotIndexes = getNoSortSlotIndexes();
 		while (slotIndex < inventoryHandler.getSlotCount()) {
 			int finalSlotIndex = slotIndex;
-			StorageInventorySlot slot = new StorageInventorySlot(player.level().isClientSide, storageWrapper, finalSlotIndex, player) {
+			StorageInventorySlot slot = new StorageInventorySlot(player.level().isClientSide(), storageWrapper, finalSlotIndex, player) {
 				@Override
 				public void set(@Nonnull ItemStack stack) {
 					super.set(stack);
@@ -229,8 +229,9 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 				@Nullable
 				@Override
-				public Pair<Identifier, Identifier> getNoItemIcon() {
-					return inaccessibleSlots.contains(finalSlotIndex) ? INACCESSIBLE_SLOT_BACKGROUND : emptySlotIcons.getOrDefault(finalSlotIndex, null);
+				public Identifier getNoItemIcon() {
+					Pair<Identifier, Identifier> icon = inaccessibleSlots.contains(finalSlotIndex) ? INACCESSIBLE_SLOT_BACKGROUND : emptySlotIcons.get(finalSlotIndex);
+		return icon == null ? null : icon.getSecond();
 				}
 
 				@Override
@@ -303,7 +304,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	}
 
 	protected boolean isClientSide() {
-		return player.level().isClientSide;
+		return player.level().isClientSide();
 	}
 
 	private void addSlotAndUpdateStorageItemSlotNumber(int storageItemSlotIndex, boolean lockStorageItemSlot, int slotIndex, Slot slot) {
@@ -326,7 +327,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 	@Override
 	public void initializeContents(int stateId, List<ItemStack> items, ItemStack carried) {
-		storageWrapper.setPersistent(player.level().isClientSide);
+		storageWrapper.setPersistent(player.level().isClientSide());
 		isUpdatingFromPacket = true;
 		super.initializeContents(stateId, items, carried);
 		isUpdatingFromPacket = false;
@@ -855,10 +856,10 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		allRemoteSlots.addAll(remoteRealSlots);
 		allRemoteSlots.addAll(remoteUpgradeSlots);
 
-		remoteCarried = getCarried().copy();
+		ItemStack carried = getCarried().copy();
 
 		if (synchronizer != null) {
-			synchronizer.sendInitialData(this, allRemoteSlots, remoteCarried, new int[]{});
+			synchronizer.sendInitialData(this, allRemoteSlots, carried, new int[]{});
 		}
 
 		sendEmptySlotIcons();
@@ -1063,10 +1064,10 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			if (slotId == -999) {
 				if (!getCarried().isEmpty()) {
 					if (clickaction == ClickAction.PRIMARY) {
-						player.drop(getCarried(), true);
+						player.drop(getCarried(), true, net.minecraft.util.Prediction.PREDICTED);
 						setCarried(ItemStack.EMPTY);
 					} else {
-						player.drop(getCarried().split(1), true);
+						player.drop(getCarried().split(1), true, net.minecraft.util.Prediction.PREDICTED);
 					}
 				}
 			} else if (clickType == ContainerInput.QUICK_MOVE) {
@@ -1167,7 +1168,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 						slot2.set(itemstack4.split(i2));
 						slot2.onTake(player, slotStack);
 						if (!inventory.add(slotStack)) {
-							player.drop(slotStack, true);
+							player.drop(slotStack, true, net.minecraft.util.Prediction.PREDICTED);
 						}
 					} else {
 						slot2.set(itemstack4);
@@ -1187,7 +1188,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			Slot slot4 = getSlot(slotId);
 			int i1 = dragType == 0 ? 1 : slot4.getItem().getCount();
 			ItemStack itemstack8 = slot4.safeTake(i1, slot4.getItem().getMaxStackSize(), player);
-			player.drop(itemstack8, true);
+			player.drop(itemstack8, true, net.minecraft.util.Prediction.PREDICTED);
 		} else if (clickType == ContainerInput.PICKUP_ALL && slotId >= 0) {
 			Slot slot3 = getSlot(slotId);
 			ItemStack carriedStack = getCarried();
@@ -1248,12 +1249,12 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 				ItemStack slotStack = slot.getItem();
 				slot.set(ItemStack.EMPTY);
 				if (!player.addItem(slotStack)) {
-					player.drop(slotStack, false);
+					player.drop(slotStack, false, net.minecraft.util.Prediction.SERVER_ONLY);
 				}
 			}
 		}
 		super.removed(player);
-		if (!player.level().isClientSide) {
+		if (!player.level().isClientSide()) {
 			removeOpenTabIfKeepOff();
 		}
 	}
@@ -1760,8 +1761,8 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 		@Nullable
 		@Override
-		public Pair<Identifier, Identifier> getNoItemIcon() {
-			return new Pair<>(InventoryMenu.BLOCK_ATLAS, StorageContainerMenuBase.EMPTY_UPGRADE_SLOT_BACKGROUND);
+		public Identifier getNoItemIcon() {
+			return StorageContainerMenuBase.EMPTY_UPGRADE_SLOT_BACKGROUND;
 		}
 	}
 }

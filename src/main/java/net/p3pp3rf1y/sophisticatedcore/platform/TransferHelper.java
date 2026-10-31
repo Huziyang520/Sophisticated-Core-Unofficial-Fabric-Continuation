@@ -94,7 +94,7 @@ public final class TransferHelper {
 	 */
 	public static void dropRemainder(Player player, ItemStack stack, int remainder) {
 		Level level = player.level();
-		if (remainder <= 0 || level.isClientSide) {
+		if (remainder <= 0 || level.isClientSide()) {
 			return;
 		}
 		ItemEntity entity = new ItemEntity(level, player.getX(), player.getY() + 0.5, player.getZ(), stack.copyWithCount(remainder));

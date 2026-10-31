@@ -5,7 +5,6 @@ import net.p3pp3rf1y.sophisticatedcore.compat.CompatModIds;
 import net.p3pp3rf1y.sophisticatedcore.compat.CompatRegistry;
 import net.p3pp3rf1y.sophisticatedcore.compat.craftingtweaks.CraftingTweaksCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.jei.JeiCompat;
-import net.p3pp3rf1y.sophisticatedcore.compat.litematica.LitematicaCompat;
 import net.p3pp3rf1y.sophisticatedcore.compat.rei.REICompat;
 
 import static net.p3pp3rf1y.sophisticatedcore.SophisticatedCore.MOD_ID;
@@ -21,6 +20,5 @@ public class ModCompat {
 
 		// Fabric addition
 		registry.registerCompat(new CompatInfo(CompatModIds.REI, null), () -> new REICompat());
-		registry.registerCompat(new CompatInfo(CompatModIds.LITEMATICA, null), () -> new LitematicaCompat());
 	}
 }

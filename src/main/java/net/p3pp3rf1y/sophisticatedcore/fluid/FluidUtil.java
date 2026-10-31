@@ -101,7 +101,7 @@ public class FluidUtil {
 			return true;
 		}
 
-		if (!level.isClientSide && state.canBeReplaced(fluid) && !state.liquid()) {
+		if (!level.isClientSide() && state.canBeReplaced(fluid) && !state.liquid()) {
 			level.destroyBlock(pos, true);
 		}
 

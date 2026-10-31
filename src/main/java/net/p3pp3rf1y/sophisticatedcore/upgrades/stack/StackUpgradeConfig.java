@@ -35,22 +35,7 @@ public class StackUpgradeConfig {
 
 		ret.add(RegistryHelper.getItemKey(Items.BUNDLE).toString());
 		ret.add(RegistryHelper.getItemKey(Items.SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.WHITE_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.ORANGE_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.MAGENTA_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.LIGHT_BLUE_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.YELLOW_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.LIME_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.PINK_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.GRAY_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.LIGHT_GRAY_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.CYAN_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.PURPLE_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.BLUE_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.BROWN_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.GREEN_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.RED_SHULKER_BOX).toString());
-		ret.add(RegistryHelper.getItemKey(Items.BLACK_SHULKER_BOX).toString());
+		Items.DYED_SHULKER_BOX.forEach(item -> ret.add(RegistryHelper.getItemKey(item).toString()));
 
 		return ret;
 	}
@@ -64,7 +49,7 @@ public class StackUpgradeConfig {
 			nonStackableItemsList.get().forEach(name -> {
 				Identifier registryName = Identifier.parse(name);
 				if (BuiltInRegistries.ITEM.containsKey(registryName)) {
-					nonStackableItems.add(BuiltInRegistries.ITEM.get(registryName));
+					BuiltInRegistries.ITEM.getOptional(registryName).ifPresent(nonStackableItems::add);
 				} else {
 					SophisticatedCore.LOGGER.error("Item {} is set to not be affected by stack upgrade in config, but it does not exist in item registry", name);
 				}

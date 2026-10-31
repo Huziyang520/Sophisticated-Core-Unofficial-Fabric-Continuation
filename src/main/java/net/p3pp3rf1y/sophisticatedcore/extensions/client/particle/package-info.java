@@ -2,7 +2,7 @@
 /**
  * Implementation code for SophisticatedCore.
  */
-@ParametersAreNonnullByDefault @MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 package net.p3pp3rf1y.sophisticatedcore.extensions.client.particle;
 
 

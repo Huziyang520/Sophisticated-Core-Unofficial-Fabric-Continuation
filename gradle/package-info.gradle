@@ -68,10 +68,8 @@ class GenerateImplPackageInfos extends DefaultTask {
 						|/**
 						| * Implementation code for ${project.name}.
 						| */
-						|@ParametersAreNonnullByDefault @MethodsReturnNonnullByDefault
+						|@ParametersAreNonnullByDefault
 						|package $packageName;
-						|
-						|import net.minecraft.MethodsReturnNonnullByDefault;
 						|
 						|import javax.annotation.ParametersAreNonnullByDefault;
 						|""".stripMargin())

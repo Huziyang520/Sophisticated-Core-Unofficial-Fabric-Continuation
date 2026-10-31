@@ -158,9 +158,8 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 	}
 
 	private void addEnergyTooltip(IStorageWrapper wrapper) {
-		wrapper.getEnergyStorage().ifPresent(energyStorage -> tooltipLines.add(Component.translatable(getEnergyTooltipTranslation(),
-				Component.literal(CountAbbreviator.abbreviate((int) energyStorage.getAmount())).withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.RED)
-		));
+		// The battery upgrade is parked: its energy library has no 26.3 build, so there is
+		// no energy storage to report on the tooltip for now.
 	}
 
 	protected String getEnergyTooltipTranslation() {

@@ -53,7 +53,7 @@ public class CraftingContainerRecipeTransferHandlerServer {
 		for (ItemStack oldCraftingItem : clearedCraftingItems) {
 			int added = addStack(container, inventorySlots, oldCraftingItem);
 			if (added < oldCraftingItem.getCount() && !player.getInventory().add(oldCraftingItem)) {
-				player.drop(oldCraftingItem, false);
+				player.drop(oldCraftingItem, false, net.minecraft.util.Prediction.SERVER_ONLY);
 			}
 		}
 	}

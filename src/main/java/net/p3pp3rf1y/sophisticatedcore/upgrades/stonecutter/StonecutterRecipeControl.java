@@ -16,6 +16,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.WidgetBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.*;
 
 import java.util.List;
+import net.minecraft.client.input.MouseButtonEvent;
 
 public class StonecutterRecipeControl extends WidgetBase {
 	private static final TextureBlitData SLIDER = new TextureBlitData(GuiHelper.GUI_CONTROLS, Dimension.SQUARE_256, new UV(29, 131), Dimension.RECTANGLE_12_15);
@@ -150,7 +151,10 @@ public class StonecutterRecipeControl extends WidgetBase {
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 		clickedOnScroll = false;
 		if (hasItemsInInputSlot) {
 			int listInnerLeftX = x + 1;
@@ -174,11 +178,14 @@ public class StonecutterRecipeControl extends WidgetBase {
 			}
 		}
 
-		return super.mouseClicked(mouseX, mouseY, button);
+		return super.mouseClicked(event, doubleClick);
 	}
 
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+	public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 		if (clickedOnScroll && canScroll()) {
 			int listTopY = y + LIST_Y_OFFSET;
 			int listBottomY = listTopY + 54;
@@ -187,7 +194,7 @@ public class StonecutterRecipeControl extends WidgetBase {
 			recipeIndexOffset = (int) ((sliderProgress * getHiddenRows()) + 0.5D) * 4;
 			return true;
 		} else {
-			return super.mouseDragged(mouseX, mouseY, button, dragX, dragY);
+			return super.mouseDragged(event, dragX, dragY);
 		}
 	}
 

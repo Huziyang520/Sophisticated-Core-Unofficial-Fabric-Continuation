@@ -46,7 +46,7 @@ public class ClientEventHandler implements ClientModInitializer {
 		registerFluidClientExtension();
 
         ServerLevelEvents.UNLOAD.register(StorageSoundHandler::onWorldUnload);
-		ClientTickEvents.END_WORLD_TICK.register(StorageSoundHandler::tick);
+		ClientTickEvents.END_LEVEL_TICK.register(StorageSoundHandler::tick);
 
         ClientPlayConnectionEvents.JOIN.register(ClientEventHandler::onPlayerJoinServer);
 		ClientRecipesUpdated.EVENT.register(RecipeHelper::onRecipesUpdated);
@@ -56,13 +56,13 @@ public class ClientEventHandler implements ClientModInitializer {
                 return;
             }
 
-			ScreenEvents.afterRender(screen).register(ClientEventHandler::onDrawScreen);
+			ScreenEvents.afterExtract(screen).register(ClientEventHandler::onDrawScreen);
 		});
 	}
 
 	private static void onDrawScreen(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float tickDelta) {
 		Minecraft mc = Minecraft.getInstance();
-		Screen gui = mc.screen;
+		Screen gui = mc.gui.screen();
 		if (!(gui instanceof AbstractContainerScreen<?> containerGui) || gui instanceof CreativeModeInventoryScreen || mc.player == null) {
 			return;
 		}

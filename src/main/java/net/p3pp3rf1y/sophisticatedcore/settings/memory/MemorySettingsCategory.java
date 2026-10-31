@@ -18,6 +18,7 @@ import net.p3pp3rf1y.sophisticatedcore.util.RegistryHelper;
 import java.util.*;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
+import net.p3pp3rf1y.sophisticatedcore.util.CodecHelper;
 
 public class MemorySettingsCategory implements ISettingsCategory<MemorySettingsCategory> {
 	public static final String NAME = "memory";
@@ -50,12 +51,12 @@ public class MemorySettingsCategory implements ISettingsCategory<MemorySettingsC
 	private void deserialize() {
 		NBTHelper.getMap(categoryNbt, SLOT_FILTER_ITEMS_TAG,
 						Integer::valueOf,
-						(k, v) -> BuiltInRegistries.ITEM.getOptional(Identifier.parse(v.getAsString())))
+						(k, v) -> v.asString().flatMap(name -> BuiltInRegistries.ITEM.getOptional(Identifier.parse(name))))
 				.ifPresent(map -> map.forEach(this::addSlotItem));
 
 		NBTHelper.getMap(categoryNbt, SLOT_FILTER_STACKS_TAG,
 						Integer::valueOf,
-						(k, v) -> v instanceof CompoundTag tag ? RegistryHelper.getRegistryAccess().flatMap(registryAccess -> ItemStack.parse(registryAccess, tag)) : Optional.empty())
+						(k, v) -> v instanceof CompoundTag tag ? RegistryHelper.getRegistryAccess().flatMap(access -> CodecHelper.OVERSIZED_ITEM_STACK_CODEC.parse(access.createSerializationContext(NbtOps.INSTANCE), tag).result()) : Optional.empty())
 				.ifPresent(map -> map.forEach(this::addSlotStack));
 		ignoreNbt = NBTHelper.getBoolean(categoryNbt, IGNORE_NBT_TAG).orElse(true);
 	}

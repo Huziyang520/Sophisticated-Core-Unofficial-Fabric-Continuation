@@ -16,6 +16,7 @@ import net.minecraft.client.gui.screens.Screen;
 
 import java.util.Collections;
 import java.util.List;
+import net.minecraft.client.input.MouseButtonEvent;
 
 /**
  * Abstract scroll panel class.
@@ -147,7 +148,7 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 	 * Draws the background of the scroll panel. This runs AFTER Scissors are enabled.
 	 */
 	protected void drawBackground(GuiGraphicsExtractor guiGraphics, float partialTick) {
-		Screen.renderMenuBackgroundTexture(guiGraphics, Screen.MENU_BACKGROUND, this.left, this.top, 0f, 0f, this.width, this.height);
+		Screen.extractMenuBackgroundTexture(guiGraphics, Screen.MENU_BACKGROUND, this.left, this.top, 0f, 0f, this.width, this.height);
 	}
 
 	/**
@@ -200,8 +201,11 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (super.mouseClicked(mouseX, mouseY, button))
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
+		if (super.mouseClicked(event, doubleClick))
 			return true;
 
 		this.scrolling = button == 0 && mouseX >= barLeft && mouseX < barLeft + barWidth;
@@ -216,8 +220,11 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 	}
 
 	@Override
-	public boolean mouseReleased(double mouseX, double mouseY, int button) {
-		if (super.mouseReleased(mouseX, mouseY, button))
+	public boolean mouseReleased(MouseButtonEvent event) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
+		if (super.mouseReleased(event))
 			return true;
 		boolean ret = this.scrolling;
 		this.scrolling = false;
@@ -236,7 +243,10 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 	}
 
 	@Override
-	public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
+	public boolean mouseDragged(MouseButtonEvent event, double deltaX, double deltaY) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 		if (this.scrolling) {
 			int maxScroll = height - getBarHeight();
 			double moved = deltaY / maxScroll;

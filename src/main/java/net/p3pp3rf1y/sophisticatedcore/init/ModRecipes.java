@@ -19,7 +19,7 @@ public class ModRecipes {
 	private static final DeferredRegister<RecipeSerializer<?>> RECIPE_SERIALIZERS = DeferredRegister.create(BuiltInRegistries.RECIPE_SERIALIZER, SophisticatedCore.MOD_ID);
 
 
-	public static final Supplier<RecipeSerializer<?>> UPGRADE_NEXT_TIER_SERIALIZER = RECIPE_SERIALIZERS.register("upgrade_next_tier", UpgradeNextTierRecipe.Serializer::new);
+	public static final Supplier<RecipeSerializer<?>> UPGRADE_NEXT_TIER_SERIALIZER = RECIPE_SERIALIZERS.register("upgrade_next_tier", UpgradeNextTierRecipe::createSerializer);
 	public static final Supplier<RecipeSerializer<UpgradeClearRecipe>> UPGRADE_CLEAR_SERIALIZER = RECIPE_SERIALIZERS.register("upgrade_clear", () -> new RecipeSerializer<>(UpgradeClearRecipe.CODEC, UpgradeClearRecipe.STREAM_CODEC));
 
 	public static final ResourceConditionType<ItemEnabledCondition> ITEM_ENABLED_CONDITION = ResourceConditionType.create(SophisticatedCore.getRL("item_enabled"), ItemEnabledCondition.CODEC);

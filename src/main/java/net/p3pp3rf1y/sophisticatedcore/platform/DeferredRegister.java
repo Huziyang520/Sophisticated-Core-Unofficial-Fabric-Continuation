@@ -67,7 +67,7 @@ public class DeferredRegister<T> {
 			return;
 		}
 		registered = true;
-		Registry<T> registry = (Registry<T>) BuiltInRegistries.REGISTRY.get(registryKey.registry());
+		Registry<T> registry = (Registry<T>) BuiltInRegistries.REGISTRY.getValue(registryKey.registry());
 		if (registry == null) {
 			throw new IllegalStateException("Registry not present: " + registryKey.registry());
 		}

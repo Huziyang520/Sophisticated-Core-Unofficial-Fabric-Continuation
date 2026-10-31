@@ -92,7 +92,7 @@ public abstract class Tab extends CompositeWidgetBase<WidgetBase> {
 		int secondHalfHeight = halfHeight + oddHeightAddition;
 		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GuiHelper.GUI_CONTROLS, x, y, (float) TEXTURE_WIDTH - width, 0, width, halfHeight, TEXTURE_WIDTH, TEXTURE_HEIGHT);
 		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GuiHelper.GUI_CONTROLS, x, y + halfHeight, (float) TEXTURE_WIDTH - width, (float) TEXTURE_HEIGHT - secondHalfHeight, width, secondHalfHeight, TEXTURE_WIDTH, TEXTURE_HEIGHT);
-		guiGraphics.blit(GuiHelper.GUI_CONTROLS, x - 3, y, TEXTURE_WIDTH / 2, TEXTURE_HEIGHT - height, 3, height);
+		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GuiHelper.GUI_CONTROLS, x - 3, y, TEXTURE_WIDTH / 2, TEXTURE_HEIGHT - height, 3, height);
 	}
 
 	protected boolean isClosedTooltipVisible(int mouseX, int mouseY) {

@@ -2,7 +2,7 @@
 /**
  * Implementation code for SophisticatedStorage.
  */
-@ParametersAreNonnullByDefault @MethodsReturnNonnullByDefault
+@ParametersAreNonnullByDefault
 package net.p3pp3rf1y.sophisticatedcore.compat.litematica.network;
 
 

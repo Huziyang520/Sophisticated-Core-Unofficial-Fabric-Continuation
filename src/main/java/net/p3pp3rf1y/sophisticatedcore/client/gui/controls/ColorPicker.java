@@ -16,6 +16,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntConsumer;
+import net.minecraft.client.input.MouseButtonEvent;
 
 public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 	public static final int COLOR_GRADIENT_WIDTH = 50;
@@ -40,12 +41,15 @@ public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 		addChild(colorPreview);
 		textColorEntry = new TextBox(new Position(0, 0), new Dimension(COLOR_ENTRY_WIDTH, 12)) {
 			@Override
-			public boolean mouseClicked(double mouseX, double mouseY, int button) {
+			public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 				if (isEditable()) {
 					setFocused(true);
 					screen.setFocused(textColorEntry);
 				}
-				return super.mouseClicked(mouseX, mouseY, button);
+				return super.mouseClicked(event, doubleClick);
 			}
 		};
 		addChild(textColorEntry);
@@ -198,7 +202,10 @@ public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 		}
 
 		@Override
-		public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 			setColorBasedOnMouseCoords(mouseX, mouseY);
 			return true;
 		}
@@ -213,7 +220,10 @@ public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 		}
 
 		@Override
-		public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+		public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 			setColorBasedOnMouseCoords(mouseX, mouseY);
 			return true;
 		}
@@ -252,7 +262,10 @@ public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 		}
 
 		@Override
-		public boolean mouseClicked(double mouseX, double mouseY, int button) {
+		public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 			setHueBasedOnMouseY(mouseY);
 			return true;
 		}
@@ -264,7 +277,10 @@ public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 		}
 
 		@Override
-		public boolean mouseDragged(double mouseX, double mouseY, int button, double dragX, double dragY) {
+		public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 			setHueBasedOnMouseY(mouseY);
 			return true;
 		}

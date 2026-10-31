@@ -250,7 +250,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 			if (settingsContainers.containsKey(categoryName)) {
 				settingsContainers.get(categoryName).handlePacket(data);
 			}
-		} else if (data.contains(TemplatePersistanceContainer.TEMPLATE_PERSISTANCE_TAG, Tag.TAG_COMPOUND)) {
+		} else if (data.contains(TemplatePersistanceContainer.TEMPLATE_PERSISTANCE_TAG)) {
 			templatePersistanceContainer.handlePacket(data.getCompoundOrEmpty(TemplatePersistanceContainer.TEMPLATE_PERSISTANCE_TAG));
 		}
 	}
@@ -302,8 +302,9 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 
 		@Nullable
 		@Override
-		public Pair<Identifier, Identifier> getNoItemIcon() {
-			return inaccessibleSlots.contains(sophisticatedCore_getSlotIndex()) ? StorageContainerMenuBase.INACCESSIBLE_SLOT_BACKGROUND : emptySlotIcons.getOrDefault(sophisticatedCore_getSlotIndex(), null);
+		public Identifier getNoItemIcon() {
+			Pair<Identifier, Identifier> icon = inaccessibleSlots.contains(sophisticatedCore_getSlotIndex()) ? StorageContainerMenuBase.INACCESSIBLE_SLOT_BACKGROUND : emptySlotIcons.get(sophisticatedCore_getSlotIndex());
+		return icon == null ? null : icon.getSecond();
 		}
 	}
 
@@ -338,7 +339,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 	}
 
 	protected boolean isServer() {
-		return !player.level().isClientSide;
+		return !player.level().isClientSide();
 	}
 
 	public void sendAdditionalSlotInfo() {

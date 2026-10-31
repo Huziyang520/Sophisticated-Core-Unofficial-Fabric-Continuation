@@ -16,6 +16,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import net.minecraft.client.input.MouseButtonEvent;
 
 public class FluidFilterControl extends WidgetBase {
 	private final FluidFilterContainer container;
@@ -48,7 +49,10 @@ public class FluidFilterControl extends WidgetBase {
 	}
 
 	@Override
-	public boolean mouseClicked(double mouseX, double mouseY, int button) {
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		double mouseX = event.x();
+		double mouseY = event.y();
+		int button = event.button();
 		if (!isMouseOver(mouseX, mouseY)) {
 			return false;
 		}

@@ -24,10 +24,17 @@ import java.util.stream.Stream;
 public class DeduplicationProcessor implements ProjectProcessor {
 	@Override
 	public void apply(Project project) {
-		project.getTasks().named("remapJar", Jar.class).configure(task -> task.doLast($ -> {
-			Path path = task.getArchiveFile().get().getAsFile().toPath();
-			this.deduplicateInclusions(path);
-		}));
+		// 26.x builds run with obfuscation disabled, so there is no remapJar task and the
+		// shaded jar is produced by the plain jar task instead.
+		project.getTasks().withType(Jar.class).configureEach(task -> {
+			if (!"remapJar".equals(task.getName()) && !"jar".equals(task.getName())) {
+				return;
+			}
+			task.doLast($ -> {
+				Path path = task.getArchiveFile().get().getAsFile().toPath();
+				this.deduplicateInclusions(path);
+			});
+		});
 	}
 
 	public void deduplicateInclusions(Path jar) {

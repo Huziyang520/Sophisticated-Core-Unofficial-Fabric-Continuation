@@ -54,7 +54,7 @@ public class ModFluids {
 		private static final ExperienceFluidAttributes INSTANCE = new ExperienceFluidAttributes();
 
 		@Override
-		public int getLuminance(FluidVariant variant) {
+		public int getLightEmission(FluidVariant variant) {
 			return ExperienceFluid.LIGHT_LEVEL;
 		}
 
