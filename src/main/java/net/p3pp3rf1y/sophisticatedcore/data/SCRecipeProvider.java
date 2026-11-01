@@ -32,7 +32,7 @@ public class SCRecipeProvider extends FabricRecipeProvider {
 			BootstrapContext<Recipe<?>> recipeOutput, BootstrapContext<Advancement> advancementOutput) {
 		return new RecipeProvider(recipeOutput, advancementOutput) {
 			@Override
-			protected void buildRecipes() {
+			public void buildRecipes() {
 				SpecialRecipeBuilder.special(() -> new UpgradeClearRecipe(CraftingBookCategory.MISC))
 						.save(output, ResourceKey.create(Registries.RECIPE, SophisticatedCore.getRL("upgrade_clear")));
 			}

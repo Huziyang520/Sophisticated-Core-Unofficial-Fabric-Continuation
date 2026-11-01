@@ -156,7 +156,7 @@ public abstract class FilterLogicControlBase<F extends FilterLogic, S extends Sl
 			@Override
 			protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 				if (container.getPrimaryMatch() == PrimaryMatch.TAGS) {
-					super.renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
+					super.extractWidgetRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 				}
 			}
 
@@ -270,7 +270,7 @@ public abstract class FilterLogicControlBase<F extends FilterLogic, S extends Sl
 
 	@Override
 	protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
-		super.renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
+		super.extractWidgetRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		if (container.getPrimaryMatch() == PrimaryMatch.TAGS) {
 			renderTagNames(guiGraphics);
 		}
@@ -347,7 +347,7 @@ public abstract class FilterLogicControlBase<F extends FilterLogic, S extends Sl
 		@Override
 		protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 			if (container.getPrimaryMatch() == PrimaryMatch.TAGS) {
-				super.renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
+				super.extractWidgetRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 			}
 		}
 

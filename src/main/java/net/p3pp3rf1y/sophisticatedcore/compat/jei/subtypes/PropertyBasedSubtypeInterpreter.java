@@ -62,21 +62,6 @@ public abstract class PropertyBasedSubtypeInterpreter implements ISubtypeInterpr
 		return results;
 	}
 
-	@Override
-	public String getLegacyStringSubtypeInfo(ItemStack itemStack, UidContext context) {
-		StringBuilder result = new StringBuilder();
-		for (IPropertyDefinition<?> definition : propertyDefinitions) {
-			@Nullable Object value = definition.getPropertyValue(itemStack);
-			if (value != null) {
-				String serializedValue = getSerializedPropertyValue(definition, value);
-				if (!result.isEmpty()) {
-					result.append(',');
-				}
-				result.append(definition.getPropertyName()).append(':').append(serializedValue);
-			}
-		}
-		return "{" + result + "}";
-	}
 
 	private <T> String getSerializedPropertyValue(IPropertyDefinition<T> definition, Object value) {
 		//noinspection unchecked

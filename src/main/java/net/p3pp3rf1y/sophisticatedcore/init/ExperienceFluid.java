@@ -83,7 +83,7 @@ public abstract class ExperienceFluid extends FlowingFluid {
 	}
 
 	@Override
-	protected Vec3 getFlow(BlockGetter level, BlockPos pos, FluidState state) {
+	public Vec3 getFlow(BlockGetter level, BlockPos pos, FluidState state) {
 		return Vec3.ZERO;
 	}
 

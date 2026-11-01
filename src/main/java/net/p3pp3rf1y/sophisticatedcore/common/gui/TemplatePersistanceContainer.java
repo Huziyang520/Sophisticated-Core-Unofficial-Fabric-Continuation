@@ -271,7 +271,7 @@ public class TemplatePersistanceContainer {
 		sendDataToServer(() -> NBTHelper.putString(NBTHelper.putString(new CompoundTag(), ACTION_TAG, "exportTemplate"), "fileName", finalFileName));
 
 		if (getPlayer() instanceof ServerPlayer serverPlayer) {
-			ServerLevel serverLevel = serverPlayer.serverLevel();
+			ServerLevel serverLevel = serverPlayer.level();
 			Path datapacksDir = serverLevel.getServer().getWorldPath(LevelResource.DATAPACK_DIR);
 
 			String playersFolder = getPlayer().getScoreboardName().toLowerCase(Locale.ROOT) + "_soph_templates";

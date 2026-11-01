@@ -82,7 +82,7 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 			@Override
 			public void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
 				if (visible && isMouseOver(mouseX, mouseY)) {
-					guiGraphics.setTooltipForNextFrame(minecraft.font, getTooltip().stream().map(Component::getVisualOrderText).toList(), LEFT_SIDE_TOOLTIP_POSITIONER, mouseX, mouseY);
+					guiGraphics.setTooltipForNextFrame(minecraft.font, getTooltip(), java.util.Optional.<net.minecraft.world.inventory.tooltip.TooltipComponent>empty(), mouseX, mouseY);
 				}
 			}
 		};
@@ -101,7 +101,7 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 
 			@Override
 			protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
-				super.renderWidget(guiGraphics, mouseX, mouseY, partialTicks);
+				super.extractWidgetRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 				guiGraphics.text(font, String.valueOf(getContainer().getMatchedCraftingResults().size()), x + 5, y + 2, 0xFFFFFF, true);
 			}
 		};
@@ -210,10 +210,10 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 		int halfWidth = width / 2;
 		int halfHeight = height / 2;
 
-		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GUI_CONTROLS, resultListLeftX, resultListTopY, 85, 24, halfWidth, halfHeight, 256, 256);
-		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GUI_CONTROLS, resultListLeftX + halfWidth, resultListTopY, (float) 117 - halfWidth, 24, halfWidth, halfHeight, 256, 256);
-		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GUI_CONTROLS, resultListLeftX, resultListTopY + halfHeight, 85, (float) 56 - halfHeight, halfWidth, halfHeight, 256, 256);
-		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GUI_CONTROLS, resultListLeftX + halfWidth, resultListTopY + halfHeight, (float) 117 - halfWidth, (float) 56 - halfHeight, halfWidth, halfHeight, 256, 256);
+		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GUI_CONTROLS, resultListLeftX, resultListTopY, 85, 24, halfWidth, halfHeight, 256, 256, 256, 256);
+		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GUI_CONTROLS, resultListLeftX + halfWidth, resultListTopY, (float) 117 - halfWidth, 24, halfWidth, halfHeight, 256, 256, 256, 256);
+		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GUI_CONTROLS, resultListLeftX, resultListTopY + halfHeight, 85, (float) 56 - halfHeight, halfWidth, halfHeight, 256, 256, 256, 256);
+		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GUI_CONTROLS, resultListLeftX + halfWidth, resultListTopY + halfHeight, (float) 117 - halfWidth, (float) 56 - halfHeight, halfWidth, halfHeight, 256, 256, 256, 256);
 
 		GuiHelper.renderSlotsBackground(guiGraphics, resultListLeftX + RESULT_SELECTION_BORDER_WIDTH, resultListTopY + RESULT_SELECTION_BORDER_WIDTH, 3, matchedCraftingResults.size() / 3, matchedCraftingResults.size() % 3);
 	}

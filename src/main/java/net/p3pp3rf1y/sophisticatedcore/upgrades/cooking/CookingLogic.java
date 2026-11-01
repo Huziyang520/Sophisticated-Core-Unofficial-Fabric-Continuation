@@ -145,13 +145,13 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 		if (isCooking() && finishedCooking(level)) {
 			smelt(cookingRecipe, level);
 			if (canSmelt(cookingRecipe, level)) {
-				setCookTime(level, (int) (cookingRecipe.getCookingTime() * (1 / cookingSpeedMultiplier)));
+				setCookTime(level, (int) (cookingRecipe.cookingTime() * (1 / cookingSpeedMultiplier)));
 			} else {
 				setIsCooking(false);
 			}
 		} else if (!isCooking()) {
 			setIsCooking(true);
-			setCookTime(level, (int) (cookingRecipe.getCookingTime() * (1 / cookingSpeedMultiplier)));
+			setCookTime(level, (int) (cookingRecipe.cookingTime() * (1 / cookingSpeedMultiplier)));
 		}
 	}
 
@@ -218,13 +218,13 @@ public class CookingLogic<T extends AbstractCookingRecipe> {
 			}
 			setBurnTime(level, (int) (getBurnTime(fuel, burnTimeModifier) * fuelEfficiencyMultiplier / cookingSpeedMultiplier));
 			if (isBurning(level)) {
-				if (fuel.getItem().hasCraftingRemainingItem()) {
-					setFuelWithoutValidation(fuel.getRecipeRemainder());
+				if (fuel.getItem().getCraftingRemainder() != null) {
+					setFuelWithoutValidation(fuel.getCraftingRemainder().create());
 				} else if (!fuel.isEmpty()) {
 					fuel.shrink(1);
 					setFuel(fuel);
 					if (fuel.isEmpty()) {
-						setFuel(fuel.getRecipeRemainder());
+						setFuel(fuel.getCraftingRemainder().create());
 					}
 				}
 			}

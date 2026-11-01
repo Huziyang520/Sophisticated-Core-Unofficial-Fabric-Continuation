@@ -26,7 +26,7 @@ public class LootHelper {
 
 	public static List<ItemStack> getLoot(Identifier lootTableName, MinecraftServer server, ServerLevel level, BlockPos pos) {
 		LootTable lootTable = server.reloadableRegistries().getLootTable(ResourceKey.create(Registries.LOOT_TABLE, lootTableName));
-		LootContext.Builder lootBuilder = new LootContext.Builder((new LootParams.Builder(level)).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).create(LootContextParamSets.CHEST)).withOptionalRandomSeed(level.random.nextLong());
+		LootContext.Builder lootBuilder = new LootContext.Builder((new LootParams.Builder(level)).withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(pos)).create(LootContextParamSets.CHEST)).withOptionalRandomSeed(level.getRandom().nextLong());
 		List<ItemStack> lootStacks = new ArrayList<>();
 		lootTable.getRandomItems(lootBuilder.create(Optional.empty()), lootStacks::add);
 		return lootStacks;

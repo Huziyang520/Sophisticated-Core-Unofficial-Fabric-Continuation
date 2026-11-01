@@ -102,7 +102,7 @@ public class ClientEventHandler implements ClientModInitializer {
 		// Trinkets uses 310, so 330 was chosen as 320 was not enough as it cut the plus sign in half
 		guiGraphics.nextStratum();
 
-		int color = stashResult == IStashStorageItem.StashResult.MATCH_AND_SPACE ? ChatFormatting.GREEN.getColor() : 0xFFFF00;
+		int color = stashResult == IStashStorageItem.StashResult.MATCH_AND_SPACE ? 0x55FF55 : 0xFFFF00;
 		if (stack.getItem() instanceof IStashStorageItem) {
 			guiGraphics.text(mc.font, "+", x + 10, y + 8, color);
 		} else {

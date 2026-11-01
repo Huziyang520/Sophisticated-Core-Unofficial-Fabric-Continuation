@@ -10,6 +10,8 @@ import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedcore.network.SyncContainerStacksPayload;
 import net.p3pp3rf1y.sophisticatedcore.network.SyncSlotStackPayload;
 
+import java.util.List;
+
 public class HighStackCountSynchronizer implements ContainerSynchronizer {
 	private final ServerPlayer player;
 
@@ -18,7 +20,7 @@ public class HighStackCountSynchronizer implements ContainerSynchronizer {
 	}
 
 	@Override
-	public void sendInitialData(AbstractContainerMenu containerMenu, NonNullList<ItemStack> stacks, ItemStack carriedStack, int[] dataSlots) {
+	public void sendInitialData(AbstractContainerMenu containerMenu, List<ItemStack> stacks, ItemStack carriedStack, int[] dataSlots) {
 		PacketDistributor.sendToPlayer(player, new SyncContainerStacksPayload(containerMenu.containerId, containerMenu.incrementStateId(), stacks, carriedStack));
 	}
 
@@ -35,5 +37,12 @@ public class HighStackCountSynchronizer implements ContainerSynchronizer {
 	@Override
 	public void sendDataChange(AbstractContainerMenu containerMenu, int slotInd, int data) {
 		//noop - not used in StorageContainer
+	}
+	/**
+	 * 26.3 keeps the client-side view of each slot in a RemoteSlot.
+	 */
+	@Override
+	public net.minecraft.world.inventory.RemoteSlot createSlot() {
+		return net.minecraft.world.inventory.RemoteSlot.PLACEHOLDER;
 	}
 }

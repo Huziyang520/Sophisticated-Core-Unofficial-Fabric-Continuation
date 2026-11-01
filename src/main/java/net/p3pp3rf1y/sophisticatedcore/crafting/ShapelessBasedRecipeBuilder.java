@@ -8,6 +8,7 @@ import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
@@ -53,27 +54,38 @@ public class ShapelessBasedRecipeBuilder extends SCShapelessRecipeBuilder {
 	}
 
 	@Override
-	public void save(RecipeOutput recipeOutput, Identifier id) {
-		HoldingRecipeOutput holdingRecipeOutput = new HoldingRecipeOutput(recipeOutput.advancement());
-		super.save(holdingRecipeOutput, id);
+	public void save(RecipeOutput recipeOutput, ResourceKey<Recipe<?>> recipeKey) {
+		HoldingRecipeOutput holdingRecipeOutput = new HoldingRecipeOutput(recipeOutput);
+		super.save(holdingRecipeOutput, recipeKey);
 
 		if (!(holdingRecipeOutput.getRecipe() instanceof ShapelessRecipe compose)) {
 			return;
 		}
 
-		withConditions(recipeOutput, new ItemEnabledCondition(getResult())).accept(id, factory.apply(compose), holdingRecipeOutput.getAdvancementHolder());
+		withConditions(recipeOutput, new ItemEnabledCondition(getResult())).accept(recipeKey, factory.apply(compose), holdingRecipeOutput.getAdvancementHolder());
 	}
 
 	protected RecipeOutput withConditions(final RecipeOutput exporter, final ResourceCondition... conditions) {
 		Preconditions.checkArgument(conditions.length > 0, "Must add at least one condition.");
 		return new RecipeOutput() {
-			public void accept(Identifier identifier, Recipe<?> recipe, @Nullable AdvancementHolder advancementEntry) {
+			@Override
+			public void accept(ResourceKey<Recipe<?>> identifier, Recipe<?> recipe, AdvancementHolder advancementEntry) {
 				FabricDataGenHelper.addConditions(recipe, conditions);
 				exporter.accept(identifier, recipe, advancementEntry);
 			}
 
 			public Advancement.Builder advancement() {
 				return exporter.advancement();
+			}
+
+			@Override
+			public <S> net.minecraft.core.HolderGetter<S> lookup(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<? extends S>> registryKey) {
+				return exporter.lookup(registryKey);
+			}
+
+			@Override
+			public <S> java.util.stream.Stream<net.minecraft.core.Holder.Reference<S>> listContextElements(net.minecraft.resources.ResourceKey<? extends net.minecraft.core.Registry<? extends S>> registryKey) {
+				return exporter.listContextElements(registryKey);
 			}
 		};
 	}

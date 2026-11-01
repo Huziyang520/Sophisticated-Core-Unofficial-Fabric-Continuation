@@ -128,7 +128,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	protected abstract StorageSettingsTabControlBase initializeTabControl();
 
 	@Override
-	protected void extractContents(GuiGraphicsExtractor guiGraphics, float partialTicks, int mouseX, int mouseY) {
+	public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		int x = (width - guiWidth) / 2;
 		int y = (height - guiHeight) / 2;
 		StorageGuiHelper.renderStorageBackground(new Position(x, y), guiGraphics, storageBackgroundProperties.getTextureName(), guiWidth, getStorageInventoryHeight(getNumberOfVisibleRows()));
@@ -184,7 +184,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	public void renderInventorySlots(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, boolean canShowHover) {
 		for (int slotId = 0; slotId < menu.ghostSlots.size(); ++slotId) {
 			Slot slot = menu.ghostSlots.get(slotId);
-			renderSlot(guiGraphics, slot);
+			extractSlot(guiGraphics, slot, mouseX, mouseY);
 
 			settingsTabControl.renderSlotOverlays(guiGraphics, slot, this::renderSlotOverlay, isTemplateLoadHovered());
 
@@ -198,7 +198,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	}
 
 	@Override
-	public void extractSlot(GuiGraphicsExtractor guiGraphics, Slot slot) {
+	public void extractSlot(GuiGraphicsExtractor guiGraphics, Slot slot, int mouseX, int mouseY) {
 		ItemStack itemstack = slot.getItem() != ItemStack.EMPTY ? slot.getItem() : settingsTabControl.getSlotStackDisplayOverride(slot.sophisticatedCore_getSlotIndex(), isTemplateLoadHovered());
 
 		Matrix3x2fStack poseStack = guiGraphics.pose();
@@ -211,7 +211,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 			} else {
 				Identifier noItemIcon = slot.getNoItemIcon();
 				if (noItemIcon != null) {
-					TextureAtlasSprite textureatlassprite = minecraft.getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(noItemIcon);
+					TextureAtlasSprite textureatlassprite = guiGraphics.getSprite(new net.minecraft.client.resources.model.sprite.SpriteId(net.minecraft.data.AtlasIds.BLOCKS, noItemIcon));
 					guiGraphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, textureatlassprite, slot.x, slot.y, 16, 16);
 				}
 			}
@@ -242,7 +242,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		if (mouseDragHandledByOther) {
 			return false;
 		}
-		Slot slot = findSlot(mouseX, mouseY);
+		Slot slot = sophisticatedCore_findSlot(mouseX, mouseY);
 		if (slot != null) {
 			settingsTabControl.handleSlotClick(slot, button);
 		}
@@ -254,9 +254,10 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		return super.mouseDragged(event, dragX, dragY);
 	}
 
-	@Nullable
-	@Override
-	public Slot findSlot(double mouseX, double mouseY) {
+	/**
+	 * 26.3 made the base slot lookup private, so this is a local helper now.
+	 */
+	public Slot sophisticatedCore_findSlot(double mouseX, double mouseY) {
 		for (int i = 0; i < menu.ghostSlots.size(); ++i) {
 			Slot slot = menu.ghostSlots.get(i);
 			if (isHovering(slot, mouseX, mouseY) && slot.isActive()) {
@@ -268,8 +269,8 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	}
 
 	@Override
-	protected boolean hasClickedOutside(double mouseX, double mouseY, int guiLeftIn, int guiTopIn, int mouseButton) {
-		return super.hasClickedOutside(mouseX, mouseY, guiLeftIn, guiTopIn, mouseButton) && hasClickedOutsideOfSettings(mouseX, mouseY);
+	protected boolean hasClickedOutside(double mouseX, double mouseY, int guiLeftIn, int guiTopIn) {
+		return super.hasClickedOutside(mouseX, mouseY, guiLeftIn, guiTopIn) && hasClickedOutsideOfSettings(mouseX, mouseY);
 	}
 
 	private boolean hasClickedOutsideOfSettings(double mouseX, double mouseY) {
@@ -288,7 +289,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 			sendStorageInventoryScreenOpenMessage();
 			return true;
 		}
-		return super.keyPressed(keyCode, scanCode, modifiers);
+		return super.keyPressed(event);
 	}
 
 	protected abstract void sendStorageInventoryScreenOpenMessage();

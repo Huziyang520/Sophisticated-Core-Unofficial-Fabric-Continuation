@@ -4,13 +4,16 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceCondition;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditionType;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.RegistryOps;
 import net.minecraft.world.item.Item;
 import net.p3pp3rf1y.sophisticatedcore.Config;
 import net.p3pp3rf1y.sophisticatedcore.init.ModRecipes;
 
+/**
+ * Recipe condition that keeps recipes for disabled items out of the game.
+ */
 public record ItemEnabledCondition(Identifier itemRegistryName) implements ResourceCondition {
 	public static final MapCodec<ItemEnabledCondition> CODEC = RecordCodecBuilder.mapCodec(
 			builder -> builder
@@ -23,7 +26,7 @@ public record ItemEnabledCondition(Identifier itemRegistryName) implements Resou
 	}
 
 	@Override
-	public boolean test(HolderLookup.Provider registryLookup) {
+	public boolean test(RegistryOps.RegistryInfoLookup registryLookup) {
 		return Config.COMMON.enabledItems.isItemEnabled(itemRegistryName);
 	}
 

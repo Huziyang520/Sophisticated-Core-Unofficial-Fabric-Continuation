@@ -47,7 +47,7 @@ public class InfinityUpgradeItem extends UpgradeItemBase<InfinityUpgradeItem.Wra
 
 	@Override
 	public UpgradeSlotChangeResult canRemoveUpgradeFrom(IStorageWrapper storageWrapper, boolean isClientSide, Player player) {
-		if (player.hasPermissions(getPermissionLevel())) {
+		if (player.permissions().hasPermission(net.minecraft.server.permissions.Permissions.COMMANDS_GAMEMASTER)) {
 			return super.canRemoveUpgradeFrom(storageWrapper, isClientSide, player);
 		}
 

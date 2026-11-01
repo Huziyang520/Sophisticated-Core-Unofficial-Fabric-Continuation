@@ -49,7 +49,7 @@ import java.util.function.Supplier;
 public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extends AbstractContainerMenu implements IAdditionalSlotInfoMenu {
 	public static final int NUMBER_OF_PLAYER_SLOTS = 36;
 	public static final Identifier EMPTY_UPGRADE_SLOT_BACKGROUND = Identifier.fromNamespaceAndPath(SophisticatedCore.MOD_ID, "item/empty_upgrade_slot");
-	public static final Pair<Identifier, Identifier> INACCESSIBLE_SLOT_BACKGROUND = new Pair<>(InventoryMenu.BLOCK_ATLAS, SophisticatedCore.getRL("item/inaccessible_slot"));
+	public static final Pair<Identifier, Identifier> INACCESSIBLE_SLOT_BACKGROUND = new Pair<>(net.minecraft.data.AtlasIds.BLOCKS, SophisticatedCore.getRL("item/inaccessible_slot"));
 	protected static final String UPGRADE_ENABLED_TAG = "upgradeEnabled";
 	protected static final String UPGRADE_SLOT_TAG = "upgradeSlot";
 	protected static final String ACTION_TAG = "action";
@@ -350,6 +350,11 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 	@Override
 	public void clicked(int slotId, int dragType, ContainerInput clickType, Player player) {
+		if (clickType == ContainerInput.QUICK_CRAFT) {
+			sophisticatedCore_doClick(slotId, dragType, clickType, player);
+			return;
+		}
+
 		if (isUpgradeSettingsSlot(slotId) && getSlot(slotId) instanceof IFilterSlot && getSlot(slotId).mayPlace(getCarried())) {
 			Slot slot = getSlot(slotId);
 			ItemStack cursorStack = getCarried().copy();
@@ -921,7 +926,6 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		}
 	}
 
-	@Override
 	public void setRemoteSlotNoCopy(int slotIndex, ItemStack stack) {
 		if (slotIndex < getInventorySlotsSize()) {
 			ItemStack previous = remoteRealSlots.get(slotIndex);
@@ -989,11 +993,10 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		return Math.min(slot.getMaxStackSize(carriedStack), placeCount);
 	}
 
-	//copy of Container's doClick with the replacement of inventorySlots.get to getSlot, call to onswapcraft as that's protected in vanilla and an addition of upgradeSlots to pickup all
-	@SuppressWarnings("java:S3776")
-	//complexity here is brutal, but it's something that's in vanilla and need to keep this as close to it as possible for easier ports
-	@Override
-	protected void doClick(int slotId, int dragType, ContainerInput clickType, Player player) {
+	/**
+	 * 26.3 made the vanilla doClick private; this mirrors it for the storage slots.
+	 */
+	private void sophisticatedCore_doClick(int slotId, int dragType, ContainerInput clickType, Player player) {
 		if (slotId >= getTotalSlotsNumber()) {
 			return;
 		}
@@ -1642,7 +1645,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	@Override
 	public void updateEmptySlotIcons(Map<Identifier, Set<Integer>> emptySlotIcons) {
 		this.emptySlotIcons.clear();
-		emptySlotIcons.forEach((textureName, slots) -> slots.forEach(slot -> this.emptySlotIcons.put(slot, new Pair<>(InventoryMenu.BLOCK_ATLAS, textureName))));
+		emptySlotIcons.forEach((textureName, slots) -> slots.forEach(slot -> this.emptySlotIcons.put(slot, new Pair<>(net.minecraft.data.AtlasIds.BLOCKS, textureName))));
 	}
 
 	public ItemStack getSlotFilterItem(int slot) {

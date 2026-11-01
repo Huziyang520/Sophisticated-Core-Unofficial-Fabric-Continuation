@@ -14,8 +14,10 @@ import net.minecraft.world.item.crafting.StonecutterRecipe;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.WidgetBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.*;
+import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
 import java.util.List;
+import java.util.Optional;
 import net.minecraft.client.input.MouseButtonEvent;
 
 public class StonecutterRecipeControl extends WidgetBase {

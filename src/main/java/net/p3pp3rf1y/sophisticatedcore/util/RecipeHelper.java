@@ -182,7 +182,7 @@ public class RecipeHelper {
 
 	private static List<ItemStack> getUncompactResultItems(Level w, ItemStack itemToUncompact) {
 		CraftingContainer craftingInventory = getFilledCraftingInventory(itemToUncompact, 1, 1);
-		return safeGetRecipesFor(RecipeType.CRAFTING, craftingInventory.asCraftInput(), w).stream().map(r -> r.value().assemble(craftingInventory.asCraftInput(), w.registryAccess())).toList();
+		return safeGetRecipesFor(RecipeType.CRAFTING, craftingInventory.asCraftInput(), w).stream().map(r -> r.value().assemble(craftingInventory.asCraftInput())).toList();
 	}
 
 	public static CompactingResult getCompactingResult(ItemStack stack, CompactingShape shape) {
@@ -222,7 +222,7 @@ public class RecipeHelper {
 
 		for (RecipeHolder<CraftingRecipe> recipeHolder : compactingRecipes) {
 			CraftingRecipe recipe = recipeHolder.value();
-			ItemStack result = recipe.assemble(craftingInventory.asCraftInput(), level.registryAccess());
+			ItemStack result = recipe.assemble(craftingInventory.asCraftInput());
 			if (uncompactMatchesItem(result, level, stack, width * height)) {
 				return cacheAndGetCompactingResult(compactedItem, recipe, craftingInventory, result);
 			}
@@ -233,7 +233,7 @@ public class RecipeHelper {
 
 	private static CompactingResult cacheAndGetCompactingResult(CompactedItem compactedItem, CraftingRecipe recipe, CraftingContainer craftingInventory) {
 		return getLevel().map(level ->
-				cacheAndGetCompactingResult(compactedItem, recipe, craftingInventory, recipe.assemble(craftingInventory.asCraftInput(), level.registryAccess()))
+				cacheAndGetCompactingResult(compactedItem, recipe, craftingInventory, recipe.assemble(craftingInventory.asCraftInput()))
 		).orElse(CompactingResult.EMPTY);
 	}
 
@@ -305,8 +305,13 @@ public class RecipeHelper {
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> getRecipesOfType(RecipeType<T> recipeType, I inventory) {
-		return getLevel().map(w -> new ArrayList<>(recipeManagerOf(w).getRecipesFor(recipeType, inventory, w))).orElse(Collections.emptyList());
+		return getLevel().<List<RecipeHolder<T>>>map(w -> recipeManagerOf(w).getRecipes().stream()
+				.filter(r -> r.value().getType() == recipeType)
+				.filter(r -> ((Recipe<I>) r.value()).matches(inventory, w))
+				.map(r -> (RecipeHolder<T>) r)
+				.collect(java.util.stream.Collectors.toCollection(ArrayList::new))).orElseGet(Collections::emptyList);
 	}
 
 	public static <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> safeGetRecipeFor(RecipeType<T> recipeType, I inventory, @Nullable Identifier recipeId) {
@@ -315,16 +320,25 @@ public class RecipeHelper {
 
 	public static <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> safeGetRecipeFor(RecipeType<T> recipeType, I inventory, Level level, @Nullable Identifier recipeId) {
 		try {
-			return recipeManagerOf(level).getRecipeFor(recipeType, inventory, level, recipeId);
+			if (recipeId == null) {
+				return recipeManagerOf(level).getRecipeFor(recipeType, inventory, level);
+			}
+			return recipeManagerOf(level).getRecipeFor(recipeType, inventory, level,
+					net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.RECIPE, recipeId));
 		} catch (Exception e) {
 			SophisticatedCore.LOGGER.error("Error while getting recipe ", e);
 			return Optional.empty();
 		}
 	}
 
+	@SuppressWarnings("unchecked")
 	public static <I extends CraftingInput, T extends Recipe<I>> List<RecipeHolder<T>> safeGetRecipesFor(RecipeType<T> recipeType, I inventory, Level level) {
 		try {
-			return new ArrayList<>(recipeManagerOf(level).getRecipesFor(recipeType, inventory, level));
+			return recipeManagerOf(level).getRecipes().stream()
+					.filter(r -> r.value().getType() == recipeType)
+					.filter(r -> ((Recipe<I>) r.value()).matches(inventory, level))
+					.map(r -> (RecipeHolder<T>) r)
+					.collect(java.util.stream.Collectors.toCollection(ArrayList::new));
 		} catch (Exception e) {
 			SophisticatedCore.LOGGER.error("Error while getting recipe ", e);
 			return Collections.emptyList();

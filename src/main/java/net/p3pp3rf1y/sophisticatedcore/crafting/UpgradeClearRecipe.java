@@ -27,7 +27,7 @@ public class UpgradeClearRecipe extends CustomRecipe {
 			UpgradeClearRecipe::new);
 
 	public UpgradeClearRecipe(CraftingBookCategory category) {
-		super(category);
+		super();
 	}
 
 	@Override
@@ -48,7 +48,7 @@ public class UpgradeClearRecipe extends CustomRecipe {
 	}
 
 	@Override
-	public ItemStack assemble(CraftingInput inventory, HolderLookup.Provider registries) {
+	public ItemStack assemble(CraftingInput inventory) {
 		ItemStack upgrade = ItemStack.EMPTY;
 		for (int i = 0; i < inventory.size(); i++) {
 			ItemStack stack = inventory.getItem(i);
@@ -59,13 +59,16 @@ public class UpgradeClearRecipe extends CustomRecipe {
 		return new ItemStack(upgrade.getItem(), 1);
 	}
 
+	/**
+	 * 26.3 replaced the size check with placement info; the storage grid accepts both shapes.
+	 */
 	@Override
-	public boolean canCraftInDimensions(int width, int height) {
-		return width >= 1 && height >= 1;
+	public net.minecraft.world.item.crafting.PlacementInfo placementInfo() {
+		return net.minecraft.world.item.crafting.PlacementInfo.NOT_PLACEABLE;
 	}
 
 	@Override
-	public RecipeSerializer<?> getSerializer() {
+	public RecipeSerializer<? extends CustomRecipe> getSerializer() {
 		return ModRecipes.UPGRADE_CLEAR_SERIALIZER.get();
 	}
 }

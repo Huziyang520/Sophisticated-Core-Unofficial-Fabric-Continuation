@@ -145,7 +145,8 @@ public class REIMoveItemsPayload implements CustomPacketPayload {
 
 		for (InputIngredient<ItemStack> input : inputs) {
 			CompoundTag innerTag = new CompoundTag();
-			innerTag.put("Ingredient", EntryIngredients.ofItemStacks(input.get()).saveIngredient());
+			EntryIngredient.codec().encodeStart(net.minecraft.nbt.NbtOps.INSTANCE, EntryIngredients.ofItemStacks(input.get()))
+					.result().ifPresent(encoded -> innerTag.put("Ingredient", encoded));
 			innerTag.putInt("Index", input.getIndex());
 			tag.add(innerTag);
 		}
@@ -165,7 +166,9 @@ public class REIMoveItemsPayload implements CustomPacketPayload {
 		List<InputIngredient<ItemStack>> inputs = new ArrayList<>();
 		for (Tag t : tag) {
 			CompoundTag compoundTag = (CompoundTag) t;
-			InputIngredient<EntryStack<?>> stacks = InputIngredient.of(compoundTag.getIntOr("Index", 0), EntryIngredient.read(compoundTag.getListOrEmpty("Ingredient")));
+			EntryIngredient ingredient = EntryIngredient.codec()
+					.parse(net.minecraft.nbt.NbtOps.INSTANCE, compoundTag.get("Ingredient")).result().orElseGet(EntryIngredient::empty);
+			InputIngredient<EntryStack<?>> stacks = InputIngredient.of(compoundTag.getIntOr("Index", 0), ingredient);
 			inputs.add(InputIngredient.withType(stacks, VanillaEntryTypes.ITEM));
 		}
 		return inputs;

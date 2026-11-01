@@ -87,8 +87,8 @@ public class FluidUtil {
 			extraction.commit();
 		}
 
-		if (level.dimensionType().ultraWarm() && fluid.defaultFluidState().is(FluidTags.WATER)) {
-			level.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5f, 2.6f + (level.random.nextFloat() - level.random.nextFloat()) * 0.8f);
+		if (level.dimensionType().hasCeiling() && fluid.defaultFluidState().is(FluidTags.WATER)) {
+			level.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5f, 2.6f + (level.getRandom().nextFloat() - level.getRandom().nextFloat()) * 0.8f);
 			for (int i = 0; i < 8; ++i) {
 				level.addParticle(ParticleTypes.LARGE_SMOKE, (double) pos.getX() + Math.random(), (double) pos.getY() + Math.random(), (double) pos.getZ() + Math.random(), 0.0, 0.0, 0.0);
 			}
@@ -185,7 +185,7 @@ public class FluidUtil {
                     }
 
                     if (player != null) {
-						player.playNotifySound(sound, SoundSource.BLOCKS, 1, 1);
+						player.playSound(sound, 1, 1);
 					}
 
                     return true;
@@ -268,7 +268,7 @@ public class FluidUtil {
 
 					// give it to the player or drop it at their feet
 					if (!remainder.isEmpty() && player != null && doFill) {
-						ItemHandlerHelper.giveItemToPlayer(player, remainder);
+						giveOrDrop(player, remainder);
 					}
 
 					ItemStack containerCopy = container.copy();
@@ -306,7 +306,7 @@ public class FluidUtil {
 
 					// give it to the player or drop it at their feet
 					if (!remainder.isEmpty() && player != null && doDrain) {
-						ItemHandlerHelper.giveItemToPlayer(player, remainder);
+						giveOrDrop(player, remainder);
 					}
 
 					ItemStack containerCopy = container.copy();
@@ -331,5 +331,13 @@ public class FluidUtil {
 			return fluidContained.filter(f -> !f.resource().isBlank());
 		}
 		return Optional.empty();
+	}
+	private static void giveOrDrop(Player player, ItemStack stack) {
+		if (stack.isEmpty()) {
+			return;
+		}
+		if (!player.getInventory().add(stack)) {
+			player.drop(stack, false, net.minecraft.util.Prediction.PREDICTED);
+		}
 	}
 }

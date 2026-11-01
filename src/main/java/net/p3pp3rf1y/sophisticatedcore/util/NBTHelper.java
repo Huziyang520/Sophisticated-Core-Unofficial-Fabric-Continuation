@@ -19,19 +19,19 @@ public class NBTHelper {
 	private NBTHelper() {}
 
 	public static Optional<Integer> getInt(CompoundTag tag, String key) {
-		return getTagValue(tag, key, CompoundTag::getInt);
+		return tag.getInt(key);
 	}
 
 	public static Optional<int[]> getIntArray(CompoundTag tag, String key) {
-		return getTagValue(tag, key, CompoundTag::getIntArray);
+		return tag.getIntArray(key);
 	}
 
 	public static Optional<Boolean> getBoolean(CompoundTag tag, String key) {
-		return getTagValue(tag, key, CompoundTag::getBoolean);
+		return tag.getBoolean(key);
 	}
 
 	public static Optional<CompoundTag> getCompound(CompoundTag tag, String key) {
-		return getTagValue(tag, key, CompoundTag::getCompound);
+		return tag.getCompound(key);
 	}
 
 	public static <T> Optional<T> getTagValue(CompoundTag tag, String key, BiFunction<CompoundTag, String, T> getValue) {
@@ -63,7 +63,7 @@ public class NBTHelper {
 	}
 
 	public static Optional<Long> getLong(CompoundTag tag, String key) {
-		return getTagValue(tag, key, CompoundTag::getLong);
+		return tag.getLong(key);
 	}
 
 	public static CompoundTag putBoolean(CompoundTag tag, String key, boolean value) {
@@ -87,11 +87,11 @@ public class NBTHelper {
 	}
 
 	public static Optional<Component> getComponent(CompoundTag tag, String key, HolderLookup.Provider registries) {
-		return getTagValue(tag, key, (t, k) -> Component.Serializer.fromJson(t.getStringOr(k, ""), registries));
+		return net.minecraft.network.chat.ComponentSerialization.CODEC.parse(net.minecraft.nbt.NbtOps.INSTANCE, tag.get(key)).result();
 	}
 
 	public static Optional<String> getString(CompoundTag tag, String key) {
-		return getTagValue(tag, key, CompoundTag::getString);
+		return tag.getString(key);
 	}
 
 	public static <K, V> Optional<Map<K, V>> getMap(CompoundTag tag, String key, Function<String, K> getKey, BiFunction<String, Tag, Optional<V>> getValue) {

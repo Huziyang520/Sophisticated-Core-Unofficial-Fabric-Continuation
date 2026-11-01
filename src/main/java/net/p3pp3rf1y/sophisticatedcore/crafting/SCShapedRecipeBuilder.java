@@ -11,6 +11,7 @@ import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -18,6 +19,7 @@ import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapedRecipe;
 import net.minecraft.world.item.crafting.ShapedRecipePattern;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.Nullable;
 
@@ -65,7 +67,7 @@ public class SCShapedRecipeBuilder implements RecipeBuilder {
 	 * Adds a key to the recipe pattern.
 	 */
 	public SCShapedRecipeBuilder define(Character symbol, TagKey<Item> tag) {
-		return this.define(symbol, Ingredient.of(tag));
+		return this.define(symbol, Ingredient.of(net.minecraft.core.HolderSet.<net.minecraft.world.item.Item>emptyNamed(net.minecraft.core.registries.BuiltInRegistries.ITEM, tag)));
 	}
 
 	/**
@@ -116,17 +118,25 @@ public class SCShapedRecipeBuilder implements RecipeBuilder {
 		return this;
 	}
 
-	@Override
+	protected ItemStack sophisticatedCore_resultStack() {
+		return this.resultStack;
+	}
+
 	public Item getResult() {
 		return this.result;
 	}
 
 	@Override
-	public void save(RecipeOutput recipeOutput, Identifier id) {
+	public void save(RecipeOutput recipeOutput, ResourceKey<Recipe<?>> recipeKey) {
+		Identifier id = recipeKey.identifier();
 		ShapedRecipePattern shapedRecipePattern = this.ensureValid(id);
 		Advancement.Builder builder = recipeOutput.advancement()
-				.addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
-				.rewards(AdvancementRewards.Builder.recipe(id))
+				.addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(net.minecraft.core.Holder.direct(new ShapedRecipe(
+						RecipeBuilder.createCraftingCommonInfo(this.showNotification),
+						RecipeBuilder.createCraftingBookInfo(this.category, Objects.requireNonNullElse(this.group, "")),
+						shapedRecipePattern,
+						ItemStackTemplate.fromNonEmptyStack(this.resultStack)))))
+				.rewards(AdvancementRewards.Builder.recipe(recipeKey))
 				.requirements(AdvancementRequirements.Strategy.OR);
 		this.criteria.forEach(builder::addCriterion);
 		ShapedRecipe shapedRecipe = new ShapedRecipe(
@@ -135,7 +145,7 @@ public class SCShapedRecipeBuilder implements RecipeBuilder {
 				shapedRecipePattern,
 				ItemStackTemplate.fromNonEmptyStack(this.resultStack)
 		);
-		recipeOutput.accept(id, shapedRecipe, builder.build(id.withPrefix("recipes/" + this.category.getFolderName() + "/")));
+		recipeOutput.accept(recipeKey, shapedRecipe, builder.build(recipeKey.identifier().withPrefix("recipes/" + this.category.getFolderName() + "/")));
 	}
 
 	private ShapedRecipePattern ensureValid(Identifier loaction) {
@@ -144,5 +154,9 @@ public class SCShapedRecipeBuilder implements RecipeBuilder {
 		} else {
 			return ShapedRecipePattern.of(this.key, this.rows);
 		}
+	}
+	@Override
+	public ResourceKey<Recipe<?>> defaultId() {
+		return RecipeBuilder.getDefaultRecipeId(this.resultStack);
 	}
 }

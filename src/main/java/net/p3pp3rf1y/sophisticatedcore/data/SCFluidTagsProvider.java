@@ -13,7 +13,7 @@ public class SCFluidTagsProvider extends FabricTagsProvider.FluidTagsProvider {
 	}
 
 	@Override
-	protected void addTags(HolderLookup.Provider arg) {
-		builder(ModFluids.EXPERIENCE_TAG).add(ModFluids.XP_STILL.get());
+	public void addTags(HolderLookup.Provider arg) {
+		builder(ModFluids.EXPERIENCE_TAG).add(net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.FLUID, net.minecraft.resources.Identifier.fromNamespaceAndPath(net.p3pp3rf1y.sophisticatedcore.SophisticatedCore.MOD_ID, "xp_still")));
 	}
 }

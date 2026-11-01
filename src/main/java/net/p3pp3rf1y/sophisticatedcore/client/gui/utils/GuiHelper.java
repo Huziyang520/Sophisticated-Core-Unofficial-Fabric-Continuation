@@ -216,8 +216,7 @@ public class GuiHelper {
 		pose.popMatrix();
 	}
 	public static void renderTooltip(Screen screen, GuiGraphicsExtractor guiGraphics, List<Component> components, int x, int y) {
-		List<ClientTooltipComponent> list = gatherTooltipComponents(components, x, screen.width, screen.height, screen.font);
-		guiGraphics.setTooltipForNextFrame(screen.font, list, Optional.empty(), x, y);
+		guiGraphics.setTooltipForNextFrame(screen.font, components, Optional.<net.minecraft.world.inventory.tooltip.TooltipComponent>empty(), x, y);
 	}
 
 	//copy of ForgeHooksClient.gatherTooltipComponents with splitting always called so that new lines in translation are properly wrapped

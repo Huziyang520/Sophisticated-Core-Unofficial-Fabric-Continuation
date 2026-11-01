@@ -48,7 +48,7 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 		boolean hungryPlayer = false;
 		if (!(entity instanceof Player)) {
 			AtomicBoolean stillHungryPlayer = new AtomicBoolean(false);
-			level.getEntities(EntityType.PLAYER, new AABB(pos).inflate(FEEDING_RANGE), p -> true).forEach(p -> stillHungryPlayer.set(stillHungryPlayer.get() || feedPlayerAndGetHungry(p, level)));
+			level.getEntities(net.minecraft.world.entity.EntityTypes.PLAYER, new AABB(pos).inflate(FEEDING_RANGE), p -> true).forEach(p -> stillHungryPlayer.set(stillHungryPlayer.get() || feedPlayerAndGetHungry(p, level)));
 			hungryPlayer = stillHungryPlayer.get();
 		} else {
 			if (feedPlayerAndGetHungry((Player) entity, level)) {
@@ -86,7 +86,7 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 			ItemStack singleItemCopy = stack.copy();
 			singleItemCopy.setCount(1);
 
-			if (singleItemCopy.use(level, player, InteractionHand.MAIN_HAND).getResult() == InteractionResult.CONSUME) {
+			if (singleItemCopy.use(level, player, InteractionHand.MAIN_HAND) == InteractionResult.CONSUME) {
 				stack.shrink(1);
 				inventory.setStackInSlot(slot, stack);
 
@@ -94,7 +94,7 @@ public class FeedingUpgradeWrapper extends UpgradeWrapperBase<FeedingUpgradeWrap
 				if (!resultItem.isEmpty()) {
 					ItemStack insertResult = inventory.insertItem(resultItem, false);
 					if (!insertResult.isEmpty()) {
-						CapabilityHelper.runOnCapability(player, Capabilities.ItemHandler.ENTITY, null, playerInventory ->
+						CapabilityHelper.runOnCapability(player, net.p3pp3rf1y.sophisticatedcore.util.Capabilities.Entity.ENTITY, null, playerInventory ->
 								InventoryHelper.insertOrDropItem(player, insertResult, playerInventory));
 					}
 				}

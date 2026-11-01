@@ -1,7 +1,6 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.tank;
 
 import net.p3pp3rf1y.sophisticatedcore.platform.FluidStack;
-import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
@@ -126,9 +125,11 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 		Fluid fluid = contents.getFluid();
 		long fill = contents.getAmount();
 		int displayLevel = (int) ((height - 2) * ((float) fill / capacity));
-		FluidVariant fluidVariant = FluidVariant.of(fluid);
-		TextureAtlasSprite still = FluidVariantRendering.getSprite(fluidVariant);
-		GuiHelper.renderTiledFluidTextureAtlas(guiGraphics, still, FluidVariantRendering.getColor(fluidVariant), pos.x() + 10, pos.y() + 1 + height - 2 - displayLevel, displayLevel);
+		TextureAtlasSprite still = FluidSprites.getStillSprite(fluid);
+		if (still == null) {
+			return;
+		}
+		GuiHelper.renderTiledFluidTextureAtlas(guiGraphics, still, 0xFFFFFF, pos.x() + 10, pos.y() + 1 + height - 2 - displayLevel, displayLevel);
 	}
 
 }

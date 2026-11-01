@@ -93,7 +93,7 @@ public class MemorySettingsTab extends SettingsTab<MemorySettingsContainer> {
 	private void drawMemorizedStackOverlay(GuiGraphicsExtractor guiGraphics, Slot slot) {
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
-		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GuiHelper.GUI_CONTROLS, slot.x, slot.y, 77, 0, 16, 16);
+		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GuiHelper.GUI_CONTROLS, slot.x, slot.y, 77, 0, 16, 16, 256, 256);
 		poseStack.popMatrix();
 	}
 }

@@ -32,7 +32,7 @@ public class CommonEventHandler {
 		UseBlockCallback.EVENT.register(this::onUseBlock);
 
 		ServerLevelEvents.UNLOAD.register(ServerStorageSoundHandler::onWorldUnload);
-		ServerTickEvents.END_WORLD_TICK.register(ServerStorageSoundHandler::tick);
+		ServerTickEvents.END_LEVEL_TICK.register(ServerStorageSoundHandler::tick);
 	}
 
 	private InteractionResult onUseBlock(Player player, Level level, InteractionHand hand, BlockHitResult hitResult) {

@@ -807,10 +807,13 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	}
 
 	@Override
-	protected void saveAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.saveAdditional(tag, registries);
+	protected void saveAdditional(net.minecraft.world.level.storage.ValueOutput output) {
+		super.saveAdditional(output);
 
+		// The entity keeps its own tag layout, so it round-trips through a scratch tag.
+		CompoundTag tag = new CompoundTag();
 		saveData(tag);
+		output.store("data", CompoundTag.CODEC, tag);
 	}
 
 	private CompoundTag saveData(CompoundTag tag) {
@@ -825,13 +828,14 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 	}
 
 	@Override
-	public void loadAdditional(CompoundTag tag, HolderLookup.Provider registries) {
-		super.loadAdditional(tag, registries);
+	protected void loadAdditional(net.minecraft.world.level.storage.ValueInput input) {
+		super.loadAdditional(input);
+		CompoundTag tag = input.read("data", CompoundTag.CODEC).orElseGet(CompoundTag::new);
 
 		storagePositions = NBTHelper.getCollection(tag, "storagePositions", Tag.TAG_LONG, t -> Optional.of(BlockPos.of(((LongTag) t).longValue())), ArrayList::new).orElseGet(ArrayList::new);
 		connectingBlocks = NBTHelper.getCollection(tag, "connectingBlocks", Tag.TAG_LONG, t -> Optional.of(BlockPos.of(((LongTag) t).longValue())), LinkedHashSet::new).orElseGet(LinkedHashSet::new);
 		nonConnectingBlocks = NBTHelper.getCollection(tag, "nonConnectingBlocks", Tag.TAG_LONG, t -> Optional.of(BlockPos.of(((LongTag) t).longValue())), LinkedHashSet::new).orElseGet(LinkedHashSet::new);
-		baseIndexes = NBTHelper.getCollection(tag, "baseIndexes", Tag.TAG_INT, t -> ((IntTag) t).intValue(), ArrayList::new).orElseGet(ArrayList::new);
+		baseIndexes = NBTHelper.<Integer, List<Integer>>getCollection(tag, "baseIndexes", Tag.TAG_INT, t -> Optional.of(((IntTag) t).intValue()), ArrayList::new).orElseGet(ArrayList::new);
 		totalSlots = tag.getIntOr("totalSlots", 0);
 		linkedBlocks = NBTHelper.getCollection(tag, "linkedBlocks", Tag.TAG_LONG, t -> Optional.of(BlockPos.of(((LongTag) t).longValue())), LinkedHashSet::new).orElseGet(LinkedHashSet::new);
 	}

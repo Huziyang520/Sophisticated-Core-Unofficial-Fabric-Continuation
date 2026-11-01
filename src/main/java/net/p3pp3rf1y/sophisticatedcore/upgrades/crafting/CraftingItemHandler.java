@@ -102,7 +102,7 @@ public class CraftingItemHandler extends TransientCraftingContainer {
 	}
 
 	@Override
-	public void fillStackedContents(StackedContents helper) {
+	public void fillStackedContents(net.minecraft.world.entity.player.StackedItemContents helper) {
 		InventoryHelper.iterate(supplyInventory.get(), (slot, stack) -> helper.accountSimpleStack(stack));
 	}
 

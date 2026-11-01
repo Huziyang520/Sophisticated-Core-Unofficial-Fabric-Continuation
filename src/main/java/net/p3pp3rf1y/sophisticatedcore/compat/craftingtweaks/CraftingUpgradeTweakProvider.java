@@ -41,7 +41,7 @@ public class CraftingUpgradeTweakProvider implements CraftingGridProvider {
 		if (!(containerMenu instanceof StorageContainerMenuBase<?> storageContainer)) {
 			return;
 		}
-		builder.addGrid(getCraftingGridStart(storageContainer), getCraftingGridSize(storageContainer))
+		builder.addGrid("sophisticatedcore:storage", getCraftingGridStart(storageContainer), getCraftingGridSize(storageContainer), getCraftingGridSize(storageContainer))
 				.clearHandler((craftingGrid, player, menu, forced) -> clearGrid(player, menu, forced))
 				.rotateHandler((craftingGrid, player, menu, reverse) -> rotateGrid(menu, reverse))
 				.balanceHandler(new StorageCraftingGridBalanceHandler())

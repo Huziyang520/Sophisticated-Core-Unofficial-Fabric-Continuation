@@ -19,7 +19,7 @@ public class KeyboardHandlerMixin {
 
     @Inject(method = "keyPress", at = @At("RETURN"), cancellable = true)
     public void sophisticatedcore$keyPress(long handle, int key, int scanCode, int action, int modifiers, CallbackInfo ci) {
-        if (handle == this.minecraft.getWindow().getWindow()) {
+        if (handle == this.minecraft.getWindow().handle()) {
             var result = ClientRawInputEvent.KEY_PRESSED.invoker().keyPressed(minecraft, key, scanCode, action, modifiers);
             if (result != InteractionResult.PASS)
                 ci.cancel();

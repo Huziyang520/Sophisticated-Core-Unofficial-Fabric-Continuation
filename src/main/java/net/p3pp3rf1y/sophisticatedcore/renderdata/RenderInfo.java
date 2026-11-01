@@ -309,11 +309,11 @@ public abstract class RenderInfo {
 			if (tag.getIntArray(INACCESSIBLE_SLOTS_TAG).isPresent()) {
 				inaccessibleSlots = Arrays.stream(tag.getIntArray(INACCESSIBLE_SLOTS_TAG).orElse(new int[0])).boxed().collect(Collectors.toCollection(ArrayList::new));
 			} else {
-				inaccessibleSlots = NBTHelper.<Integer, List<Integer>>getCollection(tag, INACCESSIBLE_SLOTS_TAG, Tag.TAG_INT, t -> Optional.of(((IntTag) t).intValue()), ArrayList::new).orElseGet(ArrayList::new); //TODO remove this legacy support in the future
+				inaccessibleSlots = NBTHelper.<Integer, List<Integer>>getCollection(tag, INACCESSIBLE_SLOTS_TAG, Tag.TAG_INT, t -> Optional.<Integer>of(((IntTag) t).intValue()), ArrayList::new).orElseGet(ArrayList::new); //TODO remove this legacy support in the future
 			}
 			List<Integer> infiniteSlots = Arrays.stream(tag.getIntArray(INFINITE_SLOTS_TAG).orElse(new int[0])).boxed().collect(Collectors.toCollection(ArrayList::new));
 			List<Integer> slotCounts = Arrays.stream(tag.getIntArray(SLOT_COUNTS_TAG).orElse(new int[0])).boxed().collect(Collectors.toCollection(ArrayList::new));
-			List<Float> slotFillRatios = NBTHelper.<Float, List<Float>>getCollection(tag, SLOT_FILL_RATIOS_TAG, Tag.TAG_FLOAT, t -> Optional.of(((FloatTag) t).floatValue()), ArrayList::new).orElseGet(ArrayList::new);
+			List<Float> slotFillRatios = NBTHelper.<Float, List<Float>>getCollection(tag, SLOT_FILL_RATIOS_TAG, Tag.TAG_FLOAT, t -> Optional.<Float>of(((FloatTag) t).floatValue()), ArrayList::new).orElseGet(ArrayList::new);
 			if (tag.contains(DisplayItem.ITEM_TAG)) {
 				return new ItemDisplayRenderInfo(DisplayItem.deserialize(tag), inaccessibleSlots, infiniteSlots, slotCounts, slotFillRatios);
 			} else if (tag.contains(ITEMS_TAG)) {

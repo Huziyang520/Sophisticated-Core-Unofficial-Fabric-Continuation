@@ -43,7 +43,7 @@ public class InventoryHelper {
 	private static final List<Function<Player, SlottedStackStorage>> PLAYER_INVENTORY_PROVIDERS = new ArrayList<>();
 
 	static {
-		//registerPlayerInventoryProvider(player -> player.getCapability(Capabilities.ItemHandler.ENTITY));
+		//registerPlayerInventoryProvider(player -> player.getCapability(net.p3pp3rf1y.sophisticatedcore.util.Capabilities.Entity.ENTITY));
 		registerPlayerInventoryProvider(InventoryStorageWrapper::of);
 	}
 
@@ -223,7 +223,7 @@ public class InventoryHelper {
 	}
 
 	private static void playPickupSound(Level level, @Nonnull Player player) {
-		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, RandHelper.getRandomMinusOneToOne(level.random) * 1.4F + 2.0F);
+		level.playSound(null, player.getX(), player.getY(), player.getZ(), SoundEvents.ITEM_PICKUP, SoundSource.PLAYERS, 0.2F, RandHelper.getRandomMinusOneToOne(level.getRandom()) * 1.4F + 2.0F);
 	}
 
 	public static void iterate(Storage<ItemVariant> handler, Consumer<ItemStack> actOn) {

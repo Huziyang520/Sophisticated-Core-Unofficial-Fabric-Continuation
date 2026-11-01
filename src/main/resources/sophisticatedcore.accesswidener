@@ -50,8 +50,23 @@ accessible method net/minecraft/world/inventory/Slot onSwapCraft (I)V
 transitive-accessible field net/minecraft/client/renderer/block/model/ItemOverrides <init> ()V
 
 transitive-accessible field net/minecraft/world/item/crafting/ShapedRecipe pattern Lnet/minecraft/world/item/crafting/ShapedRecipePattern;
-transitive-accessible field net/minecraft/world/item/crafting/ShapedRecipe template Lnet/minecraft/world/item/ItemStackTemplate;
+transitive-accessible field net/minecraft/world/item/crafting/ShapedRecipe result Lnet/minecraft/world/item/ItemStackTemplate;
 
 transitive-accessible field net/minecraft/world/item/ItemStack components Lnet/minecraft/core/component/PatchedDataComponentMap;
 
 accessible field net/minecraft/client/gui/screens/recipebook/RecipeBookComponent ghostRecipe Lnet/minecraft/client/gui/screens/recipebook/GhostRecipe;
+
+accessible field net/minecraft/world/inventory/AbstractContainerMenu quickcraftStatus I
+mutable field net/minecraft/world/inventory/AbstractContainerMenu quickcraftStatus I
+accessible field net/minecraft/world/inventory/AbstractContainerMenu quickcraftType I
+mutable field net/minecraft/world/inventory/AbstractContainerMenu quickcraftType I
+accessible field net/minecraft/world/inventory/AbstractContainerMenu quickcraftSlots Ljava/util/Set;
+mutable field net/minecraft/world/inventory/AbstractContainerMenu quickcraftSlots Ljava/util/Set;
+mutable field net/minecraft/world/inventory/AbstractContainerMenu remoteCarried Lnet/minecraft/world/inventory/RemoteSlot;
+accessible field net/minecraft/world/inventory/AbstractContainerMenu suppressRemoteUpdates Z
+mutable field net/minecraft/world/inventory/AbstractContainerMenu suppressRemoteUpdates Z
+
+accessible field net/minecraft/world/entity/player/Inventory items Lnet/minecraft/core/NonNullList;
+mutable field net/minecraft/world/entity/player/Inventory items Lnet/minecraft/core/NonNullList;
+accessible field net/minecraft/world/entity/player/Inventory selected I
+mutable field net/minecraft/world/entity/player/Inventory selected I

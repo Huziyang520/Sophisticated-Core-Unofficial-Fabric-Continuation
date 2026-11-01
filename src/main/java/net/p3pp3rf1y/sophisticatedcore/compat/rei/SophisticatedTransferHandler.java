@@ -14,7 +14,6 @@ import me.shedaniel.rei.api.common.util.EntryIngredients;
 import me.shedaniel.rei.impl.client.transfer.SimpleTransferHandlerImpl;
 import me.shedaniel.rei.plugin.common.BuiltinPlugin;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.gui.screens.recipebook.RecipeUpdateListener;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
@@ -103,10 +102,7 @@ public class SophisticatedTransferHandler<C extends StorageContainerMenuBase<?>,
 			return TransferHandler.Result.createSuccessful();
 		}
 
-		context.getMinecraft().setScreen(containerScreen);
-		if (containerScreen instanceof RecipeUpdateListener listener) {
-			listener.getRecipeBookComponent().ghostRecipe.clear();
-		}
+		context.getMinecraft().gui.setScreen(containerScreen);
 
 		PacketDistributor.sendToServer(new REIMoveItemsPayload(context, context.isStackedCrafting(), inputs, inputSlots, inventorySlots));
 		return TransferHandler.Result.createSuccessful();

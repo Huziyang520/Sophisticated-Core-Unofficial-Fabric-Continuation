@@ -22,7 +22,7 @@ import java.util.Map;
 
 public abstract class StorageDyeRecipeBase extends CustomRecipe {
 	protected StorageDyeRecipeBase(CraftingBookCategory category) {
-		super(category);
+		super();
 	}
 
 	@Override
@@ -49,7 +49,7 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 	}
 
 	@Override
-	public ItemStack assemble(CraftingInput inv, HolderLookup.Provider registries) {
+	public ItemStack assemble(CraftingInput inv) {
 		Map<Integer, List<DyeColor>> columnDyes = new HashMap<>();
 		ColumnStorage columnStorage = null;
 
@@ -108,16 +108,19 @@ public abstract class StorageDyeRecipeBase extends CustomRecipe {
 
 	protected abstract void applyColors(ItemStack coloredStorage, List<DyeColor> mainDyes, List<DyeColor> trimDyes);
 
+	/**
+	 * 26.3 replaced the size check with placement info; the storage grid accepts both shapes.
+	 */
 	@Override
-	public boolean canCraftInDimensions(int width, int height) {
-		return width >= 2 && height >= 1;
+	public net.minecraft.world.item.crafting.PlacementInfo placementInfo() {
+		return net.minecraft.world.item.crafting.PlacementInfo.NOT_PLACEABLE;
 	}
 
 	@Nullable
 	public static DyeColor getColorFromStack(ItemStack stack) {
 		Item item = stack.getItem();
 		if (item instanceof DyeItem dyeItem) {
-			return dyeItem.getDyeColor();
+			return dyeItem.components().get(net.minecraft.core.component.DataComponents.DYE);
 		}
 
 		for (DyeColor color : DyeColor.values()) {

@@ -29,7 +29,7 @@ import java.util.function.Function;
 
 public class CapabilityHelper {
 	public static void runOnItemHandler(Entity entity, Consumer<IInventoryHandlerHelper> run) {
-		runOnCapability(entity, Capabilities.ItemHandler.ENTITY, null, run);
+		runOnCapability(entity, net.p3pp3rf1y.sophisticatedcore.util.Capabilities.Entity.ENTITY, null, run);
 	}
 
 	public static <T> T getFromItemHandler(Level level, BlockPos pos, @Nullable Direction context, Function<Storage<ItemVariant>, T> get, T defaultValue) {

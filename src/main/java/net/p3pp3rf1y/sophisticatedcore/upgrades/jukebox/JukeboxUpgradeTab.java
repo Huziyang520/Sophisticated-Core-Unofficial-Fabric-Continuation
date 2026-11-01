@@ -159,7 +159,7 @@ public abstract class JukeboxUpgradeTab extends UpgradeSettingsTab<JukeboxUpgrad
 			}
 			int progressOver = width - (int) (width * remainingProgress);
 
-			guiGraphics.fillGradient(xPos + progressOver, yPos, xPos + width, yPos + height, 0, slotColor, slotColor);
+			guiGraphics.fillGradient(xPos + progressOver, yPos, xPos + width, yPos + height, slotColor, slotColor);
 		}
 	}
 }

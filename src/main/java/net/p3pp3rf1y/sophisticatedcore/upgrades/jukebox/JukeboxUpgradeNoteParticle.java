@@ -1,14 +1,23 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox;
 
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.particle.*;
+import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.SingleQuadParticle;
+import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 
 import javax.annotation.Nullable;
 
+/**
+ * Note particle thrown by the jukebox upgrade.
+ */
 public class JukeboxUpgradeNoteParticle extends SingleQuadParticle {
-	protected JukeboxUpgradeNoteParticle(ClientLevel level, double x, double y, double z) {
-		super(level, x, y, z, 0.0D, 0.0D, 0.0D);
+	private final SpriteSet spriteSet;
+
+	protected JukeboxUpgradeNoteParticle(ClientLevel level, double x, double y, double z, SpriteSet spriteSet) {
+		super(level, x, y, z, 0.0D, 0.0D, 0.0D, spriteSet.first());
+		this.spriteSet = spriteSet;
 		xd *= 0.01F;
 		yd *= 0.05F;
 		zd *= 0.01F;
@@ -21,9 +30,10 @@ public class JukeboxUpgradeNoteParticle extends SingleQuadParticle {
 		lifetime = 20;
 	}
 
+
 	@Override
-	public ParticleRenderType getRenderType() {
-		return ParticleRenderType.PARTICLE_SHEET_OPAQUE;
+	protected net.minecraft.client.particle.SingleQuadParticle.Layer getLayer() {
+		return net.minecraft.client.particle.SingleQuadParticle.Layer.bySprite(spriteSet.first());
 	}
 
 	@Override
@@ -60,10 +70,9 @@ public class JukeboxUpgradeNoteParticle extends SingleQuadParticle {
 
 		@Nullable
 		@Override
-		public Particle createParticle(JukeboxUpgradeNoteParticleData type, ClientLevel level, double x, double y, double z, double xSpeed, double ySpeed, double zSpeed) {
-			JukeboxUpgradeNoteParticle particle = new JukeboxUpgradeNoteParticle(level, x, y, z);
-			particle.pickSprite(spriteSet);
-			return particle;
+		public net.minecraft.client.particle.Particle createParticle(JukeboxUpgradeNoteParticleData type, ClientLevel level, double x, double y, double z,
+				double xSpeed, double ySpeed, double zSpeed, RandomSource random) {
+			return new JukeboxUpgradeNoteParticle(level, x, y, z, spriteSet);
 		}
 	}
 }

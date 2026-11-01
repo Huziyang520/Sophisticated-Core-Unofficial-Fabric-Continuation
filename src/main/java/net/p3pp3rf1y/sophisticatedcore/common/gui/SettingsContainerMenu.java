@@ -189,7 +189,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 		}
 
 		if (synchronizer != null) {
-			synchronizer.sendInitialData(this, remoteGhostSlots, remoteCarried, new int[0]);
+			synchronizer.sendInitialData(this, remoteGhostSlots, getCarried(), new int[0]);
 		}
 
 		if (player instanceof ServerPlayer serverPlayer) {
@@ -373,13 +373,12 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 	@Override
 	public void updateEmptySlotIcons(Map<Identifier, Set<Integer>> emptySlotIcons) {
 		this.emptySlotIcons.clear();
-		emptySlotIcons.forEach((textureName, slots) -> slots.forEach(slot -> this.emptySlotIcons.put(slot, new Pair<>(InventoryMenu.BLOCK_ATLAS, textureName))));
+		emptySlotIcons.forEach((textureName, slots) -> slots.forEach(slot -> this.emptySlotIcons.put(slot, new Pair<>(net.minecraft.data.AtlasIds.BLOCKS, textureName))));
 	}
 
-	@Override
 	public void setRemoteSlotNoCopy(int slot, ItemStack stack) {
 		ItemStack previous = getSlot(slot).getItem();
-		super.setRemoteSlotNoCopy(slot, stack);
+		super.setRemoteSlot(slot, stack);
 
 		if (previous.isEmpty() || stack.isEmpty()) {
 			inventorySlotStackChanged = true;

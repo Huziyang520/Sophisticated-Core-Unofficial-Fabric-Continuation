@@ -10,12 +10,14 @@ import net.minecraft.data.recipes.RecipeBuilder;
 import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.ShapelessRecipe;
+import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.ItemLike;
 import org.jetbrains.annotations.Nullable;
 
@@ -67,7 +69,7 @@ public class SCShapelessRecipeBuilder implements RecipeBuilder {
 	 * Adds an ingredient that can be any item in the given tag.
 	 */
 	public SCShapelessRecipeBuilder requires(TagKey<Item> tag) {
-		return this.requires(Ingredient.of(tag));
+		return this.requires(Ingredient.of(net.minecraft.core.HolderSet.<net.minecraft.world.item.Item>emptyNamed(net.minecraft.core.registries.BuiltInRegistries.ITEM, tag)));
 	}
 
 	/**
@@ -116,17 +118,21 @@ public class SCShapelessRecipeBuilder implements RecipeBuilder {
 		return this;
 	}
 
-	@Override
 	public Item getResult() {
 		return this.result;
 	}
 
 	@Override
-	public void save(RecipeOutput recipeOutput, Identifier id) {
+	public void save(RecipeOutput recipeOutput, ResourceKey<Recipe<?>> recipeKey) {
+		Identifier id = recipeKey.identifier();
 		this.ensureValid(id);
 		Advancement.Builder builder = recipeOutput.advancement()
-				.addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(id))
-				.rewards(AdvancementRewards.Builder.recipe(id))
+				.addCriterion("has_the_recipe", RecipeUnlockedTrigger.unlocked(net.minecraft.core.Holder.direct(new ShapelessRecipe(
+						RecipeBuilder.createCraftingCommonInfo(true),
+						RecipeBuilder.createCraftingBookInfo(this.category, Objects.requireNonNullElse(this.group, "")),
+						ItemStackTemplate.fromNonEmptyStack(this.resultStack),
+						this.ingredients))))
+				.rewards(AdvancementRewards.Builder.recipe(recipeKey))
 				.requirements(AdvancementRequirements.Strategy.OR);
 		this.criteria.forEach(builder::addCriterion);
 		ShapelessRecipe shapelessRecipe = new ShapelessRecipe(
@@ -135,7 +141,7 @@ public class SCShapelessRecipeBuilder implements RecipeBuilder {
 				ItemStackTemplate.fromNonEmptyStack(this.resultStack),
 				this.ingredients
 		);
-		recipeOutput.accept(id, shapelessRecipe, builder.build(id.withPrefix("recipes/" + this.category.getFolderName() + "/")));
+		recipeOutput.accept(recipeKey, shapelessRecipe, builder.build(recipeKey.identifier().withPrefix("recipes/" + this.category.getFolderName() + "/")));
 	}
 
 	/**
@@ -145,5 +151,9 @@ public class SCShapelessRecipeBuilder implements RecipeBuilder {
 		if (this.criteria.isEmpty()) {
 			throw new IllegalStateException("No way of obtaining recipe " + id);
 		}
+	}
+	@Override
+	public ResourceKey<Recipe<?>> defaultId() {
+		return RecipeBuilder.getDefaultRecipeId(this.resultStack);
 	}
 }

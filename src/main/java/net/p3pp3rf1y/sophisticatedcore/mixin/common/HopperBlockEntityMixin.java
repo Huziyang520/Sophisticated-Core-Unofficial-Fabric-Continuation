@@ -50,7 +50,7 @@ public class HopperBlockEntityMixin {
 
 		Collections.shuffle(list);
 		for (Entity entity : list) {
-			Storage<ItemVariant> target = Capabilities.ItemHandler.ENTITY_AUTOMATION.find(entity, direction.getOpposite());
+			net.p3pp3rf1y.sophisticatedcore.inventory.IInventoryHandlerHelper target = net.p3pp3rf1y.sophisticatedcore.util.Capabilities.Entity.ENTITY_AUTOMATION.find(entity, direction.getOpposite());
 			if (target != null) {
 				long moved = StorageUtil.move(
 						ContainerStorage.of(blockEntity, direction),
@@ -86,7 +86,7 @@ public class HopperBlockEntityMixin {
 
 		Collections.shuffle(list);
 		for (Entity entity : list) {
-			Storage<ItemVariant> source = Capabilities.ItemHandler.ENTITY_AUTOMATION.find(entity, Direction.DOWN);
+			net.p3pp3rf1y.sophisticatedcore.inventory.IInventoryHandlerHelper source = net.p3pp3rf1y.sophisticatedcore.util.Capabilities.Entity.ENTITY_AUTOMATION.find(entity, Direction.DOWN);
 			if (source != null) {
 				long moved = StorageUtil.move(
 						source,
