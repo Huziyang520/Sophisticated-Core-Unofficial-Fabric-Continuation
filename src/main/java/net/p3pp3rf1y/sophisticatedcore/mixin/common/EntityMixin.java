@@ -81,16 +81,18 @@ public class EntityMixin implements SophisticatedEntity {
 	}
 
 	/**
-	 * 26.3 saves through {@code ValueOutput}/{@code ValueInput}; the stored tag keeps the old key.
+	 * 26.3 saves through {@code ValueOutput}/{@code ValueInput}; the old NBT key is kept as is.
+	 * <p>
+	 * Hooks sit on the concrete entry points: the per-entity methods are abstract on Entity.
 	 */
-	@Inject(method = "addAdditionalSaveData", at = @At("TAIL"))
+	@Inject(method = "saveWithoutId", at = @At("TAIL"))
 	public void sophisticatedCore$saveAdditionalData(ValueOutput output, CallbackInfo ci) {
 		if (this.sophisticatedCore$customData != null && !this.sophisticatedCore$customData.isEmpty()) {
 			output.store(SOPHISTICATEDCOREDATA_NBT_KEY, CompoundTag.CODEC, this.sophisticatedCore$customData);
 		}
 	}
 
-	@Inject(method = "readAdditionalSaveData", at = @At("TAIL"))
+	@Inject(method = "load", at = @At("TAIL"))
 	public void sophisticatedCore$readAdditionalData(ValueInput input, CallbackInfo ci) {
 		input.read(SOPHISTICATEDCOREDATA_NBT_KEY, CompoundTag.CODEC).ifPresent(tag -> this.sophisticatedCore$customData = tag);
 	}

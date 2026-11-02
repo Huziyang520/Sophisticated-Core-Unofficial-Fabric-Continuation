@@ -23,7 +23,6 @@ import net.p3pp3rf1y.sophisticatedcore.api.IStashStorageItem;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.init.ModParticles;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.StorageContainerMenuBase;
-import net.p3pp3rf1y.sophisticatedcore.event.client.ClientRecipesUpdated;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.jukebox.StorageSoundHandler;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 import org.jetbrains.annotations.NotNull;
@@ -49,7 +48,6 @@ public class ClientEventHandler implements ClientModInitializer {
 		ClientTickEvents.END_LEVEL_TICK.register(StorageSoundHandler::tick);
 
         ClientPlayConnectionEvents.JOIN.register(ClientEventHandler::onPlayerJoinServer);
-		ClientRecipesUpdated.EVENT.register(RecipeHelper::onRecipesUpdated);
 
         ScreenEvents.BEFORE_INIT.register((client, screen, windowWidth, windowHeight) -> {
             if (!(screen instanceof AbstractContainerScreen<?>) || screen instanceof CreativeModeInventoryScreen || client.player == null) {

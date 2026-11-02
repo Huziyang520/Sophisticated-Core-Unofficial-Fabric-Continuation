@@ -129,7 +129,7 @@ public class RecipeHelperTest {
 
 	@AfterEach
 	void clearCache() {
-		RecipeHelper.onRecipesUpdated(null);
+		RecipeHelper.onRecipesUpdated();
 	}
 
 	@ParameterizedTest

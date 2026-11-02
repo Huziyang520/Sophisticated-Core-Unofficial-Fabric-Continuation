@@ -34,7 +34,6 @@
     "client.ClientLevelHitEffectsMixin",
     "client.TerrainParticleMixin",
     "client.TerrainParticleProviderMixin",
-    "client.ClientPacketListenerMixin",
     "client.KeyboardHandlerMixin",
     "client.MouseHandlerMixin",
     "client.ScreenMixin"
