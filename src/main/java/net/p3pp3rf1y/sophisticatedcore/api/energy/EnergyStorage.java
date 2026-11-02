@@ -30,6 +30,41 @@ public interface EnergyStorage {
 			Identifier.fromNamespaceAndPath(SophisticatedCore.MOD_ID, "sided_energy"), EnergyStorage.class, Direction.class);
 
 	/**
+	 * Storage that holds nothing and accepts nothing, for callers that need a non-null placeholder.
+	 */
+	EnergyStorage EMPTY = new EnergyStorage() {
+		@Override
+		public long insert(long maxAmount, TransactionContext transaction) {
+			return 0;
+		}
+
+		@Override
+		public long extract(long maxAmount, TransactionContext transaction) {
+			return 0;
+		}
+
+		@Override
+		public long getAmount() {
+			return 0;
+		}
+
+		@Override
+		public long getCapacity() {
+			return 0;
+		}
+
+		@Override
+		public boolean supportsInsertion() {
+			return false;
+		}
+
+		@Override
+		public boolean supportsExtraction() {
+			return false;
+		}
+	};
+
+	/**
 	 * Inserts energy and returns the amount that was accepted.
 	 */
 	long insert(long maxAmount, TransactionContext transaction);

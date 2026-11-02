@@ -74,6 +74,10 @@ public interface IStorageWrapper extends ITintable {
 		return Optional.empty();
 	}
 
+	default Optional<net.p3pp3rf1y.sophisticatedcore.api.energy.EnergyStorage> getEnergyStorage() {
+		return Optional.empty();
+	}
+
 
 	default ItemStack getWrappedStorageStack() {
 		return ItemStack.EMPTY;
