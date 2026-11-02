@@ -4,7 +4,6 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.InventoryMenu;
 import net.minecraft.world.item.ItemStack;
 import net.p3pp3rf1y.sophisticatedcore.platform.SlottedStackStorage;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
@@ -28,13 +27,13 @@ public class BatteryUpgradeContainer extends UpgradeContainerBase<BatteryUpgrade
 			public int getMaxStackSize(ItemStack stack) {
 				return 1;
 			}
-		}.sophisticatedCore_setBackground(InventoryMenu.BLOCK_ATLAS, EMPTY_BATTERY_INPUT_SLOT_BACKGROUND));
+		}.sophisticatedCore_setBackground(net.minecraft.data.AtlasIds.BLOCKS, EMPTY_BATTERY_INPUT_SLOT_BACKGROUND));
 		slots.add(new BatteryIOSlot(() -> this.upgradeWrapper.getInventory(), TankUpgradeWrapper.OUTPUT_SLOT, -100, -100, TranslationHelper.INSTANCE.translUpgradeSlotTooltip("battery_output")){
 			@Override
 			public int getMaxStackSize(ItemStack stack) {
 				return 1;
 			}
-		}.sophisticatedCore_setBackground(InventoryMenu.BLOCK_ATLAS, EMPTY_BATTERY_OUTPUT_SLOT_BACKGROUND));
+		}.sophisticatedCore_setBackground(net.minecraft.data.AtlasIds.BLOCKS, EMPTY_BATTERY_OUTPUT_SLOT_BACKGROUND));
 	}
 
 	@Override

@@ -17,9 +17,9 @@ import net.p3pp3rf1y.sophisticatedcore.upgrades.IStackableContentsUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.ITickableUpgrade;
 import net.p3pp3rf1y.sophisticatedcore.upgrades.UpgradeWrapperBase;
 import net.p3pp3rf1y.sophisticatedcore.util.ComponentItemHandler;
-import team.reborn.energy.api.EnergyStorage;
-import team.reborn.energy.api.EnergyStorageUtil;
-import team.reborn.energy.api.base.SimpleSidedEnergyContainer;
+import net.p3pp3rf1y.sophisticatedcore.api.energy.EnergyStorage;
+import net.p3pp3rf1y.sophisticatedcore.api.energy.EnergyStorageUtil;
+import net.p3pp3rf1y.sophisticatedcore.api.energy.SimpleSidedEnergyContainer;
 
 import javax.annotation.Nullable;
 import java.util.function.Consumer;
