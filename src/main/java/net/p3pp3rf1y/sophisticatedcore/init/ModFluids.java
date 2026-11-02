@@ -16,6 +16,7 @@ import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.platform.DeferredRegister;
+import net.p3pp3rf1y.sophisticatedcore.platform.RegistryRegistrationContext;
 
 import java.util.function.Supplier;
 
@@ -30,7 +31,7 @@ public class ModFluids {
 	public static final Supplier<FlowingFluid> XP_FLOWING = FLUIDS.register("xp_flowing", ExperienceFluid.Flowing::new);
 
 	public static final DeferredRegister<Item> ITEMS = DeferredRegister.create(Registries.ITEM, SophisticatedCore.MOD_ID);
-	public static final Supplier<Item> XP_BUCKET = ITEMS.register("xp_bucket", () -> new BucketItem(XP_STILL.get(), new Item.Properties().stacksTo(1)));
+	public static final Supplier<Item> XP_BUCKET = ITEMS.register("xp_bucket", () -> new BucketItem(XP_STILL.get(), RegistryRegistrationContext.itemProperties().stacksTo(1)));
 
 	public static final DeferredRegister<CreativeModeTab> CREATIVE_MODE_TABS = DeferredRegister.create(Registries.CREATIVE_MODE_TAB.identifier(), SophisticatedCore.MOD_ID);
 	public static final Supplier<CreativeModeTab> CREATIVE_TAB = CREATIVE_MODE_TABS.register("main", () ->

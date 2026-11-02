@@ -1,7 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.mixin.common;
 
-import net.minecraft.core.NonNullList;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.component.ItemContainerContents;
 import net.p3pp3rf1y.sophisticatedcore.extensions.item.component.SophisticatedItemContainerContents;
 import org.spongepowered.asm.mixin.Final;
@@ -9,11 +9,20 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
 
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * Exposes slot access to components that store their contents as templates.
+ * <p>
+ * 26.3 keeps the contents as optional templates rather than concrete stacks, so a slot is
+ * materialised on read.
+ */
 @Mixin(ItemContainerContents.class)
 public class ItemContainerContentsMixin implements SophisticatedItemContainerContents {
 	@Shadow
 	@Final
-	private NonNullList<ItemStack> items;
+	private List<Optional<ItemStackTemplate>> items;
 
 	@Override
 	public int sophisticatedCore_getSlots() {
@@ -23,7 +32,7 @@ public class ItemContainerContentsMixin implements SophisticatedItemContainerCon
 	@Override
 	public ItemStack sophisticatedCore_getStackInSlot(int slot) {
 		this.sophisticatedCore_validateSlotIndex(slot);
-		return this.items.get(slot).copy();
+		return this.items.get(slot).map(ItemStackTemplate::create).orElse(ItemStack.EMPTY);
 	}
 
 	@Unique

@@ -7,6 +7,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
+import net.p3pp3rf1y.sophisticatedcore.platform.RegistryRegistrationContext;
 import net.p3pp3rf1y.sophisticatedcore.util.ItemBase;
 
 import java.util.List;
@@ -15,7 +16,7 @@ public abstract class UpgradeItemBase<T extends IUpgradeWrapper> extends ItemBas
 	private final IUpgradeCountLimitConfig upgradeTypeLimitConfig;
 
 	protected UpgradeItemBase(IUpgradeCountLimitConfig upgradeTypeLimitConfig) {
-		super(new Properties());
+		super(RegistryRegistrationContext.itemProperties());
 		this.upgradeTypeLimitConfig = upgradeTypeLimitConfig;
 	}
 

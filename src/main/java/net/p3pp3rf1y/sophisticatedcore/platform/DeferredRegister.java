@@ -2,6 +2,7 @@ package net.p3pp3rf1y.sophisticatedcore.platform;
 
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.Identifier;
 import net.minecraft.resources.ResourceKey;
 
@@ -61,18 +62,42 @@ public class DeferredRegister<T> {
 	/**
 	 * Registers everything collected so far. Safe to call once per register.
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({"unchecked", "rawtypes"})
 	public void register() {
 		if (registered) {
 			return;
 		}
 		registered = true;
-		Registry<T> registry = (Registry<T>) BuiltInRegistries.REGISTRY.getValue(registryKey.registry());
+        // identifier() is the registry itself; registry() is the root that holds every registry.
+		Registry<T> registry = (Registry<T>) rawRoot().getValue(rawKey());
 		if (registry == null) {
-			throw new IllegalStateException("Registry not present: " + registryKey.registry());
+			throw new IllegalStateException("Registry not present: " + registryKey.identifier());
 		}
-		entries.forEach((holder, supplier) -> Registry.register(registry, holder.getId(), supplier.get()));
+		// 26.3 wants the id while the entry is constructed, so it is published for the call.
+		boolean items = Registries.ITEM.identifier().equals(registryKey.identifier());
+		boolean blocks = Registries.BLOCK.identifier().equals(registryKey.identifier());
+		entries.forEach((holder, supplier) -> {
+			if (items) {
+				RegistryRegistrationContext.withItemId(holder.getId(), () -> Registry.register(registry, holder.getId(), supplier.get()));
+			} else if (blocks) {
+				RegistryRegistrationContext.withBlockId(holder.getId(), () -> Registry.register(registry, holder.getId(), supplier.get()));
+			} else {
+				Registry.register(registry, holder.getId(), supplier.get());
+			}
+		});
 	}
+
+
+	@SuppressWarnings("rawtypes")
+	private static Registry rawRoot() {
+		return BuiltInRegistries.REGISTRY;
+	}
+
+	@SuppressWarnings("rawtypes")
+	private ResourceKey rawKey() {
+		return ResourceKey.createRegistryKey(registryKey.identifier());
+	}
+
 
 	public Collection<DeferredHolder<T, ? extends T>> getEntries() {
 		return entriesView;
@@ -83,7 +108,7 @@ public class DeferredRegister<T> {
 	}
 
 	public Identifier getRegistryName() {
-		return registryKey.registry();
+		return registryKey.identifier();
 	}
 
 	public String getNamespace() {
