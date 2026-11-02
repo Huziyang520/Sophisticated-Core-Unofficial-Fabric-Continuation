@@ -24,7 +24,8 @@ public abstract class LevelMixin  implements LevelAccessor, SophisticatedLevel {
 	@Unique
 	private final ArrayList<BlockEntity> sophisticatedCore_pendingFreshBlockEntities = new ArrayList<>();
 
-	@Inject(method = "tickBlockEntities", at = @At(value = "INVOKE", target = "Lnet/minecraft/util/profiling/ProfilerFiller;push(Ljava/lang/String;)V", shift = At.Shift.AFTER))
+	// 26.3 no longer profiles this method, so the swap happens up front instead of after a profiler push.
+	@Inject(method = "tickBlockEntities", at = @At("HEAD"))
 	public void port_lib$pendingBlockEntities(CallbackInfo ci) {
 		if (!this.sophisticatedCore_pendingFreshBlockEntities.isEmpty()) {
 			this.sophisticatedCore_freshBlockEntities.addAll(this.sophisticatedCore_pendingFreshBlockEntities);

@@ -3,10 +3,9 @@ package net.p3pp3rf1y.sophisticatedcore.mixin.client;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.multiplayer.ClientPacketListener;
-import net.minecraft.client.renderer.LevelRenderer;
+import net.minecraft.client.renderer.extract.LevelExtractor;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.dimension.DimensionType;
@@ -20,7 +19,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.function.Supplier;
 
 @Mixin(ClientLevel.class)
 public class ClientLevelMixin {
@@ -29,7 +27,7 @@ public class ClientLevelMixin {
     private Minecraft minecraft;
 
     @Inject(method = "<init>", at = @At("RETURN"))
-    private void sophisticatedcore$construct(ClientPacketListener clientPacketListener, ClientLevel.ClientLevelData clientLevelData, ResourceKey<Level> resourceKey, Holder<DimensionType> holder, int i, int j, Supplier<ProfilerFiller> supplier, LevelRenderer levelRenderer, boolean bl, long l, CallbackInfo ci) {
+    private void sophisticatedcore$construct(ClientPacketListener clientPacketListener, ClientLevel.ClientLevelData clientLevelData, ResourceKey<Level> resourceKey, Holder<DimensionType> holder, int i, int j, LevelExtractor levelExtractor, boolean bl, long l, int k, CallbackInfo ci) {
         ClientLifecycleEvents.CLIENT_LEVEL_LOAD.invoker().onWorldLoad(minecraft, MixinHelper.cast(this));
     }
 
