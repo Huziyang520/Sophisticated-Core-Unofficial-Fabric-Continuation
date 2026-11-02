@@ -30,6 +30,10 @@
   "client": [
     "client.AbstractContainerScreenMixin",
     "client.ClientLevelMixin",
+    "client.ClientLevelDestroyEffectsMixin",
+    "client.ClientLevelHitEffectsMixin",
+    "client.TerrainParticleMixin",
+    "client.TerrainParticleProviderMixin",
     "client.ClientPacketListenerMixin",
     "client.KeyboardHandlerMixin",
     "client.MouseHandlerMixin",
