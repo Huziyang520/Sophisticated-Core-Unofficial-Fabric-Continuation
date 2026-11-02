@@ -16,7 +16,6 @@ accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScr
 mutable field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen quickCraftingType I
 accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen imageWidth I
 accessible field net/minecraft/client/gui/screens/inventory/AbstractContainerScreen imageHeight I
-transitive-extendable method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen findSlot (DD)Lnet/minecraft/world/inventory/Slot;
 transitive-accessible method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen isHovering (Lnet/minecraft/world/inventory/Slot;DD)Z
 transitive-extendable method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen isHovering (Lnet/minecraft/world/inventory/Slot;DD)Z
 transitive-extendable method net/minecraft/client/gui/screens/inventory/AbstractContainerScreen recalculateQuickCraftRemaining ()V
@@ -35,7 +34,7 @@ accessible field net/minecraft/world/inventory/AbstractContainerMenu containerLi
 accessible field net/minecraft/world/inventory/AbstractContainerMenu lastSlots Lnet/minecraft/core/NonNullList;
 accessible field net/minecraft/world/inventory/AbstractContainerMenu remoteSlots Lnet/minecraft/core/NonNullList;
 accessible field net/minecraft/world/inventory/AbstractContainerMenu remoteCarried Lnet/minecraft/world/inventory/RemoteSlot;
-accessible field net/minecraft/world/inventory/AbstractContainerMenu suppressRemoteUpdates Z;
+accessible field net/minecraft/world/inventory/AbstractContainerMenu suppressRemoteUpdates Z
 accessible field net/minecraft/world/inventory/AbstractContainerMenu synchronizer Lnet/minecraft/world/inventory/ContainerSynchronizer;
 accessible method net/minecraft/world/inventory/AbstractContainerMenu createCarriedSlotAccess ()Lnet/minecraft/world/entity/SlotAccess;
 accessible method net/minecraft/world/inventory/AbstractContainerMenu synchronizeCarriedToRemote ()V
@@ -47,14 +46,12 @@ transitive-accessible field net/minecraft/world/inventory/Slot y I
 transitive-mutable field net/minecraft/world/inventory/Slot y I
 accessible method net/minecraft/world/inventory/Slot onSwapCraft (I)V
 
-transitive-accessible field net/minecraft/client/renderer/block/model/ItemOverrides <init> ()V
 
 transitive-accessible field net/minecraft/world/item/crafting/ShapedRecipe pattern Lnet/minecraft/world/item/crafting/ShapedRecipePattern;
 transitive-accessible field net/minecraft/world/item/crafting/ShapedRecipe result Lnet/minecraft/world/item/ItemStackTemplate;
 
 transitive-accessible field net/minecraft/world/item/ItemStack components Lnet/minecraft/core/component/PatchedDataComponentMap;
 
-accessible field net/minecraft/client/gui/screens/recipebook/RecipeBookComponent ghostRecipe Lnet/minecraft/client/gui/screens/recipebook/GhostRecipe;
 
 accessible field net/minecraft/world/inventory/AbstractContainerMenu quickcraftStatus I
 mutable field net/minecraft/world/inventory/AbstractContainerMenu quickcraftStatus I
