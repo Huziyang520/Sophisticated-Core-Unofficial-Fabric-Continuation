@@ -9,6 +9,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.LevelAccessor;
 import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
@@ -94,7 +95,8 @@ public abstract class ExperienceFluid extends FlowingFluid {
 
 	@Override
 	protected BlockState createLegacyBlock(FluidState state) {
-		return ModFluids.XP_STILL.get().defaultFluidState().createLegacyBlock();
+		// No liquid block exists for this fluid, so like the empty fluid it places nothing.
+		return Blocks.AIR.defaultBlockState();
 	}
 
 	public static class Source extends ExperienceFluid {
