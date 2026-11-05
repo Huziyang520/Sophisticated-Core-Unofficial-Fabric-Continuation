@@ -3,6 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.client;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
+import net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderingRegistry;
 import net.fabricmc.fabric.api.client.screen.v1.ScreenEvents;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.fabricmc.fabric.api.networking.v1.PacketSender;
@@ -13,6 +14,8 @@ import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.gui.screens.inventory.CreativeModeInventoryScreen;
 import net.minecraft.client.multiplayer.ClientPacketListener;
+import net.minecraft.client.renderer.block.FluidModel;
+import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
@@ -147,7 +150,11 @@ public class ClientEventHandler implements ClientModInitializer {
 	}
 
 	private static void registerFluidClientExtension() {
-		// 26.3 resolves fluid sprites from the fluid model set, which already points at the
-		// block/xp_still and block/xp_flowing textures through the normal resource pipeline.
+		// 26.3 bakes fluid sprites from FluidStateModelSet, which only knows the four vanilla fluids.
+		FluidRenderingRegistry.register(XP_STILL.get(), XP_FLOWING.get(), new FluidModel.Unbaked(
+				new Material(SophisticatedCore.getRL("block/xp_still")),
+				new Material(SophisticatedCore.getRL("block/xp_flowing")),
+				null,
+				null));
 	}
 }

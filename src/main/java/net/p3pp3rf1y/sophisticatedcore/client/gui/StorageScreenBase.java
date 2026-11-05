@@ -655,7 +655,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	private void drawStackOverlay(GuiGraphicsExtractor guiGraphics, int x, int y) {
 		guiGraphics.pose().pushMatrix();
-		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GuiHelper.GUI_CONTROLS, x, y, 77, 0, 16, 16, 256, 256, 256, 256);
+		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED,GuiHelper.GUI_CONTROLS,x,y,77,0,16,16,256,256);
 		guiGraphics.pose().popMatrix();
 	}
 
@@ -763,16 +763,16 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 		int heightWithoutBottom = getUpgradeHeightWithoutBottom();
 
-		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GUI_CONTROLS, leftPos - UPGRADE_INVENTORY_OFFSET, topPos, 0, 0, 26, 4, 256, 256, 256, 256);
-		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GUI_CONTROLS, leftPos - UPGRADE_INVENTORY_OFFSET, topPos + 4, 0, 4, 25, heightWithoutBottom - 4, 256, 256, 256, 256);
-		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GUI_CONTROLS, leftPos - UPGRADE_INVENTORY_OFFSET, topPos + heightWithoutBottom, 0, 198, 25, UPGRADE_BOTTOM_HEIGHT, 256, 256, 256, 256);
+		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED,GUI_CONTROLS,leftPos - UPGRADE_INVENTORY_OFFSET,topPos,0,0,26,4,256,256);
+		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED,GUI_CONTROLS,leftPos - UPGRADE_INVENTORY_OFFSET,topPos + 4,0,4,25,heightWithoutBottom - 4,256,256);
+		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED,GUI_CONTROLS,leftPos - UPGRADE_INVENTORY_OFFSET,topPos + heightWithoutBottom,0,198,25,UPGRADE_BOTTOM_HEIGHT,256,256);
 
 		boolean previousHasSwitch = false;
 		for (int slot = 0; slot < numberOfUpgradeSlots; slot++) {
 			if (menu.canDisableUpgrade(slot)) {
 				int y = topPos + 5 + slot * UPGRADE_SLOT_HEIGHT + (previousHasSwitch ? 1 : 0);
 
-				guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GUI_CONTROLS, leftPos - UPGRADE_INVENTORY_OFFSET - 4, y, 0, 204 + (previousHasSwitch ? 1 : 0), 7, 18 - (previousHasSwitch ? 1 : 0), 256, 256, 256, 256);
+				guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED,GUI_CONTROLS,leftPos - UPGRADE_INVENTORY_OFFSET - 4,y,0,204 + (previousHasSwitch ? 1 : 0),7,18 - (previousHasSwitch ? 1 : 0),256,256);
 				previousHasSwitch = true;
 			} else {
 				previousHasSwitch = false;
@@ -800,7 +800,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			if (result.isPresent()) {
 				return result.get();
 			}
-			Slot slot = sophisticatedCore_findSlot(mouseX, mouseY);
+			Slot slot = findHoveredMenuSlot(mouseX, mouseY);
 
 			return slot == null || menu.isStorageInventorySlot(slot.index) ? null : slot; //if super finds inventory slot that's hidden inside the scroll panel just return null
 		} else {
@@ -810,8 +810,20 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 					return slot;
 				}
 			}
-			return sophisticatedCore_findSlot(mouseX, mouseY);
+			return findHoveredMenuSlot(mouseX, mouseY);
 		}
+	}
+
+	/**
+	 * 26.3 made {@code AbstractContainerScreen#findSlot} private, so the menu-wide lookup is local.
+	 */
+	private Slot findHoveredMenuSlot(double mouseX, double mouseY) {
+		for (Slot slot : menu.slots) {
+			if (isHovering(slot, mouseX, mouseY) && slot.isActive()) {
+				return slot;
+			}
+		}
+		return null;
 	}
 
 

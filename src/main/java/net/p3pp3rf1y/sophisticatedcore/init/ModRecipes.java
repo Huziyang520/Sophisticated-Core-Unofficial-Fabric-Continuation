@@ -4,6 +4,7 @@ import net.p3pp3rf1y.sophisticatedcore.platform.DeferredRegister;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
+import net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditionType;
 import net.fabricmc.fabric.api.resource.conditions.v1.ResourceConditions;
 import net.p3pp3rf1y.sophisticatedcore.crafting.ItemEnabledCondition;
@@ -26,6 +27,9 @@ public class ModRecipes {
 
 	public static void registerHandlers() {
 		RECIPE_SERIALIZERS.register();
+		// 26.3 keeps no recipe manager on the client; custom serializers only reach it when synced explicitly.
+		RecipeSynchronization.synchronizeRecipeSerializer(UPGRADE_NEXT_TIER_SERIALIZER.get());
+		RecipeSynchronization.synchronizeRecipeSerializer(UPGRADE_CLEAR_SERIALIZER.get());
 
 		ResourceConditions.register(ITEM_ENABLED_CONDITION);
 	}

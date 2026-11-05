@@ -98,8 +98,8 @@ public class GuiHelper {
 	public static void coloredBlit(GuiGraphicsExtractor guiGraphics, int x, int y, TextureBlitData texData, int color) {
 		guiGraphics.blit(RenderPipelines.GUI_TEXTURED, texData.getTextureName(),
 				x + texData.getXOffset(), y + texData.getYOffset(),
-				texData.getWidth(), texData.getHeight(),
 				texData.getU(), texData.getV(),
+				texData.getWidth(), texData.getHeight(),
 				texData.getWidth(), texData.getHeight(),
 				texData.getTextureWidth(), texData.getTextureHeight(),
 				color);
