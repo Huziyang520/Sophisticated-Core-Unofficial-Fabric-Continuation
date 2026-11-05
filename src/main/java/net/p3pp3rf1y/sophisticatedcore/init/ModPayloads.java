@@ -24,6 +24,7 @@ public class ModPayloads {
 		registerC2S(SoundFinishedNotificationPayload.TYPE, SoundFinishedNotificationPayload.STREAM_CODEC, SoundFinishedNotificationPayload::handlePayload);
 		registerC2S(TankClickPayload.TYPE, TankClickPayload.STREAM_CODEC, TankClickPayload::handlePayload);
 		registerC2S(TransferItemsPayload.TYPE, TransferItemsPayload.STREAM_CODEC, TransferItemsPayload::handlePayload);
+		registerC2S(RequestCraftingResultsPayload.TYPE, RequestCraftingResultsPayload.STREAM_CODEC, RequestCraftingResultsPayload::handlePayload);
 
 		PayloadTypeRegistry.clientboundPlay().register(SyncContainerStacksPayload.TYPE, SyncContainerStacksPayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(SyncSlotStackPayload.TYPE, SyncSlotStackPayload.STREAM_CODEC);
@@ -35,6 +36,7 @@ public class ModPayloads {
 		PayloadTypeRegistry.clientboundPlay().register(SyncEmptySlotIconsPayload.TYPE, SyncEmptySlotIconsPayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(SyncSlotChangeErrorPayload.TYPE, SyncSlotChangeErrorPayload.STREAM_CODEC);
 		PayloadTypeRegistry.clientboundPlay().register(SyncDatapackSettingsTemplatePayload.TYPE, SyncDatapackSettingsTemplatePayload.STREAM_CODEC);
+		PayloadTypeRegistry.clientboundPlay().register(SyncCraftingResultsPayload.TYPE, SyncCraftingResultsPayload.STREAM_CODEC);
 
 		if (FabricLoader.getInstance().getEnvironmentType() == EnvType.CLIENT) {
 			ClientPlayNetworking.registerGlobalReceiver(SyncContainerStacksPayload.TYPE, SyncContainerStacksPayload::handlePayload);
@@ -47,6 +49,7 @@ public class ModPayloads {
 			ClientPlayNetworking.registerGlobalReceiver(SyncEmptySlotIconsPayload.TYPE, SyncEmptySlotIconsPayload::handlePayload);
 			ClientPlayNetworking.registerGlobalReceiver(SyncSlotChangeErrorPayload.TYPE, SyncSlotChangeErrorPayload::handlePayload);
 			ClientPlayNetworking.registerGlobalReceiver(SyncDatapackSettingsTemplatePayload.TYPE, SyncDatapackSettingsTemplatePayload::handlePayload);
+			ClientPlayNetworking.registerGlobalReceiver(SyncCraftingResultsPayload.TYPE, SyncCraftingResultsPayload::handlePayload);
 		}
 
 	}

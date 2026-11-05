@@ -22,6 +22,9 @@ import net.p3pp3rf1y.sophisticatedcore.common.gui.ICraftingContainer;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.SlotSuppliedHandler;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerBase;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.UpgradeContainerType;
+import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
+import net.p3pp3rf1y.sophisticatedcore.network.RequestCraftingResultsPayload;
+import net.p3pp3rf1y.sophisticatedcore.network.SyncCraftingResultsPayload;
 import net.p3pp3rf1y.sophisticatedcore.util.NBTHelper;
 import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
@@ -39,6 +42,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 	private RecipeHolder<CraftingRecipe> lastRecipe = null;
 	private List<RecipeHolder<CraftingRecipe>> matchedCraftingRecipes = new ArrayList<>();
 	private final List<ItemStack> matchedCraftingResults = new ArrayList<>();
+	private List<ItemStack> lastSyncedResults = List.of();
 	private int selectedCraftingResultIndex = 0;
 
 	public CraftingUpgradeContainer(Player player, int upgradeContainerId, CraftingUpgradeWrapper upgradeWrapper, UpgradeContainerType<CraftingUpgradeWrapper, CraftingUpgradeContainer> type) {
@@ -132,22 +136,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 			@Override
 			public void setChanged() {
 				super.setChanged();
-				if (player.level().isClientSide()) {
-					matchedCraftingRecipes.clear();
-					matchedCraftingResults.clear();
-					if (!getItem().isEmpty()) {
-						matchedCraftingRecipes = RecipeHelper.safeGetRecipesFor(RecipeType.CRAFTING, craftMatrix.asCraftInput(), player.level());
-						int resultIndex = 0;
-						for (RecipeHolder<CraftingRecipe> craftingRecipe : matchedCraftingRecipes) {
-							ItemStack result = craftingRecipe.value().assemble(craftMatrix.asCraftInput());
-							matchedCraftingResults.add(result);
-							if (ItemStack.isSameItemSameComponents(getItem(), result)) {
-								selectedCraftingResultIndex = resultIndex;
-							}
-							resultIndex++;
-						}
-					}
-				}
+				// The matched result list is synced from the server; 26.3 has no client recipe manager.
 			}
 		};
 		slots.add(craftingResultSlot);
@@ -157,6 +146,9 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 	public void onInit() {
 		super.onInit();
 		onCraftMatrixChanged(craftMatrix);
+		if (player.level().isClientSide()) {
+			PacketDistributor.sendToServer(new RequestCraftingResultsPayload(getUpgradeContainerId()));
+		}
 	}
 
 	private void onCraftMatrixChanged(Container iInventory) {
@@ -190,6 +182,50 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 			}
 
 			craftingResultSlot.set(itemstack);
+			syncCraftingResults();
+		}
+	}
+
+	private void syncCraftingResults() {
+		syncCraftingResults(false);
+	}
+
+	private void syncCraftingResults(boolean force) {
+		if (!(player instanceof ServerPlayer serverPlayer)) {
+			return;
+		}
+		if (!force && resultsMatch(lastSyncedResults, matchedCraftingResults)) {
+			return;
+		}
+		lastSyncedResults = matchedCraftingResults.stream().map(ItemStack::copy).toList();
+		PacketDistributor.sendToPlayer(serverPlayer, new SyncCraftingResultsPayload(getUpgradeContainerId(), lastSyncedResults));
+	}
+
+	public void sendCraftingResults() {
+		syncCraftingResults(true);
+	}
+
+	private static boolean resultsMatch(List<ItemStack> first, List<ItemStack> second) {
+		if (first.size() != second.size()) {
+			return false;
+		}
+		for (int i = 0; i < first.size(); i++) {
+			if (!ItemStack.matches(first.get(i), second.get(i))) {
+				return false;
+			}
+		}
+		return true;
+	}
+
+	public void setMatchedCraftingResults(List<ItemStack> results) {
+		matchedCraftingResults.clear();
+		matchedCraftingResults.addAll(results.stream().map(ItemStack::copy).toList());
+		selectedCraftingResultIndex = 0;
+		for (int i = 0; i < matchedCraftingResults.size(); i++) {
+			if (ItemStack.isSameItemSameComponents(craftingResultSlot.getItem(), matchedCraftingResults.get(i))) {
+				selectedCraftingResultIndex = i;
+				break;
+			}
 		}
 	}
 
@@ -221,6 +257,7 @@ public class CraftingUpgradeContainer extends UpgradeContainerBase<CraftingUpgra
 			//noinspection DataFlowIssue - lastRecipe can't be null here as there's always a recipe in list for the result
 			craftResult.setRecipeUsed(serverPlayer, lastRecipe);
 		} else {
+			selectedCraftingResultIndex = resultIndex;
 			sendDataToServer(() -> NBTHelper.putInt(new CompoundTag(), DATA_SELECT_RESULT, resultIndex));
 		}
 	}
