@@ -115,7 +115,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 
 	@Override
 	protected Slot addSlot(Slot slot) {
-		slot.index = ghostSlots.size();
+		super.addSlot(slot);
 		ghostSlots.add(slot);
 		lastGhostSlots.add(ItemStack.EMPTY);
 		remoteGhostSlots.add(ItemStack.EMPTY);

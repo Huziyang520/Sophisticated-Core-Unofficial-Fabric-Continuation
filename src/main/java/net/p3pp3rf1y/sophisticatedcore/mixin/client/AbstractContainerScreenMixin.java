@@ -5,10 +5,15 @@ import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.Slot;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.SettingsScreen;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.extensions.client.gui.screens.inventory.SophisticatedAbstractContainerScreen;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
  * Exposes the parts of {@link AbstractContainerScreen} the mod's screens need.
@@ -32,6 +37,15 @@ public abstract class AbstractContainerScreenMixin<T extends AbstractContainerMe
 
 	protected AbstractContainerScreenMixin(Component title) {
 		super(title);
+	}
+
+	@Inject(method = "getHoveredSlot", at = @At("HEAD"), cancellable = true)
+	private void sophisticatedCore$getHoveredSlot(double mouseX, double mouseY, CallbackInfoReturnable<Slot> cir) {
+		if ((Object) this instanceof StorageScreenBase<?> screen) {
+			cir.setReturnValue(screen.sophisticatedCore_findSlot(mouseX, mouseY));
+		} else if ((Object) this instanceof SettingsScreen screen) {
+			cir.setReturnValue(screen.sophisticatedCore_findSlot(mouseX, mouseY));
+		}
 	}
 
 	@Override

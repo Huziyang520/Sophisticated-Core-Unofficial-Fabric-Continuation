@@ -249,7 +249,7 @@ public class PumpUpgradeWrapper extends UpgradeWrapperBase<PumpUpgradeWrapper, P
 		for (StorageView<FluidVariant> view : storageFluidHandler.nonEmptyViews()) {
 			FluidStack tankFluid = new FluidStack(view);
 			if (!tankFluid.isEmpty() && fluidFilterLogic.fluidMatches(tankFluid)
-					&& StorageUtil.move(storageFluidHandler, fluidHandler, view.getResource()::equals, maxFill, null) == 0) {
+					&& StorageUtil.move(storageFluidHandler, fluidHandler, view.getResource()::equals, maxFill, null) > 0) {
 				ret = true;
 				break;
 			}

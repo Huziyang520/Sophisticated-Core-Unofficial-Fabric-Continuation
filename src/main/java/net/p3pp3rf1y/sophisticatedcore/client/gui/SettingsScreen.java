@@ -114,6 +114,8 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	@Override
 	protected void init() {
 		super.init();
+		leftPos = (width - guiWidth) / 2;
+		topPos = (height - guiHeight) / 2;
 		updateInventoryScrollPanel();
 		settingsTabControl = initializeTabControl();
 		templatePersistanceControl = initializeTemplatePersistanceControl();
@@ -135,6 +137,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		if (inventoryScrollPanel == null) {
 			drawSlotBg(guiGraphics, x, y, getMenu().getStorageInventorySlots().size());
 		}
+		super.extractContents(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 
 	protected void drawSlotBg(GuiGraphicsExtractor guiGraphics, int x, int y, int visibleSlotsCount) {
@@ -160,7 +163,6 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		super.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		settingsTabControl.renderTooltip(this, guiGraphics, mouseX, mouseY);
 		templatePersistanceControl.renderTooltip(this, guiGraphics, mouseX, mouseY);
-		extractTooltip(guiGraphics, mouseX, mouseY);
 	}
 
 	@Override
@@ -170,6 +172,11 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 		guiGraphics.nextStratum();
 		super.extractTransparentBackground(guiGraphics);
 		pose.popMatrix();
+	}
+
+	@Override
+	protected void extractSlots(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		// Ghost slots are drawn by renderInventorySlots from extractLabels.
 	}
 
 	@Override

@@ -307,11 +307,26 @@ public class RecipeHelper {
 
 	@SuppressWarnings("unchecked")
 	public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> getRecipesOfType(RecipeType<T> recipeType, I inventory) {
-		return getLevel().<List<RecipeHolder<T>>>map(w -> recipeManagerOf(w).getRecipes().stream()
+		Optional<Level> optionalLevel = getLevel();
+		if (optionalLevel.isEmpty()) {
+			return Collections.emptyList();
+		}
+		Level level = optionalLevel.get();
+		if (recipeType == RecipeType.STONECUTTING && !(level instanceof ServerLevel) && !inventory.getItem(0).isEmpty()) {
+			return level.recipeAccess().stonecutterRecipes().selectByInput(inventory.getItem(0)).entries().stream()
+					.flatMap(entry -> entry.recipe().recipe().stream())
+					.map(recipe -> (RecipeHolder<T>) recipe)
+					.collect(java.util.stream.Collectors.toCollection(ArrayList::new));
+		}
+		RecipeManager manager = recipeManagerOf(level);
+		if (manager == null) {
+			return Collections.emptyList();
+		}
+		return manager.getRecipes().stream()
 				.filter(r -> r.value().getType() == recipeType)
-				.filter(r -> ((Recipe<I>) r.value()).matches(inventory, w))
+				.filter(r -> ((Recipe<I>) r.value()).matches(inventory, level))
 				.map(r -> (RecipeHolder<T>) r)
-				.collect(java.util.stream.Collectors.toCollection(ArrayList::new))).orElseGet(Collections::emptyList);
+				.collect(java.util.stream.Collectors.toCollection(ArrayList::new));
 	}
 
 	public static <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> safeGetRecipeFor(RecipeType<T> recipeType, I inventory, @Nullable Identifier recipeId) {
@@ -320,10 +335,14 @@ public class RecipeHelper {
 
 	public static <I extends RecipeInput, T extends Recipe<I>> Optional<RecipeHolder<T>> safeGetRecipeFor(RecipeType<T> recipeType, I inventory, Level level, @Nullable Identifier recipeId) {
 		try {
-			if (recipeId == null) {
-				return recipeManagerOf(level).getRecipeFor(recipeType, inventory, level);
+			RecipeManager manager = recipeManagerOf(level);
+			if (manager == null) {
+				return Optional.empty();
 			}
-			return recipeManagerOf(level).getRecipeFor(recipeType, inventory, level,
+			if (recipeId == null) {
+				return manager.getRecipeFor(recipeType, inventory, level);
+			}
+			return manager.getRecipeFor(recipeType, inventory, level,
 					net.minecraft.resources.ResourceKey.create(net.minecraft.core.registries.Registries.RECIPE, recipeId));
 		} catch (Exception e) {
 			SophisticatedCore.LOGGER.error("Error while getting recipe ", e);
@@ -334,7 +353,11 @@ public class RecipeHelper {
 	@SuppressWarnings("unchecked")
 	public static <I extends CraftingInput, T extends Recipe<I>> List<RecipeHolder<T>> safeGetRecipesFor(RecipeType<T> recipeType, I inventory, Level level) {
 		try {
-			return recipeManagerOf(level).getRecipes().stream()
+			RecipeManager manager = recipeManagerOf(level);
+			if (manager == null) {
+				return Collections.emptyList();
+			}
+			return manager.getRecipes().stream()
 					.filter(r -> r.value().getType() == recipeType)
 					.filter(r -> ((Recipe<I>) r.value()).matches(inventory, level))
 					.map(r -> (RecipeHolder<T>) r)

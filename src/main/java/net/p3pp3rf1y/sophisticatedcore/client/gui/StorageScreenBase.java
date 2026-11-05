@@ -216,6 +216,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	@Override
 	protected void init() {
 		super.init();
+		leftPos = (width - guiWidth) / 2;
+		topPos = (height - guiHeight) / 2;
 		updateInventoryScrollPanel();
 		craftingUIPart.setStorageScreen(this);
 		initUpgradeSettingsControl();
@@ -684,6 +686,18 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			drawSlotOverlays(guiGraphics);
 		}
 		drawUpgradeBackground(guiGraphics);
+		super.extractContents(guiGraphics, mouseX, mouseY, partialTicks);
+	}
+
+	@Override
+	protected void extractSlots(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		int playerSlotsStart = getMenu().getInventorySlotsSize() - StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS;
+		for (int i = 0; i < StorageContainerMenuBase.NUMBER_OF_PLAYER_SLOTS; ++i) {
+			Slot slot = getMenu().getSlot(playerSlotsStart + i);
+			if (slot.isActive()) {
+				extractSlot(guiGraphics, slot, mouseX, mouseY);
+			}
+		}
 	}
 
 	protected void drawSlotBg(GuiGraphicsExtractor guiGraphics, int x, int y, int visibleSlotsCount) {

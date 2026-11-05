@@ -168,6 +168,9 @@ public class ItemStackHandler implements SlottedStackStorage {
 		for (int i = 0; i < size; i++) {
 			slots.add(makeSlot(i, ItemStack.EMPTY));
 		}
+		for (ItemStackHandlerSlot slot : slots) {
+			initSlot(slot);
+		}
 	}
 
 	protected ItemStackHandlerSlot makeSlot(int index, ItemStack stack) {

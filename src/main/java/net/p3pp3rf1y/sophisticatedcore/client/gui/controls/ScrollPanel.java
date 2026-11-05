@@ -259,9 +259,7 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor graphics, int mouseX, int mouseY, float partialTick) {
-		double scale = client.getWindow().getGuiScale();
-		graphics.enableScissor((int) (left * scale), (int) (client.getWindow().getHeight() - (bottom * scale)),
-				(int) (width * scale), (int) (height * scale));
+		graphics.enableScissor(left, top, right, bottom);
 
 		drawBackground(graphics, partialTick);
 

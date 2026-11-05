@@ -24,7 +24,7 @@ public class KeyboardHandlerMixin {
 	@Final
 	private Minecraft minecraft;
 
-	@Inject(method = "keyPress", at = @At("RETURN"), cancellable = true)
+	@Inject(method = "keyPress", at = @At("HEAD"), cancellable = true)
 	public void sophisticatedcore$keyPress(long handle, int action, KeyEvent event, CallbackInfo ci) {
 		if (handle == this.minecraft.getWindow().handle()) {
 			InteractionResult result = ClientRawInputEvent.KEY_PRESSED.invoker()

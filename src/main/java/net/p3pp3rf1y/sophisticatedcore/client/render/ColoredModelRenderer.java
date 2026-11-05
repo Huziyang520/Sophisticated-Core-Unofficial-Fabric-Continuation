@@ -26,8 +26,7 @@ public final class ColoredModelRenderer {
 	 */
 	public static void submitColoredModelPart(SubmitNodeCollector collector, ModelPart part, PoseStack poseStack,
 			RenderType renderType, int packedLight, int color) {
-		collector.submitCustomGeometry(poseStack, renderType,
-				(pose, consumer) -> part.render(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY, color));
+		submit(collector, part, poseStack, renderType, packedLight, OverlayTexture.NO_OVERLAY, color);
 	}
 
 	/**
@@ -35,8 +34,7 @@ public final class ColoredModelRenderer {
 	 */
 	public static void submitModelPart(SubmitNodeCollector collector, ModelPart part, PoseStack poseStack,
 			RenderType renderType, int packedLight) {
-		collector.submitCustomGeometry(poseStack, renderType,
-				(pose, consumer) -> part.render(poseStack, consumer, packedLight, OverlayTexture.NO_OVERLAY));
+		submit(collector, part, poseStack, renderType, packedLight, OverlayTexture.NO_OVERLAY, -1);
 	}
 
 	/**
@@ -44,8 +42,23 @@ public final class ColoredModelRenderer {
 	 */
 	public static void submitColoredModelPart(SubmitNodeCollector collector, ModelPart part, PoseStack poseStack,
 			RenderType renderType, int packedLight, int overlay, int color) {
-		collector.submitCustomGeometry(poseStack, renderType,
-				(pose, consumer) -> part.render(poseStack, consumer, packedLight, overlay, color));
+		submit(collector, part, poseStack, renderType, packedLight, overlay, color);
+	}
+
+	private static void submit(SubmitNodeCollector collector, ModelPart part, PoseStack poseStack,
+			RenderType renderType, int packedLight, int overlay, int color) {
+		collector.submitCustomGeometry(poseStack, renderType, (pose, consumer) -> {
+			// submitCustomGeometry defers the callback and snapshots the pose, so the caller's
+			// stack is no longer in scope here; rebuild one from the snapshotted pose.
+			PoseStack deferredStack = new PoseStack();
+			deferredStack.last().pose().set(pose.pose());
+			deferredStack.last().normal().set(pose.normal());
+			if (color == -1) {
+				part.render(deferredStack, consumer, packedLight, overlay);
+			} else {
+				part.render(deferredStack, consumer, packedLight, overlay, color);
+			}
+		});
 	}
 
 	/**

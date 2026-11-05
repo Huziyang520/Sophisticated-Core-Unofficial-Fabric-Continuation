@@ -35,8 +35,7 @@
     "client.TerrainParticleMixin",
     "client.TerrainParticleProviderMixin",
     "client.KeyboardHandlerMixin",
-    "client.MouseHandlerMixin",
-    "client.ScreenMixin"
+    "client.MouseHandlerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

@@ -173,6 +173,9 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 	protected void addUpgradeSlot(Slot slot) {
 		slot.index = getTotalSlotsNumber();
+		slots.add(slot);
+		lastSlots.add(ItemStack.EMPTY);
+		remoteSlots.add(net.minecraft.world.inventory.RemoteSlot.PLACEHOLDER);
 		upgradeSlots.add(slot);
 		lastUpgradeSlots.add(ItemStack.EMPTY);
 		remoteUpgradeSlots.add(ItemStack.EMPTY);
@@ -180,6 +183,9 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 
 	protected void addNoSortSlot(Slot slot) {
 		slot.index = getInventorySlotsSize();
+		slots.add(slot);
+		lastSlots.add(ItemStack.EMPTY);
+		remoteSlots.add(net.minecraft.world.inventory.RemoteSlot.PLACEHOLDER);
 		realInventorySlots.add(slot);
 		lastRealSlots.add(ItemStack.EMPTY);
 		remoteRealSlots.add(ItemStack.EMPTY);
@@ -412,7 +418,19 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			return;
 		}
 
-		super.clicked(slotId, dragType, clickType, player);
+		if (isUpgradeSlot(slotId) || isUpgradeSettingsSlot(slotId)) {
+			return;
+		}
+
+		int slotListIndex = slotId;
+		if (slotId >= 0 && slotId < getTotalSlotsNumber()) {
+			Slot clickedSlot = getSlot(slotId);
+			int listIndex = slots.indexOf(clickedSlot);
+			if (listIndex >= 0) {
+				slotListIndex = listIndex;
+			}
+		}
+		super.clicked(slotListIndex, dragType, clickType, player);
 	}
 
 	@Override
@@ -922,7 +940,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 		if (slotIndex < getInventorySlotsSize()) {
 			remoteRealSlots.set(slotIndex, stack.copy());
 		} else {
-			remoteUpgradeSlots.set(slotIndex, stack.copy());
+			remoteUpgradeSlots.set(slotIndex - getInventorySlotsSize(), stack.copy());
 		}
 	}
 
@@ -953,6 +971,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	private void refreshAllSlots() {
 		slots.clear();
 		lastSlots.clear();
+		remoteSlots.clear();
 		realInventorySlots.clear();
 		lastRealSlots.clear();
 		remoteRealSlots.clear();
@@ -1531,7 +1550,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	protected void refreshInventorySlotsIfNeeded() {
 		Set<Integer> noSortSlotIndexes = getNoSortSlotIndexes();
 		boolean needRefresh = false;
-		if (getInventorySlotsSize() - slots.size() != noSortSlotIndexes.size()) {
+		if (getInventorySlotsSize() != slots.size() - upgradeSlots.size()) {
 			needRefresh = true;
 		} else {
 			for (Slot slot : realInventorySlots) {

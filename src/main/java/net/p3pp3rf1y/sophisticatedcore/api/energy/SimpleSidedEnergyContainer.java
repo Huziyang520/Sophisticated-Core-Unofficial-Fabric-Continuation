@@ -3,6 +3,9 @@ package net.p3pp3rf1y.sophisticatedcore.api.energy;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.IdentityHashMap;
+import java.util.Map;
+
 /**
  * Base energy storage with per-side limits and rollback support.
  * <p>
@@ -13,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
 public abstract class SimpleSidedEnergyContainer implements EnergyStorage {
 	public long amount;
 	private long capacity = getCapacity();
+	private final Map<TransactionContext, Long> transactionSnapshots = new IdentityHashMap<>();
 
 	@Override
 	public long getAmount() {
@@ -51,11 +55,11 @@ public abstract class SimpleSidedEnergyContainer implements EnergyStorage {
 
 	@Override
 	public long insert(long maxAmount, TransactionContext transaction) {
-		long inserted = Math.min(Math.min(maxAmount, getMaxInsert(null)), capacity - amount);
+		long inserted = Math.min(Math.min(maxAmount, getMaxInsert(null)), getCapacity() - amount);
 		if (inserted <= 0) {
 			return 0;
 		}
-		updateSnapshots(transaction);
+		snapshot(transaction);
 		amount += inserted;
 		return inserted;
 	}
@@ -66,7 +70,7 @@ public abstract class SimpleSidedEnergyContainer implements EnergyStorage {
 		if (extracted <= 0) {
 			return 0;
 		}
-		updateSnapshots(transaction);
+		snapshot(transaction);
 		amount -= extracted;
 		return extracted;
 	}
@@ -123,10 +127,21 @@ public abstract class SimpleSidedEnergyContainer implements EnergyStorage {
 		// no-op by default
 	}
 
-	private void updateSnapshots(TransactionContext transaction) {
+	private void snapshot(TransactionContext transaction) {
+		if (transactionSnapshots.containsKey(transaction)) {
+			return;
+		}
+		long oldAmount = amount;
+		transactionSnapshots.put(transaction, oldAmount);
 		transaction.addCloseCallback((context, result) -> {
+			Long snapshot = transactionSnapshots.remove(context);
+			if (snapshot == null) {
+				return;
+			}
 			if (result.wasCommitted()) {
 				onFinalCommit();
+			} else {
+				amount = snapshot;
 			}
 		});
 	}

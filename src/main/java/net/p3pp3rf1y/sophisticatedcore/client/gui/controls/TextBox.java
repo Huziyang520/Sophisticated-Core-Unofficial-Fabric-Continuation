@@ -54,16 +54,15 @@ public class TextBox extends WidgetBase {
 
 	@Override
 	public boolean keyPressed(KeyEvent event) {
-		int keyCode = event.keycode();
-		int modifiers = event.modifiers();
+		int key = event.key();
 		if (!editBox.isFocused()) {
 			return false;
 		}
 		editBox.keyPressed(event);
-		if (keyCode == InputConstants.KEY_RETURN) {
+		if (key == InputConstants.KEY_RETURN) {
 			onEnterPressed();
 		}
-		return keyCode != InputConstants.KEY_ESCAPE;
+		return key != InputConstants.KEY_ESCAPE;
 	}
 
 	protected void onEnterPressed() {
