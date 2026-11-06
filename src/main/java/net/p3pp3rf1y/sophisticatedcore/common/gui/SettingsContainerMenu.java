@@ -79,7 +79,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 
 		// Workaround for EMI to show on settings screen - remove once API for arbitrary screens is available
 		if (FabricLoader.getInstance().isModLoaded(CompatModIds.EMI)) {
-			this.slots.add(DummySlot.INSTANCE);
+			addSlot(DummySlot.INSTANCE);
 		}
 	}
 

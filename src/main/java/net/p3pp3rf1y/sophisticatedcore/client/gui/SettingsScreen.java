@@ -24,6 +24,7 @@ import java.util.function.Predicate;
 import org.joml.Matrix3x2fStack;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.KeyEvent;
+import com.mojang.blaze3d.platform.InputConstants;
 
 public abstract class SettingsScreen extends AbstractContainerScreen<SettingsContainerMenu<?>> implements InventoryScrollPanel.IInventoryScreen {
 	/**
@@ -290,9 +291,8 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 	@Override
 	public boolean keyPressed(KeyEvent event) {
-		int keyCode = event.keycode();
-		int modifiers = event.modifiers();
-		if (keyCode == 256) {
+		int keyCode = event.key();
+		if (keyCode == InputConstants.KEY_ESCAPE) {
 			sendStorageInventoryScreenOpenMessage();
 			return true;
 		}

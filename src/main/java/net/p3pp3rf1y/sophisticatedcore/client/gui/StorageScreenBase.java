@@ -999,7 +999,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	@Override
 	protected boolean hasClickedOutside(double mouseX, double mouseY, int guiLeftIn, int guiTopIn) {
-		return super.hasClickedOutside(mouseX, mouseY, guiLeftIn, guiTopIn) && hasClickedOutsideOfUpgradeSlots(mouseX, mouseY)
+		boolean outsideGui = mouseX < guiLeftIn || mouseY < guiTopIn
+				|| mouseX >= guiLeftIn + guiWidth || mouseY >= guiTopIn + guiHeight;
+		return outsideGui && hasClickedOutsideOfUpgradeSlots(mouseX, mouseY)
 				&& hasClickedOutsideOfUpgradeSettings(mouseX, mouseY);
 	}
 

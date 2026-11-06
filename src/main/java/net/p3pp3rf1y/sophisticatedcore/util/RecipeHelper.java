@@ -284,6 +284,9 @@ public class RecipeHelper {
 	}
 
 	public static Set<CompactingShape> getItemCompactingShapes(ItemStack stack) {
+		if (!hasRecipeManager()) {
+			return Collections.emptySet();
+		}
 		return getFromCache(cache -> cache.getItemCompactingShapes(stack), Collections.emptySet());
 	}
 
@@ -305,6 +308,32 @@ public class RecipeHelper {
 		return null;
 	}
 
+	/**
+	 * Only a ServerLevel owns a queryable RecipeManager; the client keeps just the
+	 * synchronized SelectableRecipe option displays.
+	 */
+	public static boolean hasRecipeManager(Level level) {
+		return recipeManagerOf(level) != null;
+	}
+
+	public static boolean hasRecipeManager() {
+		return getLevel().map(RecipeHelper::hasRecipeManager).orElse(false);
+	}
+
+	/**
+	 * Stonecutter candidate results in the same order as the server RecipeHolder list.
+	 * The client has no RecipeHolders, so resolve the synced option displays into stacks instead.
+	 */
+	public static List<ItemStack> getStonecutterResults(ItemStack input, Level level) {
+		if (input.isEmpty()) {
+			return Collections.emptyList();
+		}
+		var displayContext = SlotDisplayContext.fromLevel(level);
+		return level.recipeAccess().stonecutterRecipes().selectByInput(input).entries().stream()
+				.map(entry -> entry.recipe().optionDisplay().resolveForFirstStack(displayContext))
+				.collect(java.util.stream.Collectors.toCollection(ArrayList::new));
+	}
+
 	@SuppressWarnings("unchecked")
 	public static <I extends RecipeInput, T extends Recipe<I>> List<RecipeHolder<T>> getRecipesOfType(RecipeType<T> recipeType, I inventory) {
 		Optional<Level> optionalLevel = getLevel();
@@ -312,9 +341,13 @@ public class RecipeHelper {
 			return Collections.emptyList();
 		}
 		Level level = optionalLevel.get();
-		if (recipeType == RecipeType.STONECUTTING && !(level instanceof ServerLevel) && !inventory.getItem(0).isEmpty()) {
+		if (recipeType == RecipeType.STONECUTTING) {
+			if (!(level instanceof ServerLevel) || inventory.getItem(0).isEmpty()) {
+				return Collections.emptyList();
+			}
 			return level.recipeAccess().stonecutterRecipes().selectByInput(inventory.getItem(0)).entries().stream()
-					.flatMap(entry -> entry.recipe().recipe().stream())
+					.map(entry -> entry.recipe().recipe())
+					.flatMap(Optional::stream)
 					.map(recipe -> (RecipeHolder<T>) recipe)
 					.collect(java.util.stream.Collectors.toCollection(ArrayList::new));
 		}

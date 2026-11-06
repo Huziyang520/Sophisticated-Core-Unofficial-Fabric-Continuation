@@ -38,6 +38,7 @@ public class StonecutterRecipeContainer {
 	private final Slot outputSlot;
 	private final ResultContainer resultInventory = new ResultContainer();
 	private List<RecipeHolder<StonecutterRecipe>> recipes = Lists.newArrayList();
+	private List<ItemStack> recipeResults = Lists.newArrayList();
 	private final DataSlot selectedRecipe = DataSlot.standalone();
 	private Item inputItem = Items.AIR;
 	private final CraftingItemHandler inputInventory;
@@ -87,13 +88,19 @@ public class StonecutterRecipeContainer {
 
 	private void updateAvailableRecipes(Container inventory, ItemStack stack) {
 		recipes.clear();
+		recipeResults.clear();
 		selectedRecipe.set(-1);
-		outputSlot.set(ItemStack.EMPTY);
+		if (!level.isClientSide()) {
+			outputSlot.set(ItemStack.EMPTY);
+		}
 		if (!stack.isEmpty()) {
-			recipes = RecipeHelper.getRecipesOfType(RecipeType.STONECUTTING, new SingleRecipeInput(inventory.getItem(0)));
+			recipeResults.addAll(RecipeHelper.getStonecutterResults(stack, level));
+			if (!level.isClientSide()) {
+				recipes.addAll(RecipeHelper.getRecipesOfType(RecipeType.STONECUTTING, new SingleRecipeInput(stack)));
+			}
 			getLastSelectedRecipeId.get().ifPresent(id -> {
 				for (int i = 0; i < recipes.size(); i++) {
-					if (recipes.get(i).id().equals(id)) {
+					if (recipes.get(i).id().identifier().equals(id)) {
 						selectedRecipe.set(i);
 						updateRecipeResultSlot();
 					}
@@ -114,22 +121,34 @@ public class StonecutterRecipeContainer {
 		inventoryUpdateListener = listenerIn;
 	}
 
-	public List<RecipeHolder<StonecutterRecipe>> getRecipeList() {
-		return recipes;
+	public List<ItemStack> getRecipeList() {
+		return recipeResults;
 	}
 
 	public int getSelectedRecipe() {
-		return selectedRecipe.get();
+		int selected = selectedRecipe.get();
+		ItemStack result = outputSlot.getItem();
+		if (selected < 0 && level.isClientSide() && !result.isEmpty()) {
+			for (int i = 0; i < recipeResults.size(); i++) {
+				if (ItemStack.isSameItemSameComponents(recipeResults.get(i), result)) {
+					selectedRecipe.set(i);
+					return i;
+				}
+			}
+		}
+		return selected;
 	}
 
 	public boolean hasItemsInInputSlot() {
-		return inputSlot.hasItem() && !recipes.isEmpty();
+		return inputSlot.hasItem() && !recipeResults.isEmpty();
 	}
 
 	public boolean selectRecipe(int recipeIndex) {
 		if (isIndexInRecipeBounds(recipeIndex)) {
 			selectedRecipe.set(recipeIndex);
-			setLastSelectedRecipeId.accept(recipes.get(recipeIndex).id().identifier());
+			if (!level.isClientSide()) {
+				setLastSelectedRecipeId.accept(recipes.get(recipeIndex).id().identifier());
+			}
 			updateRecipeResultSlot();
 			serverUpdater.sendDataToServer(() -> NBTHelper.putInt(new CompoundTag(), DATA_SELECTED_RECIPE_INDEX, recipeIndex));
 		}
@@ -137,14 +156,21 @@ public class StonecutterRecipeContainer {
 	}
 
 	private boolean isIndexInRecipeBounds(int index) {
-		return index >= 0 && index < recipes.size();
+		return index >= 0 && index < recipeResults.size();
 	}
 
 	private void updateRecipeResultSlot() {
-		if (!recipes.isEmpty() && isIndexInRecipeBounds(selectedRecipe.get())) {
-			RecipeHolder<StonecutterRecipe> stonecuttingrecipe = recipes.get(selectedRecipe.get());
-			resultInventory.setRecipeUsed(stonecuttingrecipe);
-			outputSlot.set(stonecuttingrecipe.value().assemble(new SingleRecipeInput(inputInventory.getItem(0))));
+		int index = selectedRecipe.get();
+		if (!level.isClientSide()) {
+			if (!recipes.isEmpty() && index >= 0 && index < recipes.size()) {
+				RecipeHolder<StonecutterRecipe> stonecuttingrecipe = recipes.get(index);
+				resultInventory.setRecipeUsed(stonecuttingrecipe);
+				outputSlot.set(stonecuttingrecipe.value().assemble(new SingleRecipeInput(inputInventory.getItem(0))));
+			} else {
+				outputSlot.set(ItemStack.EMPTY);
+			}
+		} else if (index >= 0 && index < recipeResults.size()) {
+			outputSlot.set(recipeResults.get(index).copy());
 		} else {
 			outputSlot.set(ItemStack.EMPTY);
 		}

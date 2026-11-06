@@ -1561,17 +1561,9 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			}
 		}
 
-		if (!needRefresh) {
-			return;
+		if (needRefresh) {
+			refreshAllSlots();
 		}
-
-		slots.clear();
-		lastSlots.clear();
-		realInventorySlots.clear();
-		lastRealSlots.clear();
-		remoteRealSlots.clear();
-		addStorageInventorySlots();
-		addPlayerInventorySlots(player.getInventory(), storageItemSlotIndex, shouldLockStorageItemSlot);
 	}
 
 	@Override

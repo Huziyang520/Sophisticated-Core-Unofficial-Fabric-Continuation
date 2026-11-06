@@ -9,12 +9,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeHolder;
-import net.minecraft.world.item.crafting.StonecutterRecipe;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.StorageScreenBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.controls.WidgetBase;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.*;
-import net.p3pp3rf1y.sophisticatedcore.util.RecipeHelper;
 
 import java.util.List;
 import java.util.Optional;
@@ -72,14 +69,14 @@ public class StonecutterRecipeControl extends WidgetBase {
 	}
 
 	private void drawRecipesItems(GuiGraphicsExtractor guiGraphics, int listInnerLeftX, int top, int recipeIndexOffsetMax) {
-		List<RecipeHolder<StonecutterRecipe>> list = container.getRecipeList();
+		List<ItemStack> list = container.getRecipeList();
 
 		for (int i = recipeIndexOffset; i < recipeIndexOffsetMax && i < container.getRecipeList().size(); ++i) {
 			int j = i - recipeIndexOffset;
 			int k = listInnerLeftX + j % 4 * 16;
 			int l = j / 4;
 			int i1 = top + l * 18 + 2;
-			GuiHelper.renderItemInGUI(guiGraphics, minecraft, RecipeHelper.getResultItem(list.get(i).value(), minecraft.level), k, i1);
+			GuiHelper.renderItemInGUI(guiGraphics, minecraft, list.get(i), k, i1);
 		}
 
 	}
@@ -125,14 +122,14 @@ public class StonecutterRecipeControl extends WidgetBase {
 		if (hasItemsInInputSlot) {
 			int listTopY = getListTopY();
 			int k = recipeIndexOffset + 12;
-			List<RecipeHolder<StonecutterRecipe>> list = container.getRecipeList();
+			List<ItemStack> list = container.getRecipeList();
 
 			for (int recipeIndex = recipeIndexOffset; recipeIndex < k && recipeIndex < list.size(); ++recipeIndex) {
 				int inviewRecipeIndex = recipeIndex - recipeIndexOffset;
 				int recipeLeftX = x + inviewRecipeIndex % 4 * 16;
 				int k1 = listTopY + inviewRecipeIndex / 4 * 18 + 2;
 				if (mouseX >= recipeLeftX && mouseX < recipeLeftX + 16 && mouseY >= k1 && mouseY < k1 + 18) {
-					renderTooltip(guiGraphics, RecipeHelper.getResultItem(list.get(recipeIndex).value(), minecraft.level), mouseX, mouseY);
+					renderTooltip(guiGraphics, list.get(recipeIndex), mouseX, mouseY);
 				}
 			}
 		}

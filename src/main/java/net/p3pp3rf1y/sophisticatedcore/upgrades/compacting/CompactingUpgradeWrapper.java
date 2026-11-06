@@ -29,8 +29,9 @@ public class CompactingUpgradeWrapper extends UpgradeWrapperBase<CompactingUpgra
 	public CompactingUpgradeWrapper(IStorageWrapper storageWrapper, ItemStack upgrade, Consumer<ItemStack> upgradeSaveHandler) {
 		super(storageWrapper, upgrade, upgradeSaveHandler);
 
+		// 26.3 has no client recipe manager; accept filter items on the client and let the server re-validate.
 		filterLogic = new FilterLogic(upgrade, upgradeSaveHandler, upgradeItem.getFilterSlotCount(),
-				stack -> RecipeHelper.getItemCompactingShapes(stack).stream().anyMatch(shape -> shape != CompactingShape.NONE),
+				stack -> !RecipeHelper.hasRecipeManager() || RecipeHelper.getItemCompactingShapes(stack).stream().anyMatch(shape -> shape != CompactingShape.NONE),
 				ModCoreDataComponents.FILTER_ATTRIBUTES);
 	}
 

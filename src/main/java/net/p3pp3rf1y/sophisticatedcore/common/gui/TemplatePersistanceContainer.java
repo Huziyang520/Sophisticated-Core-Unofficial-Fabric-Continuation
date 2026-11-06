@@ -337,7 +337,7 @@ public class TemplatePersistanceContainer {
 				Files.writeString(packMcmetaFile, """
 						{
 						    "pack": {
-						        "pack_format": 15,
+						        "min_format": 121, "max_format": 121,
 						        "description": "Sophisticated Settings Templates data pack"
 						    }
 						}
