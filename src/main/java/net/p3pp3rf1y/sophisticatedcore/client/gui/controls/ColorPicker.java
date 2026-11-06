@@ -169,23 +169,10 @@ public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 
 		@Override
 		protected void renderBg(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
-			int topRightCornerColor = Mth.hsvToRgb(hue, 1, 1);
-			int red = ARGB.red(topRightCornerColor);
-			int green = ARGB.green(topRightCornerColor);
-			int blue = ARGB.blue(topRightCornerColor);
 			for (int i = 0; i < getWidth(); i++) {
-				for (int j = 0; j < getHeight(); j++) {
-
-					float horizontalFactor = (float) i / getWidth();
-					float verticalFactor = (float) j / getHeight();
-					int color = ARGB.opaque(ARGB.color(
-							(int) ((1 - verticalFactor) * ((1 - horizontalFactor) * 255 + red * horizontalFactor)),
-							(int) ((1 - verticalFactor) * ((1 - horizontalFactor) * 255 + green * horizontalFactor)),
-							(int) ((1 - verticalFactor) * ((1 - horizontalFactor) * 255 + blue * horizontalFactor))
-					));
-
-					guiGraphics.fill(x + i, y + j, x + i + 1, y + j + 1, color);
-				}
+				float saturation = (float) i / Math.max(1, getWidth() - 1);
+				int topColor = ARGB.opaque(Mth.hsvToRgb(hue, saturation, 1));
+				guiGraphics.fillGradient(x + i, y, x + i + 1, y + getHeight(), topColor, 0xFF000000);
 			}
 		}
 
