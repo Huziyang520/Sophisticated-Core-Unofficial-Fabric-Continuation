@@ -17,6 +17,7 @@ import net.minecraft.client.gui.screens.Screen;
 import java.util.Collections;
 import java.util.List;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.MouseButtons;
 
 /**
  * Abstract scroll panel class.
@@ -204,7 +205,7 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		int button = MouseButtons.toLegacy(event.button());
 		if (super.mouseClicked(event, doubleClick))
 			return true;
 
@@ -223,7 +224,7 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 	public boolean mouseReleased(MouseButtonEvent event) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		int button = MouseButtons.toLegacy(event.button());
 		if (super.mouseReleased(event))
 			return true;
 		boolean ret = this.scrolling;
@@ -246,7 +247,7 @@ public abstract class ScrollPanel extends AbstractContainerEventHandler implemen
 	public boolean mouseDragged(MouseButtonEvent event, double deltaX, double deltaY) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		int button = MouseButtons.toLegacy(event.button());
 		if (this.scrolling) {
 			int maxScroll = height - getBarHeight();
 			double moved = deltaY / maxScroll;

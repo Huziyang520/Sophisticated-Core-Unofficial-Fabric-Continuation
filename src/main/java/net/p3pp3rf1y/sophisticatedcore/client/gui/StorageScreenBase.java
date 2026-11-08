@@ -47,6 +47,7 @@ import java.util.function.Predicate;
 import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.GUI_CONTROLS;
 import org.joml.Matrix3x2fStack;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.MouseButtons;
 
 public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> extends AbstractContainerScreen<S>
 		implements InventoryScrollPanel.IInventoryScreen {
@@ -90,7 +91,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	private Button transferToStorageButton;
 	@Nullable
 	private Button transferToInventoryButton;
-	private TextBox searchBox;
+	private SearchBox searchBox;
 	private Predicate<ItemStack> stackFilter = stack -> searchBox == null || searchBox.getValue().isEmpty()
 			|| (!stack.isEmpty() && stack.getHoverName().getString().toLowerCase().contains(searchBox.getValue().toLowerCase()));
 	private int visibleSlotsCount;
@@ -432,6 +433,9 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	@Override
 	public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		if (searchBox != null) {
+			searchBox.updateAnimation();
+		}
 		if (menu.detectSettingsChangeAndReload()) {
 			updateStorageSlotsPositions();
 			updatePlayerSlotsPositions();
@@ -650,7 +654,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		Identifier pair = slot.getNoItemIcon();
 		if (pair != null) {
 			//noinspection ConstantConditions - by this point minecraft isn't null
-			TextureAtlasSprite textureatlassprite = guiGraphics.getSprite(new net.minecraft.client.resources.model.sprite.SpriteId(net.minecraft.data.AtlasIds.BLOCKS, pair));
+			TextureAtlasSprite textureatlassprite = guiGraphics.getSprite(new net.minecraft.client.resources.model.sprite.SpriteId(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS, pair));
 			guiGraphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, textureatlassprite, i, j, 16, 16);
 		}
 	}
@@ -845,7 +849,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	public boolean mouseReleased(MouseButtonEvent event) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		int button = MouseButtons.toLegacy(event.button());
 		for (UpgradeInventoryPartBase<?> inventoryPart : inventoryParts.values()) {
 			if (inventoryPart.handleMouseReleased(mouseX, mouseY, button)) {
 				return true;
@@ -940,16 +944,18 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		}
 
 		// 26.3 sends hashed stacks; the packet cannot carry full stacks any more.
-		it.unimi.dsi.fastutil.ints.Int2ObjectMap<net.minecraft.network.HashedStack> changedSlotHashes = new it.unimi.dsi.fastutil.ints.Int2ObjectOpenHashMap<>();
+		net.minecraft.network.HashedPatchMap.HashGenerator hashGenerator = minecraft.player.connection.decoratedHashOpsGenenerator();
+		Int2ObjectMap<net.minecraft.network.HashedStack> changedSlotHashes = new Int2ObjectOpenHashMap<>();
+		changedSlotIndexes.forEach((slot, stack) -> changedSlotHashes.put(slot, net.minecraft.network.HashedStack.create(stack, hashGenerator)));
 		minecraft.player.connection.send(new ServerboundContainerClickPacket(menu.containerId, menu.getStateId(), (short) slotNumber, (byte) mouseButton, type,
-				changedSlotHashes, net.minecraft.network.HashedStack.EMPTY));
+				changedSlotHashes, net.minecraft.network.HashedStack.create(menu.getCarried(), hashGenerator)));
 	}
 
 	@Override
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		int button = MouseButtons.toLegacy(event.button());
 		Slot slot = sophisticatedCore_findSlot(mouseX, mouseY);
 		if (ModifierKeys.isShiftDown() && ModifierKeys.isControlDown() && slot instanceof StorageInventorySlot && button == 0) {
 			PacketDistributor.sendToServer(new TransferFullSlotPayload(slot.index));
@@ -960,14 +966,32 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			widgetBase.setFocused(false);
 		}
 
+		// 26.3 stops at the first hovered child and swallows the click; walk all children like 1.21.1.
+		for (GuiEventListener child : children()) {
+			if (child.mouseClicked(event, doubleClick)) {
+				setFocused(child);
+				return true;
+			}
+		}
 		return super.mouseClicked(event, doubleClick);
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		// 26.3 AbstractContainerScreen no longer forwards scrolling to children.
+		for (GuiEventListener child : children()) {
+			if (child.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) {
+				return true;
+			}
+		}
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
 	}
 
 	@Override
 	public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		int button = MouseButtons.toLegacy(event.button());
 		for (GuiEventListener child : children()) {
 			if (child.isMouseOver(mouseX, mouseY) && child.mouseDragged(event, dragX, dragY)) {
 				return true;
@@ -1027,7 +1051,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		if (scale < 1f) {
 			poseStack.scale(scale, scale);
 		}
-		guiGraphics.text(font, count, (int)((x + 19 - 2 - (font.width(count) * scale)) / scale), (int)((y + 6 + 3 + (1 / (scale * scale) - 1)) / scale), 16777215, true);
+		guiGraphics.text(font, count, (int)((x + 19 - 2 - (font.width(count) * scale)) / scale), (int)((y + 6 + 3 + (1 / (scale * scale) - 1)) / scale), -1, true);
 		poseStack.popMatrix();
 	}
 

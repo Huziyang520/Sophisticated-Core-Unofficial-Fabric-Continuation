@@ -129,7 +129,7 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 		if (still == null) {
 			return;
 		}
-		GuiHelper.renderTiledFluidTextureAtlas(guiGraphics, still, 0xFFFFFF, pos.x() + 10, pos.y() + 1 + height - 2 - displayLevel, displayLevel);
+		GuiHelper.renderTiledFluidTextureAtlas(guiGraphics, still, 0xFFFFFFFF, pos.x() + 10, pos.y() + 1 + height - 2 - displayLevel, displayLevel);
 	}
 
 }

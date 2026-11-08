@@ -50,6 +50,13 @@ public abstract class ComponentItemHandler implements IItemHandlerSimpleInserter
 		if (!this.isItemValid(slot, stack)) {
 			throw new RuntimeException("Invalid stack " + stack + " for slot " + slot + ")");
 		}
+		setStackInSlotUnchecked(slot, stack);
+	}
+
+	// Packet-driven writes mirror the server's view; validation belongs to player-input paths only.
+	@Override
+	public void setStackInSlotUnchecked(int slot, ItemStack stack) {
+		this.validateSlotIndex(slot);
 		ItemContainerContents contents = this.getContents();
 		ItemStack existing = this.getStackFromContents(contents, slot);
 		if (!ItemStack.matches(stack, existing)) {

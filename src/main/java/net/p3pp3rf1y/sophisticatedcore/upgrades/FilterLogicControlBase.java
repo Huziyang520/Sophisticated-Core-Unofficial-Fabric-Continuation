@@ -27,7 +27,7 @@ import static net.p3pp3rf1y.sophisticatedcore.upgrades.FilterLogicControlBase.Ma
 
 public abstract class FilterLogicControlBase<F extends FilterLogic, S extends Slot, C extends FilterLogicContainerBase<F, S>>
 		extends CompositeWidgetBase<WidgetBase> {
-	public static final int TAG_FONT_COLOR = 16383998;
+	public static final int TAG_FONT_COLOR = 16383998 | 0xFF000000;
 	public static final int MORE_TAGS_FONT_COLOR = 13882323;
 	private static final int MAX_TAG_NAME_WIDTH = 68;
 

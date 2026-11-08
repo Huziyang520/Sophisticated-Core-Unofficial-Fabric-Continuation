@@ -5,6 +5,7 @@ import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.texture.OverlayTexture;
+import net.minecraft.client.renderer.texture.UvMapping;
 
 /**
  * Colored model-part drawing for 26.3.
@@ -45,20 +46,26 @@ public final class ColoredModelRenderer {
 		submit(collector, part, poseStack, renderType, packedLight, overlay, color);
 	}
 
+	private static final UvMapping IDENTITY_UV = new UvMapping() {
+		@Override
+		public float getU(float u) {
+			return u;
+		}
+
+		@Override
+		public float getV(float v) {
+			return v;
+		}
+	};
+
 	private static void submit(SubmitNodeCollector collector, ModelPart part, PoseStack poseStack,
 			RenderType renderType, int packedLight, int overlay, int color) {
-		collector.submitCustomGeometry(poseStack, renderType, (pose, consumer) -> {
-			// submitCustomGeometry defers the callback and snapshots the pose, so the caller's
-			// stack is no longer in scope here; rebuild one from the snapshotted pose.
-			PoseStack deferredStack = new PoseStack();
-			deferredStack.last().pose().set(pose.pose());
-			deferredStack.last().normal().set(pose.normal());
-			if (color == -1) {
-				part.render(deferredStack, consumer, packedLight, overlay);
-			} else {
-				part.render(deferredStack, consumer, packedLight, overlay, color);
-			}
-		});
+		// The vanilla path binds the atlas texture and applies the UV mapping; custom geometry skips both.
+		if (color == -1) {
+			collector.submitModelPart(part, poseStack, renderType, packedLight, overlay, IDENTITY_UV);
+		} else {
+			collector.submitModelPart(part, poseStack, renderType, packedLight, overlay, IDENTITY_UV, color);
+		}
 	}
 
 	/**

@@ -1,6 +1,7 @@
 {
   "pack": {
-    "pack_format": 97,
+    "min_format": 97,
+    "max_format": 121,
     "description": "Resources used in SophisticatedCore"
   }
 }

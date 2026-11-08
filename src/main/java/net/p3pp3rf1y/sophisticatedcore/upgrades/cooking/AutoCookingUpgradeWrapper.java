@@ -44,7 +44,7 @@ public class AutoCookingUpgradeWrapper<W extends AutoCookingUpgradeWrapper<W, U,
 		this.recipeType = recipeType;
 		AutoCookingUpgradeConfig autoCookingUpgradeConfig = upgradeItem.getAutoCookingUpgradeConfig();
 		inputFilterLogic = new FilterLogic(upgrade, upgradeSaveHandler, autoCookingUpgradeConfig.inputFilterSlots.get(),
-				s -> RecipeHelper.getCookingRecipe(s, recipeType).isPresent(), ModCoreDataComponents.INPUT_FILTER_ATTRIBUTES);
+				s -> !RecipeHelper.hasRecipeManager() || RecipeHelper.getCookingRecipe(s, recipeType).isPresent(), ModCoreDataComponents.INPUT_FILTER_ATTRIBUTES);
 		fuelFilterLogic = new FilterLogic(upgrade, upgradeSaveHandler, autoCookingUpgradeConfig.fuelFilterSlots.get(),
 				s -> s.getBurnTime(recipeType) > 0, ModCoreDataComponents.FUEL_FILTER_ATTRIBUTES);
 		fuelFilterLogic.setAllowByDefault(true);

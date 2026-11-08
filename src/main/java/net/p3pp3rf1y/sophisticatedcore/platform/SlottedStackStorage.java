@@ -26,6 +26,10 @@ public interface SlottedStackStorage extends SlottedStorage<ItemVariant> {
 	 */
 	void setStackInSlot(int slot, ItemStack stack);
 
+	default void setStackInSlotUnchecked(int slot, ItemStack stack) {
+		setStackInSlot(slot, stack);
+	}
+
 	int getSlotLimit(int slot);
 
 	default boolean isItemValid(int slot, ItemVariant resource, int count) {

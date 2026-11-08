@@ -175,5 +175,6 @@
     "gui.sophisticatedcore.narrate.context_button": "Перемикач контексту встановлено на: %s",
     "gui.sophisticatedcore.narrate.context_button.usage": "Натисніть, щоб перемкнути контекст",
     "fluid_type.sophisticatedcore.experience": "Досвід",
-    "gui.sophisticatedcore.tooltip.stack_count": "Кільк.: %s"
+    "gui.sophisticatedcore.tooltip.stack_count": "Кільк.: %s",
+  "block.sophisticatedcore.xp_still": "Досвід"
 }

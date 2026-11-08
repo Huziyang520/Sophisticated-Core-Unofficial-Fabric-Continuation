@@ -49,7 +49,7 @@ import java.util.function.Supplier;
 public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extends AbstractContainerMenu implements IAdditionalSlotInfoMenu {
 	public static final int NUMBER_OF_PLAYER_SLOTS = 36;
 	public static final Identifier EMPTY_UPGRADE_SLOT_BACKGROUND = Identifier.fromNamespaceAndPath(SophisticatedCore.MOD_ID, "item/empty_upgrade_slot");
-	public static final Pair<Identifier, Identifier> INACCESSIBLE_SLOT_BACKGROUND = new Pair<>(net.minecraft.data.AtlasIds.BLOCKS, SophisticatedCore.getRL("item/inaccessible_slot"));
+	public static final Pair<Identifier, Identifier> INACCESSIBLE_SLOT_BACKGROUND = new Pair<>(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS, SophisticatedCore.getRL("item/inaccessible_slot"));
 	protected static final String UPGRADE_ENABLED_TAG = "upgradeEnabled";
 	protected static final String UPGRADE_SLOT_TAG = "upgradeSlot";
 	protected static final String ACTION_TAG = "action";
@@ -415,10 +415,6 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			}
 			return;
 		} else if (isOverflowLogicSlotAndAction(slotId, clickType) && handleOverflow(slotId, clickType, dragType, player)) {
-			return;
-		}
-
-		if (isUpgradeSlot(slotId) || isUpgradeSettingsSlot(slotId)) {
 			return;
 		}
 
@@ -1498,6 +1494,9 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 			return;
 		}
 
+		// 26.3 writes click predictions into vanilla remoteSlots; only super compares them to real slots.
+		super.broadcastChanges();
+
 		synchronizeCarriedToRemote();
 		broadcastChangesIn(lastUpgradeSlots, remoteUpgradeSlots, upgradeSlots, getFirstUpgradeSlot());
 		broadcastChangesIn(lastRealSlots, remoteRealSlots, realInventorySlots, 0);
@@ -1656,7 +1655,7 @@ public abstract class StorageContainerMenuBase<S extends IStorageWrapper> extend
 	@Override
 	public void updateEmptySlotIcons(Map<Identifier, Set<Integer>> emptySlotIcons) {
 		this.emptySlotIcons.clear();
-		emptySlotIcons.forEach((textureName, slots) -> slots.forEach(slot -> this.emptySlotIcons.put(slot, new Pair<>(net.minecraft.data.AtlasIds.BLOCKS, textureName))));
+		emptySlotIcons.forEach((textureName, slots) -> slots.forEach(slot -> this.emptySlotIcons.put(slot, new Pair<>(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS, textureName))));
 	}
 
 	public ItemStack getSlotFilterItem(int slot) {

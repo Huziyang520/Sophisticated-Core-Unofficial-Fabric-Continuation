@@ -11,6 +11,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.MouseButtons;
 
 public abstract class CompositeWidgetBase<T extends WidgetBase> extends WidgetBase implements ContainerEventHandler {
 	protected final List<T> children = new ArrayList<>();
@@ -53,7 +54,7 @@ public abstract class CompositeWidgetBase<T extends WidgetBase> extends WidgetBa
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		int button = MouseButtons.toLegacy(event.button());
 		return getChildAt(mouseX, mouseY).map(l -> {
 			if (l.mouseClicked(event, doubleClick)) {
 				setFocused(l);
@@ -70,7 +71,7 @@ public abstract class CompositeWidgetBase<T extends WidgetBase> extends WidgetBa
 	public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		int button = MouseButtons.toLegacy(event.button());
 		return getChildAt(mouseX, mouseY).map(l -> l.mouseDragged(event, dragX, dragY)).orElse(false);
 	}
 

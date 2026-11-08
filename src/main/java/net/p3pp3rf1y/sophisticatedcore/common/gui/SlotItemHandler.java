@@ -38,7 +38,7 @@ public class SlotItemHandler<T extends SlottedStorage<ItemVariant>> extends Slot
 	@Override
 	public void set(ItemStack stack) {
 		if (slottedStackStorage instanceof SlottedStackStorage storage) {
-			storage.setStackInSlot(this.index, stack);
+			storage.setStackInSlotUnchecked(this.index, stack);
 			this.setChanged();
 			return;
 		}

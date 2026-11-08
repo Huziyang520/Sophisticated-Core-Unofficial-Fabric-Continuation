@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.IntConsumer;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.MouseButtons;
 
 public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 	public static final int COLOR_GRADIENT_WIDTH = 50;
@@ -44,7 +45,7 @@ public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 			public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		int button = MouseButtons.toLegacy(event.button());
 				if (isEditable()) {
 					setFocused(true);
 					screen.setFocused(textColorEntry);
@@ -192,7 +193,7 @@ public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 		public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		int button = MouseButtons.toLegacy(event.button());
 			setColorBasedOnMouseCoords(mouseX, mouseY);
 			return true;
 		}
@@ -210,7 +211,7 @@ public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 		public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		int button = MouseButtons.toLegacy(event.button());
 			setColorBasedOnMouseCoords(mouseX, mouseY);
 			return true;
 		}
@@ -252,7 +253,7 @@ public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 		public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		int button = MouseButtons.toLegacy(event.button());
 			setHueBasedOnMouseY(mouseY);
 			return true;
 		}
@@ -267,7 +268,7 @@ public class ColorPicker extends CompositeWidgetBase<WidgetBase> {
 		public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		int button = MouseButtons.toLegacy(event.button());
 			setHueBasedOnMouseY(mouseY);
 			return true;
 		}

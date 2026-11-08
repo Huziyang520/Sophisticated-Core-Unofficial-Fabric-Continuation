@@ -246,7 +246,7 @@ public abstract class ClientStorageContentsTooltipBase implements ClientTooltipC
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
 		guiGraphics.nextStratum();
-		guiGraphics.text(font, tooltip, leftX, topY, 16777215);
+		guiGraphics.text(font, tooltip, leftX, topY, -1);
 		guiGraphics.nextStratum();
 		poseStack.popMatrix();
 		return topY + 10;

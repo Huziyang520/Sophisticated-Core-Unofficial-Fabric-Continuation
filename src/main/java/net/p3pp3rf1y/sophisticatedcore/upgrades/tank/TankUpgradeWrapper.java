@@ -299,7 +299,7 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 
 	@Override
 	public long getCapacity() {
-		return getMaxInOut();
+		return getTankCapacity();
 	}
 
 	private class TankComponentItemHandler extends ComponentItemHandler {

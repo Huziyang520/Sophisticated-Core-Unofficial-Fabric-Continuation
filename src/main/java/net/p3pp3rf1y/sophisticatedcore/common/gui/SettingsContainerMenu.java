@@ -373,7 +373,7 @@ public abstract class SettingsContainerMenu<S extends IStorageWrapper> extends A
 	@Override
 	public void updateEmptySlotIcons(Map<Identifier, Set<Integer>> emptySlotIcons) {
 		this.emptySlotIcons.clear();
-		emptySlotIcons.forEach((textureName, slots) -> slots.forEach(slot -> this.emptySlotIcons.put(slot, new Pair<>(net.minecraft.data.AtlasIds.BLOCKS, textureName))));
+		emptySlotIcons.forEach((textureName, slots) -> slots.forEach(slot -> this.emptySlotIcons.put(slot, new Pair<>(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS, textureName))));
 	}
 
 	public void setRemoteSlotNoCopy(int slot, ItemStack stack) {

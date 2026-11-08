@@ -23,6 +23,7 @@ import java.util.Optional;
 import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.GUI_CONTROLS;
 import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.ICONS;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.MouseButtons;
 
 public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContainer> {
 	public static final int RESULT_SELECTION_BORDER_WIDTH = 3;
@@ -102,7 +103,7 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 			@Override
 			protected void extractWidgetRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 				super.extractWidgetRenderState(guiGraphics, mouseX, mouseY, partialTicks);
-				guiGraphics.text(font, String.valueOf(getContainer().getMatchedCraftingResults().size()), x + 5, y + 2, 0xFFFFFF, true);
+				guiGraphics.text(font, String.valueOf(getContainer().getMatchedCraftingResults().size()), x + 5, y + 2, -1, true);
 			}
 		};
 		addHideableChild(selectResultButton);
@@ -183,7 +184,7 @@ public class CraftingUpgradeTab extends UpgradeSettingsTab<CraftingUpgradeContai
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		int button = MouseButtons.toLegacy(event.button());
 		boolean ret = super.mouseClicked(event, doubleClick);
 		if (ret) {
 			return true;

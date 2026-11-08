@@ -135,7 +135,7 @@ public class XpPumpUpgradeTab extends UpgradeSettingsTab<XpPumpUpgradeContainer>
 			Component fullText = Component.translatable(TranslationHelper.INSTANCE.translUpgradeControl("xp_level_select"), Component.literal(text).withStyle(ChatFormatting.WHITE)).withStyle(ChatFormatting.GRAY);
 			int xOffset = (getWidth() - minecraft.font.width(fullText)) / 2;
 			int yOffset = (int) Math.ceil((getHeight() - minecraft.font.lineHeight) / 2d);
-			guiGraphics.text(minecraft.font, fullText, x + xOffset, y + yOffset, DyeColor.BLACK.getTextColor(), false);
+			guiGraphics.text(minecraft.font, fullText, x + xOffset, y + yOffset, DyeColor.BLACK.getTextColor() | 0xFF000000, false);
 		}
 
 		@Override

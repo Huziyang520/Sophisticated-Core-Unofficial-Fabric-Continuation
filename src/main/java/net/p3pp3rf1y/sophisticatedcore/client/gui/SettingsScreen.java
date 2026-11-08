@@ -25,6 +25,7 @@ import org.joml.Matrix3x2fStack;
 import net.minecraft.client.input.MouseButtonEvent;
 import net.minecraft.client.input.KeyEvent;
 import com.mojang.blaze3d.platform.InputConstants;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.MouseButtons;
 
 public abstract class SettingsScreen extends AbstractContainerScreen<SettingsContainerMenu<?>> implements InventoryScrollPanel.IInventoryScreen {
 	/**
@@ -219,7 +220,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 			} else {
 				Identifier noItemIcon = slot.getNoItemIcon();
 				if (noItemIcon != null) {
-					TextureAtlasSprite textureatlassprite = guiGraphics.getSprite(new net.minecraft.client.resources.model.sprite.SpriteId(net.minecraft.data.AtlasIds.BLOCKS, noItemIcon));
+					TextureAtlasSprite textureatlassprite = guiGraphics.getSprite(new net.minecraft.client.resources.model.sprite.SpriteId(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS, noItemIcon));
 					guiGraphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, textureatlassprite, slot.x, slot.y, 16, 16);
 				}
 			}
@@ -243,10 +244,33 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	}
 
 	@Override
+	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
+		// 26.3 stops at the first hovered child and swallows the click; walk all children like 1.21.1.
+		for (GuiEventListener child : children()) {
+			if (child.mouseClicked(event, doubleClick)) {
+				setFocused(child);
+				return true;
+			}
+		}
+		return super.mouseClicked(event, doubleClick);
+	}
+
+	@Override
+	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
+		// 26.3 AbstractContainerScreen no longer forwards scrolling to children.
+		for (GuiEventListener child : children()) {
+			if (child.mouseScrolled(mouseX, mouseY, scrollX, scrollY)) {
+				return true;
+			}
+		}
+		return super.mouseScrolled(mouseX, mouseY, scrollX, scrollY);
+	}
+
+	@Override
 	public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		int button = MouseButtons.toLegacy(event.button());
 		if (mouseDragHandledByOther) {
 			return false;
 		}

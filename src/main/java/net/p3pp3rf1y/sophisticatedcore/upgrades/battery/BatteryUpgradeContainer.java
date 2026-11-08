@@ -27,13 +27,13 @@ public class BatteryUpgradeContainer extends UpgradeContainerBase<BatteryUpgrade
 			public int getMaxStackSize(ItemStack stack) {
 				return 1;
 			}
-		}.sophisticatedCore_setBackground(net.minecraft.data.AtlasIds.BLOCKS, EMPTY_BATTERY_INPUT_SLOT_BACKGROUND));
+		}.sophisticatedCore_setBackground(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS, EMPTY_BATTERY_INPUT_SLOT_BACKGROUND));
 		slots.add(new BatteryIOSlot(() -> this.upgradeWrapper.getInventory(), TankUpgradeWrapper.OUTPUT_SLOT, -100, -100, TranslationHelper.INSTANCE.translUpgradeSlotTooltip("battery_output")){
 			@Override
 			public int getMaxStackSize(ItemStack stack) {
 				return 1;
 			}
-		}.sophisticatedCore_setBackground(net.minecraft.data.AtlasIds.BLOCKS, EMPTY_BATTERY_OUTPUT_SLOT_BACKGROUND));
+		}.sophisticatedCore_setBackground(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS, EMPTY_BATTERY_OUTPUT_SLOT_BACKGROUND));
 	}
 
 	@Override

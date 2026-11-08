@@ -218,5 +218,6 @@
   "gui.sophisticatedcore.narrate.context_button": "İçerik geçişi şöyle ayarlandı: %s",
   "gui.sophisticatedcore.narrate.context_button.usage": "İçeriği değiştirmek için tıkla",
   "fluid_type.sophisticatedcore.experience": "Tecrübe",
-  "gui.sophisticatedcore.tooltip.stack_count": "Sayı: %s"
+  "gui.sophisticatedcore.tooltip.stack_count": "Sayı: %s",
+  "block.sophisticatedcore.xp_still": "Tecrübe"
 }

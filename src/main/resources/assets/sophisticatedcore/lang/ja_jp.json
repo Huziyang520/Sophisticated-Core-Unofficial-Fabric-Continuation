@@ -219,5 +219,6 @@
   "fluid_type.sophisticatedcore.experience": "経験値",
   "gui.sophisticatedcore.tooltip.stack_count": "個数: %s",
   "gui.sophisticatedcore.tooltip.stack_limit": "上限: %s",
-  "_eol": "for excel flag"
+  "_eol": "for excel flag",
+  "block.sophisticatedcore.xp_still": "経験値"
 }

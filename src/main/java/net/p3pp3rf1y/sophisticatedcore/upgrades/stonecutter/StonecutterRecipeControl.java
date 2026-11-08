@@ -16,6 +16,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.*;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.MouseButtons;
 
 public class StonecutterRecipeControl extends WidgetBase {
 	private static final TextureBlitData SLIDER = new TextureBlitData(GuiHelper.GUI_CONTROLS, Dimension.SQUARE_256, new UV(29, 131), Dimension.RECTANGLE_12_15);
@@ -153,7 +154,7 @@ public class StonecutterRecipeControl extends WidgetBase {
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		int button = MouseButtons.toLegacy(event.button());
 		clickedOnScroll = false;
 		if (hasItemsInInputSlot) {
 			int listInnerLeftX = x + 1;
@@ -184,7 +185,7 @@ public class StonecutterRecipeControl extends WidgetBase {
 	public boolean mouseDragged(MouseButtonEvent event, double dragX, double dragY) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		int button = MouseButtons.toLegacy(event.button());
 		if (clickedOnScroll && canScroll()) {
 			int listTopY = y + LIST_Y_OFFSET;
 			int listBottomY = listTopY + 54;

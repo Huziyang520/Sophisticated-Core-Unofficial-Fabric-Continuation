@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.mixin.common;
 
-import com.mojang.datafixers.util.Pair;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.inventory.Slot;
 import net.p3pp3rf1y.sophisticatedcore.extensions.inventory.SophisticatedSlot;
@@ -19,19 +18,20 @@ public class SlotMixin implements SophisticatedSlot {
     @Final
     private int slot;
 
+    // 26.3 returns only the sprite id; the block atlas is implied.
     @Unique
-    private Pair<Identifier, Identifier> sophisticatedCore_background;
+    private Identifier sophisticatedCore_noItemIcon;
 
     @Inject(method = "getNoItemIcon", at = @At("HEAD"), cancellable = true)
-    private void sophisticatedcore$background(CallbackInfoReturnable<Pair<Identifier, Identifier>> cir) {
-        if (sophisticatedCore_background != null) {
-            cir.setReturnValue(sophisticatedCore_background);
+    private void sophisticatedcore$background(CallbackInfoReturnable<Identifier> cir) {
+        if (sophisticatedCore_noItemIcon != null) {
+            cir.setReturnValue(sophisticatedCore_noItemIcon);
         }
     }
 
     @Override
     public Slot sophisticatedCore_setBackground(Identifier atlas, Identifier sprite) {
-        this.sophisticatedCore_background = Pair.of(atlas, sprite);
+        this.sophisticatedCore_noItemIcon = sprite;
         return MixinHelper.cast(this);
     }
 

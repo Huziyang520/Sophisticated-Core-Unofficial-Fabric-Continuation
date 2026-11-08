@@ -217,5 +217,6 @@
     "gui.sophisticatedcore.narrate.context_button": "Приоритет установлен на: %s",
     "gui.sophisticatedcore.narrate.context_button.usage": "Нажмите для смены приоритета",
     "fluid_type.sophisticatedcore.experience": "Опыт",
-    "gui.sophisticatedcore.tooltip.stack_count": "Кол-во предметов: %s"
+    "gui.sophisticatedcore.tooltip.stack_count": "Кол-во предметов: %s",
+  "block.sophisticatedcore.xp_still": "Опыт"
 }

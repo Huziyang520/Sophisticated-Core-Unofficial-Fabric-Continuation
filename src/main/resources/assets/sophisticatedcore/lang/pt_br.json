@@ -171,5 +171,6 @@
     "gui.sophisticatedcore.error.add.battery_energy_high": "Esta mochila não permite equipar o acessório de Basteria Portátil. Melhore a mochila ou adicione um multiplicador de pilhas para obter pelo menos %sx de energia máxima",
     "gui.sophisticatedcore.error.add.battery_exists": "Já existe um acessório de Bateria Portátil equipado",
     "fluid_type.sophisticatedcore.experience": "Experiência",
-    "gui.sophisticatedcore.tooltip.stack_count": "Contagem: %s"
+    "gui.sophisticatedcore.tooltip.stack_count": "Contagem: %s",
+  "block.sophisticatedcore.xp_still": "Experiência"
 }

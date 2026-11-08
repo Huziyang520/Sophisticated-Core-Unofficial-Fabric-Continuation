@@ -1,0 +1,28 @@
+{
+  "sources": [
+    {
+      "type": "minecraft:single",
+      "resource": "sophisticatedcore:item/empty_battery_input_slot"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "sophisticatedcore:item/empty_battery_output_slot"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "sophisticatedcore:item/empty_tank_input_slot"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "sophisticatedcore:item/empty_tank_output_slot"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "sophisticatedcore:item/empty_upgrade_slot"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "sophisticatedcore:item/inaccessible_slot"
+    }
+  ]
+}

@@ -14,6 +14,7 @@ import net.p3pp3rf1y.sophisticatedcore.util.Easing;
 import java.util.List;
 import java.util.Optional;
 import net.minecraft.client.input.MouseButtonEvent;
+import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.MouseButtons;
 
 class SearchBox extends TextBox {
 	private static final List<Component> TOOLTIP = List.of(
@@ -21,7 +22,7 @@ class SearchBox extends TextBox {
 					Component.translatable(TranslationHelper.INSTANCE.translGui("text_box.search_box_detail")).withStyle(ChatFormatting.GRAY)
 	);
 	public static final String MAGNIFYING_GLASS = "\uD83D\uDD0D";
-	public static final int UNFOCUSED_COLOR = 0xBBBBBB;
+	public static final int UNFOCUSED_COLOR = 0xFFBBBBBB;
 	private final StorageScreenBase<?> screen;
 	private long lastFocusChangeTime = 0;
 	private final int maximizedX;
@@ -43,7 +44,7 @@ class SearchBox extends TextBox {
 	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
 		double mouseX = event.x();
 		double mouseY = event.y();
-		int button = event.button();
+		int button = MouseButtons.toLegacy(event.button());
 		if (!isMouseOver(mouseX, mouseY)) {
 			return false;
 		}
@@ -73,8 +74,8 @@ class SearchBox extends TextBox {
 		}
 	}
 
-	@Override
-	protected void renderBg(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
+	// Layout must settle before render states are extracted; 26.3 stratum navigation depends on widget bounds.
+	public void updateAnimation() {
 		int minWidth = getHeight();
 		if ((isFocused() && maximizedWidth > getWidth()) || (!isFocused() && getValue().isEmpty() && getWidth() > minWidth)) {
 			float ratio = Easing.EASE_IN_OUT_CUBIC.ease(Math.min((System.currentTimeMillis() - lastFocusChangeTime) / 200f, 1));
@@ -82,7 +83,10 @@ class SearchBox extends TextBox {
 			this.setPosition(new Position(maximizedX + maximizedWidth - currentWidth, this.y));
 			this.updateDimensions(currentWidth, this.getHeight());
 		}
+	}
 
+	@Override
+	protected void renderBg(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
 		guiGraphics.pose().pushMatrix();
 		guiGraphics.pose().translate(0, 0);
 		guiGraphics.fill(x, y, x + getWidth(), y + getHeight(), 0xFF777777);
