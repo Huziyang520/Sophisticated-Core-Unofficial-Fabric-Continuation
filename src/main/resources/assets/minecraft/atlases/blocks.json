@@ -23,6 +23,14 @@
     {
       "type": "minecraft:single",
       "resource": "sophisticatedcore:item/inaccessible_slot"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "sophisticatedcore:block/xp_still"
+    },
+    {
+      "type": "minecraft:single",
+      "resource": "sophisticatedcore:block/xp_flowing"
     }
   ]
 }

@@ -17,6 +17,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import static net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper.*;
+import org.joml.Matrix3x2fStack;
 
 public abstract class JukeboxUpgradeTab extends UpgradeSettingsTab<JukeboxUpgradeContainer> {
 	private static final TextureBlitData PLAY_FOREGROUND = new TextureBlitData(ICONS, new Position(1, 1), Dimension.SQUARE_256, new UV(16, 64), Dimension.SQUARE_16);
@@ -140,7 +141,13 @@ public abstract class JukeboxUpgradeTab extends UpgradeSettingsTab<JukeboxUpgrad
 		@Override
 		protected void renderBg(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
 			super.renderBg(guiGraphics, minecraft, mouseX, mouseY);
-			getContainer().getDiscSlotActive().ifPresent(slot -> renderPlaytimeOverLay(guiGraphics, 0x55_00CC00, screen.getLeftX() + slot.x, screen.getTopY() + slot.y, 16, 16));
+			getContainer().getDiscSlotActive().ifPresent(slot -> {
+				Matrix3x2fStack pose = guiGraphics.pose();
+				pose.pushMatrix();
+				pose.translate(screen.sophisticatedCore_getGuiLeft(), screen.sophisticatedCore_getGuiTop());
+				renderPlaytimeOverLay(guiGraphics, 0x55_00CC00, slot.x, slot.y, 16, 16);
+				pose.popMatrix();
+			});
 		}
 
 		private float getPlaybackRemainingProgress() {

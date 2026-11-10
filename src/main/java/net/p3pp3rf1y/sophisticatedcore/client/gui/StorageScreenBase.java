@@ -96,6 +96,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			|| (!stack.isEmpty() && stack.getHoverName().getString().toLowerCase().contains(searchBox.getValue().toLowerCase()));
 	private int visibleSlotsCount;
 	private boolean initializing = true;
+	private boolean relayoutPending;
 
 	public static void setCraftingUIPart(ICraftingUIPart part) {
 		craftingUIPart = part;
@@ -216,6 +217,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	@Override
 	protected void init() {
+		clearWidgets();
 		super.init();
 		leftPos = (width - guiWidth) / 2;
 		topPos = (height - guiHeight) / 2;
@@ -224,17 +226,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		initUpgradeSettingsControl();
 		initUpgradeInventoryParts();
 		addUpgradeSwitches();
-		getMenu().setUpgradeChangeListener(c -> {
-			updateStorageSlotsPositions();
-			updatePlayerSlotsPositions();
-			updateUpgradeSlotsPositions();
-			updateInventoryScrollPanel();
-			children().remove(settingsTabControl);
-			craftingUIPart.onCraftingSlotsHidden();
-			initUpgradeSettingsControl();
-			initUpgradeInventoryParts();
-			addUpgradeSwitches();
-		});
+		// Defer relayout to the tick: packet handling must not mutate widget lists.
+		getMenu().setUpgradeChangeListener(c -> relayoutPending = true);
 		if (shouldShowSortButtons()) {
 			addSortButtons();
 		}
@@ -436,12 +429,6 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		if (searchBox != null) {
 			searchBox.updateAnimation();
 		}
-		if (menu.detectSettingsChangeAndReload()) {
-			updateStorageSlotsPositions();
-			updatePlayerSlotsPositions();
-			updateInventoryScrollPanel();
-			updateTransferButtonsPositions();
-		}
 		Matrix3x2fStack poseStack = guiGraphics.pose();
 		poseStack.pushMatrix();
 		guiGraphics.nextStratum();
@@ -582,9 +569,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		int j = slot.y;
 		ItemStack stackToRender = slot.getItem();
 		boolean flag = false;
-		// 26.3 tracks the click state on lastClickSlot and keeps the carried stack on the menu.
 		ItemStack carriedStack = getMenu().getCarried();
-		boolean rightClickDragging = slot == lastClickSlot && !carriedStack.isEmpty();
 		String stackCountText = null;
 		if (getMenu().isInfiniteSlot(slot.index)) {
 			stackCountText = "∞";
@@ -614,7 +599,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		guiGraphics.nextStratum();
 		if (stackToRender.isEmpty() && slot.isActive()) {
 			renderSlotBackground(guiGraphics, slot, i, j);
-		} else if (!rightClickDragging) {
+		} else {
 			renderStack(guiGraphics, i, j, stackToRender, flag, stackCountText);
 			slotDecorationRenderer.renderDecoration(guiGraphics, slot);
 		}
@@ -966,13 +951,6 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			widgetBase.setFocused(false);
 		}
 
-		// 26.3 stops at the first hovered child and swallows the click; walk all children like 1.21.1.
-		for (GuiEventListener child : children()) {
-			if (child.mouseClicked(event, doubleClick)) {
-				setFocused(child);
-				return true;
-			}
-		}
 		return super.mouseClicked(event, doubleClick);
 	}
 
@@ -1177,6 +1155,14 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 	@Override
 	protected void containerTick() {
 		super.containerTick();
+		boolean settingsChanged = menu.detectSettingsChangeAndReload();
+		if (settingsChanged || relayoutPending) {
+			relayoutPending = false;
+			initializing = true;
+			updateDimensionsAndSlotPositions(height);
+			rebuildWidgets();
+			initializing = false;
+		}
 		settingsTabControl.tick();
 	}
 

@@ -20,6 +20,7 @@ import net.p3pp3rf1y.sophisticatedcore.util.XpHelper;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 
 public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeContainer> {
 	private static final TextureBlitData OVERLAY = new TextureBlitData(GuiHelper.GUI_CONTROLS, Dimension.SQUARE_256, new UV(47, 30), new Dimension(16, 18));
@@ -129,7 +130,8 @@ public class TankInventoryPart extends UpgradeInventoryPartBase<TankUpgradeConta
 		if (still == null) {
 			return;
 		}
-		GuiHelper.renderTiledFluidTextureAtlas(guiGraphics, still, 0xFFFFFFFF, pos.x() + 10, pos.y() + 1 + height - 2 - displayLevel, displayLevel);
+		int tint = FluidVariantRendering.getColor(contents.getVariant()) | 0xFF000000;
+		GuiHelper.renderTiledFluidTextureAtlas(guiGraphics, still, tint, pos.x() + 10, pos.y() + 1 + height - 2 - displayLevel, displayLevel);
 	}
 
 }

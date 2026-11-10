@@ -244,18 +244,6 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	}
 
 	@Override
-	public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
-		// 26.3 stops at the first hovered child and swallows the click; walk all children like 1.21.1.
-		for (GuiEventListener child : children()) {
-			if (child.mouseClicked(event, doubleClick)) {
-				setFocused(child);
-				return true;
-			}
-		}
-		return super.mouseClicked(event, doubleClick);
-	}
-
-	@Override
 	public boolean mouseScrolled(double mouseX, double mouseY, double scrollX, double scrollY) {
 		// 26.3 AbstractContainerScreen no longer forwards scrolling to children.
 		for (GuiEventListener child : children()) {

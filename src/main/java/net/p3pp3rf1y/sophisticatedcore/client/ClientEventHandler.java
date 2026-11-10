@@ -155,6 +155,7 @@ public class ClientEventHandler implements ClientModInitializer {
 				new Material(SophisticatedCore.getRL("block/xp_still")),
 				new Material(SophisticatedCore.getRL("block/xp_flowing")),
 				null,
-				null));
+				null), new net.fabricmc.fabric.api.client.render.fluid.v1.FluidRenderHandler() {
+		});
 	}
 }
