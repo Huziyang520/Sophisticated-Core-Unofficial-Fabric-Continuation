@@ -109,6 +109,7 @@ public class ClientEventHandler implements ClientModInitializer {
 		} else {
 			guiGraphics.text(mc.font, "-", x + 1, y, color);
 		}
+		guiGraphics.nextStratum();
 		poseStack.popMatrix();
 	}
 

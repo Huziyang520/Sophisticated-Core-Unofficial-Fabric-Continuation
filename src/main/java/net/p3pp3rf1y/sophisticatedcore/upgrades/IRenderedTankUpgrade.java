@@ -1,8 +1,11 @@
 package net.p3pp3rf1y.sophisticatedcore.upgrades;
 
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 import net.p3pp3rf1y.sophisticatedcore.platform.FluidStack;
-import net.p3pp3rf1y.sophisticatedcore.util.RegistryHelper;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -15,6 +18,7 @@ public interface IRenderedTankUpgrade {
 
 	class TankRenderInfo {
 		private static final String FLUID_TAG = "fluid";
+		private static final String AMOUNT_TAG = "amount";
 		private static final String FILL_RATIO_TAG = "fillRatio";
 
 		public TankRenderInfo() {
@@ -32,21 +36,29 @@ public interface IRenderedTankUpgrade {
 
 		public CompoundTag serialize() {
 			CompoundTag ret = new CompoundTag();
-			if (fluidStack != null) {
-				ret.put(FLUID_TAG, RegistryHelper.getRegistryAccess().map(registryAccess -> fluidStack.saveOptional(registryAccess)).orElse(new CompoundTag()));
+			if (fluidStack != null && !fluidStack.isEmpty()) {
+				ret.putString(FLUID_TAG, BuiltInRegistries.FLUID.getKey(fluidStack.getFluid()).toString());
+				ret.putLong(AMOUNT_TAG, fluidStack.getAmount());
 				ret.putFloat(FILL_RATIO_TAG, fillRatio);
 			}
 			return ret;
 		}
 
 		public static TankRenderInfo deserialize(CompoundTag tag) {
-			if (tag.contains(FLUID_TAG)) {
-				FluidStack fluidStack = RegistryHelper.getRegistryAccess().map(registryAccess -> FluidStack.parseOptional(registryAccess, tag.getCompoundOrEmpty(FLUID_TAG))).orElse(FluidStack.EMPTY);
-				if (!fluidStack.isEmpty()) {
-					return new TankRenderInfo(fluidStack, tag.getFloatOr(FILL_RATIO_TAG, 0F));
+			String fluidId = tag.getStringOr(FLUID_TAG, "");
+			long amount = tag.getLongOr(AMOUNT_TAG, 0);
+			if (fluidId.isEmpty() && tag.contains(FLUID_TAG)) {
+				CompoundTag legacy = tag.getCompoundOrEmpty(FLUID_TAG);
+				fluidId = legacy.getStringOr("id", "");
+				amount = legacy.getLongOr("amount", 0);
+			}
+			if (!fluidId.isEmpty() && amount > 0) {
+				Identifier id = Identifier.tryParse(fluidId);
+				Fluid fluid = id == null ? null : BuiltInRegistries.FLUID.getOptional(id).orElse(null);
+				if (fluid != null && fluid != Fluids.EMPTY) {
+					return new TankRenderInfo(new FluidStack(fluid, amount), tag.getFloatOr(FILL_RATIO_TAG, 0F));
 				}
 			}
-
 			return new TankRenderInfo();
 		}
 
