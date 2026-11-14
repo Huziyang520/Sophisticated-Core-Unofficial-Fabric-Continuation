@@ -251,5 +251,16 @@
   "gui.sophisticatedcore.tooltip.stack_count": "Count: %s",
 
   "compat.litematica.gui.label.task.remaining_contents": "Storage contents received: %s/%s",
-  "block.sophisticatedcore.xp_still": "Experience"
+  "block.sophisticatedcore.xp_still": "Experience",
+  "sophisticatedcore.configuration.client": "Client",
+  "sophisticatedcore.configuration.client.playButtonSound": "Play Button Sound",
+  "sophisticatedcore.configuration.client.sortButtonsPosition": "Sort Buttons Position",
+  "sophisticatedcore.configuration.common": "Common",
+  "sophisticatedcore.configuration.common.enabledItems": "Enabled Items",
+  "sophisticatedcore.configuration.enabledItems": "Enabled Items",
+  "sophisticatedcore.configuration.playButtonSound": "Play Button Sound",
+  "sophisticatedcore.configuration.section.sophisticatedcore.client": "Sophisticated Core Configuration",
+  "sophisticatedcore.configuration.section.sophisticatedcore.common": "Sophisticated Core Configuration",
+  "sophisticatedcore.configuration.sortButtonsPosition": "Sort Buttons Position",
+  "sophisticatedcore.configuration.title": "Sophisticated Core Configuration"
 }
