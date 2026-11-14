@@ -1,6 +1,7 @@
 package net.p3pp3rf1y.sophisticatedcore.util;
 
 import net.minecraft.core.HolderLookup;
+import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -53,7 +54,11 @@ public class NBTHelper {
 		ListTag listNbt = tag.getListOrEmpty(key);
 		C ret = initCollection.get();
 		for (int i = 0; i < listNbt.size(); i++) {
-			getElement.apply(listNbt.get(i)).ifPresent(ret::add);
+			try {
+				getElement.apply(listNbt.get(i)).ifPresent(ret::add);
+			} catch (RuntimeException e) {
+				SophisticatedCore.LOGGER.warn("Skipping malformed entry {} in saved list '{}'", i, key, e);
+			}
 		}
 		return Optional.of(ret);
 	}
@@ -104,7 +109,12 @@ public class NBTHelper {
 		Map<K, V> map = initMap.get();
 
 		for (String tagName : mapNbt.keySet()) {
-			getValue.apply(tagName, mapNbt.get(tagName)).ifPresent(value -> map.put(getKey.apply(tagName), value));
+			try {
+				getValue.apply(tagName, mapNbt.get(tagName)).ifPresent(value -> map.put(getKey.apply(tagName), value));
+			} catch (RuntimeException e) {
+				// A single legacy entry must not fail the whole saved data load.
+				SophisticatedCore.LOGGER.warn("Skipping malformed entry '{}' in saved map '{}'", tagName, key, e);
+			}
 		}
 
 		return Optional.of(map);

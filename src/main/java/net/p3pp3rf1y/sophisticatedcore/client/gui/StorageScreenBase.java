@@ -215,6 +215,11 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		}
 	}
 
+	/** The base class dimensions are final in 26.3; third-party screen hooks need the live bounds. */
+	public Rect2i getGuiBounds() {
+		return new Rect2i(leftPos, topPos, guiWidth, guiHeight);
+	}
+
 	@Override
 	protected void init() {
 		clearWidgets();

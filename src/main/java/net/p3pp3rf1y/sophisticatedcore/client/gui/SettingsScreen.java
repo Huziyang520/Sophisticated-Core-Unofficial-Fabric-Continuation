@@ -3,6 +3,7 @@ package net.p3pp3rf1y.sophisticatedcore.client.gui;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
+import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -111,6 +112,11 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 	public int getSlotsOnLine() {
 		return storageBackgroundProperties.getSlotsOnLine() - getMenu().getColumnsTaken();
+	}
+
+	/** The base class dimensions are final in 26.3; third-party screen hooks need the live bounds. */
+	public Rect2i getGuiBounds() {
+		return new Rect2i(leftPos, topPos, guiWidth, guiHeight);
 	}
 
 	@Override

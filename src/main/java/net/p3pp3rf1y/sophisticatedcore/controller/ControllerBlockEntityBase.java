@@ -149,9 +149,16 @@ public abstract class ControllerBlockEntityBase extends BlockEntity implements I
 
 	private void searchAndAddBoundables(Set<BlockPos> positionsToCheck, boolean addingLinkedSelf) {
 		Set<BlockPos> positionsChecked = new HashSet<>();
+		// Saved structures can be malformed; bound the scan so world loading cannot stall.
+		final int maxPositions = 10000;
 
 		boolean first = true;
+		int checked = 0;
 		while (!positionsToCheck.isEmpty()) {
+			if (checked++ >= maxPositions) {
+				SophisticatedCore.LOGGER.warn("Controller scan exceeded {} positions, stopping", maxPositions);
+				break;
+			}
 			Iterator<BlockPos> it = positionsToCheck.iterator();
 			BlockPos posToCheck = it.next();
 			it.remove();

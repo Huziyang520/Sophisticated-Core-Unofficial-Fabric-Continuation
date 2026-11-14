@@ -14,6 +14,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,6 +29,7 @@ import java.util.SortedSet;
  * A list of item slots addressed by index, the storage type the mod's inventories build on.
  */
 public class ItemStackHandler implements SlottedStackStorage {
+	public static final int MAX_SLOTS = 4096;
 	private final List<ItemStackHandlerSlot> slots;
 	private final SortedSet<ItemStackHandlerSlot> nonEmptySlots;
 	private final Map<Item, SortedSet<ItemStackHandlerSlot>> lookup;
@@ -162,10 +164,14 @@ public class ItemStackHandler implements SlottedStackStorage {
 	 * Resizes the handler, dropping all contents.
 	 */
 	public void setSize(int size) {
+		int bounded = Math.max(0, Math.min(size, MAX_SLOTS));
+		if (bounded != size) {
+			SophisticatedCore.LOGGER.warn("Clamping item handler size from {} to {}", size, bounded);
+		}
 		slots.clear();
 		nonEmptySlots.clear();
 		lookup.clear();
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < bounded; i++) {
 			slots.add(makeSlot(i, ItemStack.EMPTY));
 		}
 		for (ItemStackHandlerSlot slot : slots) {
@@ -197,7 +203,13 @@ public class ItemStackHandler implements SlottedStackStorage {
 	}
 
 	public void deserializeNBT(HolderLookup.Provider provider, CompoundTag nbt) {
-		setSize(nbt.contains("Size") ? nbt.getIntOr("Size", slots.size()) : slots.size());
+		int defaultSize = slots.size();
+		int storedSize = nbt.contains("Size") ? nbt.getIntOr("Size", defaultSize) : defaultSize;
+		if (storedSize < 0 || storedSize > MAX_SLOTS) {
+			SophisticatedCore.LOGGER.warn("Ignoring out-of-range Size {} in saved inventory, using {}", storedSize, defaultSize);
+			storedSize = defaultSize;
+		}
+		setSize(storedSize);
 		ListTag savedSlots = nbt.getListOrEmpty("Items");
 		for (int i = 0; i < savedSlots.size(); i++) {
 			CompoundTag slotTag = savedSlots.getCompoundOrEmpty(i);

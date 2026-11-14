@@ -8,6 +8,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.p3pp3rf1y.sophisticatedcore.settings.memory.MemorySettingsCategory;
+import net.p3pp3rf1y.sophisticatedcore.SophisticatedCore;
 import net.p3pp3rf1y.sophisticatedcore.util.SlotRange;
 
 import javax.annotation.Nullable;
@@ -224,14 +225,23 @@ public class InventoryPartitioner {
 		if (baseIndexes.length == 0) {
 			baseIndexes = new int[]{0};
 		}
-		inventoryPartHandlers = new IInventoryPartHandler[baseIndexes.length];
 		ListTag partNamesTag = tag.getListOrEmpty("inventoryPartNames");
-		int i = 0;
-		for (int tagIndex = 0; tagIndex < partNamesTag.size(); tagIndex++) {
-			Tag t = partNamesTag.get(tagIndex);
+		int partCount = Math.min(baseIndexes.length, partNamesTag.size());
+		if (partCount == 0) {
+			this.inventoryPartHandlers = new IInventoryPartHandler[]{new IInventoryPartHandler.Default(parent, parent.getSlotCount())};
+			this.baseIndexes = new int[]{0};
+			return;
+		}
+		int originalCount = baseIndexes.length;
+		if (partCount < originalCount) {
+			baseIndexes = Arrays.copyOf(baseIndexes, partCount);
+			SophisticatedCore.LOGGER.warn("Saved inventory partitions {} and base indexes {} disagree, keeping {}", partNamesTag.size(), originalCount, partCount);
+		}
+		inventoryPartHandlers = new IInventoryPartHandler[partCount];
+		for (int i = 0; i < partCount; i++) {
+			Tag t = partNamesTag.get(i);
 			SlotRange slotRange = new SlotRange(baseIndexes[i], (i + 1 < baseIndexes.length ? baseIndexes[i + 1] : parent.getSlotCount()) - baseIndexes[i]);
 			inventoryPartHandlers[i] = InventoryPartRegistry.instantiatePart(t.asString().orElse(""), parent, slotRange, getMemorySettings);
-			i++;
 		}
 	}
 

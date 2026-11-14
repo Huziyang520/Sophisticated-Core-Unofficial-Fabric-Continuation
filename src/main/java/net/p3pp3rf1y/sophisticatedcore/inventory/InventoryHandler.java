@@ -630,11 +630,15 @@ public abstract class InventoryHandler extends ItemStackHandler implements ITrac
 		if (backingList == null) {
 			this.backingList = new ArrayList<>();
 		}
-		while (backingList.size() <= index) {
-			backingList.add(new InventoryHandlerSlot(index, this, ItemStack.EMPTY));
+		int boundedIndex = Math.max(0, Math.min(index, ItemStackHandler.MAX_SLOTS - 1));
+		if (boundedIndex != index) {
+			SophisticatedCore.LOGGER.warn("Clamping inventory slot index from {} to {}", index, boundedIndex);
+		}
+		while (backingList.size() <= boundedIndex) {
+			backingList.add(new InventoryHandlerSlot(backingList.size(), this, ItemStack.EMPTY));
 		}
 
-		InventoryHandlerSlot slot = backingList.get(index);
+		InventoryHandlerSlot slot = backingList.get(boundedIndex);
 		slot.setInternalNewStack(stack);
 		return slot;
 	}
