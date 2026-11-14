@@ -159,13 +159,6 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		menu.detectSettingsChangeAndReload();
 
-		// Fix for Blur+
-		Matrix3x2fStack poseStack = guiGraphics.pose();
-		poseStack.pushMatrix();
-		guiGraphics.nextStratum();
-		extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
-		poseStack.popMatrix();
-
 		settingsTabControl.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		templatePersistanceControl.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		super.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);

@@ -434,12 +434,6 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		if (searchBox != null) {
 			searchBox.updateAnimation();
 		}
-		Matrix3x2fStack poseStack = guiGraphics.pose();
-		poseStack.pushMatrix();
-		guiGraphics.nextStratum();
-		extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
-		poseStack.popMatrix();
-
 		settingsTabControl.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 
 		super.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
