@@ -1,6 +1,5 @@
 package net.p3pp3rf1y.sophisticatedcore.client;
 
-import fuzs.forgeconfigapiport.fabric.api.v5.client.ConfigScreenFactoryRegistry;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
@@ -19,7 +18,6 @@ import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.resources.model.sprite.Material;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.inventory.AbstractContainerMenu;
-import net.neoforged.neoforge.client.gui.ConfigurationScreen;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.inventory.tooltip.TooltipComponent;
 import net.minecraft.world.item.ItemStack;
@@ -46,9 +44,6 @@ public class ClientEventHandler implements ClientModInitializer {
 
     @Override
     public void onInitializeClient() {
-        ConfigScreenFactoryRegistry.INSTANCE.register(SophisticatedCore.MOD_ID,
-                (modId, parent) -> new ConfigurationScreen(modId, parent));
-
         ModParticles.registerFactories();
 		registerFluidClientExtension();
 
