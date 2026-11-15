@@ -31,6 +31,9 @@
         ],
         "rei_client": [
             "net.p3pp3rf1y.sophisticatedcore.compat.rei.REIClientCompat"
+        ],
+        "modmenu": [
+            "net.p3pp3rf1y.sophisticatedcore.client.ModMenuIntegration"
         ]
     },
     "mixins": [
