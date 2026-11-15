@@ -92,8 +92,7 @@ public abstract class Tab extends CompositeWidgetBase<WidgetBase> {
 		int secondHalfHeight = halfHeight + oddHeightAddition;
 		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED,GuiHelper.GUI_CONTROLS,x,y,(float) TEXTURE_WIDTH - width,0,width,halfHeight,256,256);
 		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED,GuiHelper.GUI_CONTROLS,x,y + halfHeight,(float) TEXTURE_WIDTH - width,(float) TEXTURE_HEIGHT - secondHalfHeight,width,secondHalfHeight,256,256);
-		// The connector strip's first texture row is already the white highlight, so it starts one row lower than the body's dark top row.
-		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GuiHelper.GUI_CONTROLS, x - 3, y + 1, TEXTURE_WIDTH / 2, TEXTURE_HEIGHT - height, 3, height - 1, 256, 256);
+		guiGraphics.blit(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, GuiHelper.GUI_CONTROLS, x - 3, y, TEXTURE_WIDTH / 2, TEXTURE_HEIGHT - height, 3, height, 256, 256);
 	}
 
 	protected boolean isClosedTooltipVisible(int mouseX, int mouseY) {

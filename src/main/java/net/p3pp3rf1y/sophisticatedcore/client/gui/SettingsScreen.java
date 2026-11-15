@@ -138,10 +138,11 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 	protected abstract StorageSettingsTabControlBase initializeTabControl();
 
-	/** Panel stays in the background phase so host overlays (e.g. TrashSlot's attach border) draw on top of it. */
+	/** Tabs and panel both live in the background phase, tabs first, so their connector strip stays behind the panel. */
 	@Override
 	public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		super.extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
+		settingsTabControl.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		int x = (width - guiWidth) / 2;
 		int y = (height - guiHeight) / 2;
 		StorageGuiHelper.renderStorageBackground(new Position(x, y), guiGraphics, storageBackgroundProperties.getTextureName(), guiWidth, getStorageInventoryHeight(getNumberOfVisibleRows()));
@@ -161,7 +162,6 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 	public void extractRenderState(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		menu.detectSettingsChangeAndReload();
 
-		settingsTabControl.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		templatePersistanceControl.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		super.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		settingsTabControl.renderTooltip(this, guiGraphics, mouseX, mouseY);

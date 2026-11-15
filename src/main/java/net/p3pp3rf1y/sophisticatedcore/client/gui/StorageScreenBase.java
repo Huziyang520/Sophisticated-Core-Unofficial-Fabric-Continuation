@@ -435,7 +435,6 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		if (searchBox != null) {
 			searchBox.updateAnimation();
 		}
-		settingsTabControl.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 
 		super.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 
@@ -665,10 +664,11 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		guiGraphics.fillGradient(xPos, yPos, xPos + width, yPos + height, slotColor, slotColor);
 	}
 
-	/** The GUI panel belongs to the background phase so host overlays (e.g. TrashSlot's attach border) draw on top of it. */
+	/** Tabs are drawn here, before the panel, so their 3px connector strip stays hidden behind it — as it was before the panel moved out of the content phase. */
 	@Override
 	public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
 		super.extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
+		settingsTabControl.extractRenderState(guiGraphics, mouseX, mouseY, partialTicks);
 		int x = (width - guiWidth) / 2;
 		int y = (height - guiHeight) / 2;
 		drawInventoryBg(guiGraphics, x, y, storageBackgroundProperties.getTextureName());
