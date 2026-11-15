@@ -6,7 +6,6 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.player.Inventory;
@@ -139,15 +138,16 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 
 	protected abstract StorageSettingsTabControlBase initializeTabControl();
 
+	/** Panel stays in the background phase so host overlays (e.g. TrashSlot's attach border) draw on top of it. */
 	@Override
-	public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		super.extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
 		int x = (width - guiWidth) / 2;
 		int y = (height - guiHeight) / 2;
 		StorageGuiHelper.renderStorageBackground(new Position(x, y), guiGraphics, storageBackgroundProperties.getTextureName(), guiWidth, getStorageInventoryHeight(getNumberOfVisibleRows()));
 		if (inventoryScrollPanel == null) {
 			drawSlotBg(guiGraphics, x, y, getMenu().getStorageInventorySlots().size());
 		}
-		super.extractContents(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 
 	protected void drawSlotBg(GuiGraphicsExtractor guiGraphics, int x, int y, int visibleSlotsCount) {
@@ -221,8 +221,7 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 			} else {
 				Identifier noItemIcon = slot.getNoItemIcon();
 				if (noItemIcon != null) {
-					TextureAtlasSprite textureatlassprite = guiGraphics.getSprite(new net.minecraft.client.resources.model.sprite.SpriteId(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS, noItemIcon));
-					guiGraphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, textureatlassprite, slot.x, slot.y, 16, 16);
+					guiGraphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, noItemIcon, slot.x, slot.y, 16, 16);
 				}
 			}
 		}

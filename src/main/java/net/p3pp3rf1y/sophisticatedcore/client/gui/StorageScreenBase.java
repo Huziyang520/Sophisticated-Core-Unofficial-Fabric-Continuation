@@ -11,7 +11,6 @@ import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.gui.screens.inventory.AbstractContainerScreen;
 import net.minecraft.client.renderer.Rect2i;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.game.ServerboundContainerClickPacket;
@@ -637,11 +636,10 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 				return;
 			}
 		}
-		Identifier pair = slot.getNoItemIcon();
-		if (pair != null) {
-			//noinspection ConstantConditions - by this point minecraft isn't null
-			TextureAtlasSprite textureatlassprite = guiGraphics.getSprite(new net.minecraft.client.resources.model.sprite.SpriteId(net.minecraft.client.renderer.texture.TextureAtlas.LOCATION_BLOCKS, pair));
-			guiGraphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, textureatlassprite, i, j, 16, 16);
+		Identifier noItemIcon = slot.getNoItemIcon();
+		if (noItemIcon != null) {
+			// 26.3 resolves the no-item icon through the GUI atlas, which is also where third-party slots register theirs.
+			guiGraphics.blitSprite(net.minecraft.client.renderer.RenderPipelines.GUI_TEXTURED, noItemIcon, i, j, 16, 16);
 		}
 	}
 
@@ -667,7 +665,10 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 		guiGraphics.fillGradient(xPos, yPos, xPos + width, yPos + height, slotColor, slotColor);
 	}
 
-	public void extractContents(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+	/** The GUI panel belongs to the background phase so host overlays (e.g. TrashSlot's attach border) draw on top of it. */
+	@Override
+	public void extractBackground(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY, float partialTicks) {
+		super.extractBackground(guiGraphics, mouseX, mouseY, partialTicks);
 		int x = (width - guiWidth) / 2;
 		int y = (height - guiHeight) / 2;
 		drawInventoryBg(guiGraphics, x, y, storageBackgroundProperties.getTextureName());
@@ -676,7 +677,6 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			drawSlotOverlays(guiGraphics);
 		}
 		drawUpgradeBackground(guiGraphics);
-		super.extractContents(guiGraphics, mouseX, mouseY, partialTicks);
 	}
 
 	@Override
