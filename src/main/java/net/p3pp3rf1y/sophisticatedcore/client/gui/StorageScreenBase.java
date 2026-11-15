@@ -135,6 +135,8 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 			guiWidth += 6;
 		}
 		guiHeight = newImageHeight;
+		imageWidth = guiWidth;
+		imageHeight = guiHeight;
 		inventoryLabelY = guiHeight - 94;
 		inventoryLabelX = 8 + storageBackgroundProperties.getPlayerInventoryXOffset();
 		updatePlayerSlotsPositions();

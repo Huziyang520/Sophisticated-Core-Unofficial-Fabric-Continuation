@@ -66,6 +66,8 @@ public abstract class SettingsScreen extends AbstractContainerScreen<SettingsCon
 			guiWidth += 6;
 		}
 		guiHeight = newImageHeight;
+		imageWidth = guiWidth;
+		imageHeight = guiHeight;
 		inventoryLabelY = guiHeight - 94;
 		inventoryLabelX = 8 + storageBackgroundProperties.getPlayerInventoryXOffset();
 	}
