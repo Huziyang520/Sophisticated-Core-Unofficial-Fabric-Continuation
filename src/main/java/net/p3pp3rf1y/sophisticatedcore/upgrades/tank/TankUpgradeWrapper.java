@@ -127,6 +127,9 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	}*/
 
 	public long fill(FluidVariant resource, long maxFill, TransactionContext ctx, boolean ignoreInOutLimit) {
+		if (maxFill <= 0) {
+			return 0;
+		}
 		long capacity = getTankCapacity();
 		if (contents.getAmount() >= capacity || (!contents.isEmpty() && !resource.isOf(contents.getFluid()))) {
 			return 0;
@@ -180,7 +183,7 @@ public class TankUpgradeWrapper extends UpgradeWrapperBase<TankUpgradeWrapper, T
 	}*/
 
 	public long drain(long maxDrain, TransactionContext ctx, boolean ignoreInOutLimit) {
-		if (contents.isEmpty()) {
+		if (maxDrain <= 0 || contents.isEmpty()) {
 			return 0;
 		}
 
