@@ -85,6 +85,13 @@ class SearchBox extends TextBox {
 		}
 	}
 
+	/**
+	 * True while the box is unfolded past its resting icon width, including the opening/closing animation.
+	 */
+	public boolean isExpanded() {
+		return isFocused() || getWidth() > getHeight();
+	}
+
 	@Override
 	protected void renderBg(GuiGraphicsExtractor guiGraphics, Minecraft minecraft, int mouseX, int mouseY) {
 		guiGraphics.pose().pushMatrix();

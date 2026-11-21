@@ -17,4 +17,5 @@ public class CompatModIds {
 	public static final String TRINKETS = "trinkets";
 	public static final String LITEMATICA = "litematica";
 	public static final String AUDIOPLAYER = "audioplayer";
+	public static final String JECHARACTERS = "jecharacters";
 }

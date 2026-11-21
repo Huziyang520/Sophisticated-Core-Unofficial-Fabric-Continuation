@@ -28,6 +28,7 @@ import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.GuiHelper;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.ModifierKeys;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.Position;
 import net.p3pp3rf1y.sophisticatedcore.client.gui.utils.TranslationHelper;
+import net.p3pp3rf1y.sophisticatedcore.compat.jecharacters.JecharactersCompat;
 import net.p3pp3rf1y.sophisticatedcore.common.gui.*;
 import net.p3pp3rf1y.sophisticatedcore.network.PacketDistributor;
 import net.p3pp3rf1y.sophisticatedcore.network.TransferFullSlotPayload;
@@ -289,7 +290,7 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 				String tooltipKeyword = searchTerm.substring(1).toLowerCase();
 				filters.add(stack -> getTooltipFromItem(minecraft, stack).stream().anyMatch(line -> line.getString().toLowerCase().contains(tooltipKeyword)));
 			} else {
-				filters.add(stack -> stack.getHoverName().getString().toLowerCase().contains(searchTerm.toLowerCase()));
+				filters.add(stack -> JecharactersCompat.contains(stack.getHoverName().getString(), searchTerm));
 			}
 		}
 
@@ -517,7 +518,13 @@ public abstract class StorageScreenBase<S extends StorageContainerMenuBase<?>> e
 
 	@Override
 	protected void extractLabels(GuiGraphicsExtractor guiGraphics, int mouseX, int mouseY) {
+		// The unfolded search box covers the title line, so the title is skipped while it is open.
+		int titleLabelYBefore = titleLabelY;
+		if (searchBox != null && searchBox.isExpanded()) {
+			titleLabelY = -10000;
+		}
 		super.extractLabels(guiGraphics, mouseX, mouseY);
+		titleLabelY = titleLabelYBefore;
 		renderUpgradeInventoryParts(guiGraphics, mouseX, mouseY);
 		renderUpgradeSlots(guiGraphics, mouseX, mouseY);
 		if (inventoryScrollPanel == null) {
